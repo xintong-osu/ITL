@@ -1,0 +1,218 @@
+gs_setup: 664 unique labels shared
+   pairwise times (avg, min, max): 4.76867e-05 4.43935e-05 4.8995e-05
+   crystal router                : 5.38677e-05 5.31912e-05 5.77927e-05
+   all reduce                    : 0.000104573 0.000104117 0.000104809
+   used all_to_all method: pairwise
+gs_setup: 88 unique labels shared
+   pairwise times (avg, min, max): 3.0756e-06 3.00407e-06 3.09944e-06
+   crystal router                : 3.05176e-06 3.00407e-06 3.09944e-06
+   all reduce                    : 5.79059e-06 5.60284e-06 5.91278e-06
+   used all_to_all method: pairwise
+gs_setup: 88 unique labels shared
+   pairwise times (avg, min, max): 3.12328e-06 3.00407e-06 3.19481e-06
+   crystal router                : 3.18289e-06 3.00407e-06 3.40939e-06
+   all reduce                    : 5.99623e-06 5.81741e-06 6.10352e-06
+   used all_to_all method: pairwise
+backtrace(): obtained 12 stack frames.
+./nek5000() [0x4d772a]
+./nek5000() [0x5cf3e1]
+./nek5000() [0x5cf729]
+./nek5000() [0x45bb81]
+./nek5000() [0x4bef1e]
+./nek5000() [0x4bf116]
+./nek5000() [0x4038b6]
+./nek5000() [0x404849]
+./nek5000() [0x403e5a]
+./nek5000() [0x60095a]
+/lib/libc.so.6(__libc_start_main+0xfd) [0x7f2ed2f93c4d]
+./nek5000() [0x4031a9]
+/----------------------------------------------------------\\
+|      _   __ ______ __ __  ______  ____   ____   ____     |
+|     / | / // ____// //_/ / ____/ / __ \\ / __ \\ / __ \\    |
+|    /  |/ // __/  / ,<   /___ \\  / / / // / / // / / /    |
+|   / /|  // /___ / /| | ____/ / / /_/ // /_/ // /_/ /     |
+|  /_/ |_//_____//_/ |_|/_____/  \\____/ \\____/ \\____/      |
+|                                                          |
+|----------------------------------------------------------|
+|                                                          |
+| NEK5000:  Open Source Spectral Element Solver            |
+| COPYRIGHT (c) 2008-2010 UCHICAGO ARGONNE, LLC            |
+| Version:  1.0rc1 / SVN r586                              |
+| Web:      http://nek5000.mcs.anl.gov                     |
+|                                                          |
+\\----------------------------------------------------------/
+                                                              
+
+ Number of processors:           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+
+
+  Beginning session:
+  /homes/tpeterka/itl/examples/Nek5000/examples/eddy/eddy_uv.rea                
+
+ 
+ timer accuracy:   1.9073486E-07 sec
+
+ read .rea file
+ nelgt/nelgv/lelt:      256      256      300
+ lx1  /lx2  /lx3 :        8        6        8
+
+ mapping elements to processors
+           0          32          32         256         256  NELV
+ RANK     0 IEG     193     194     195     196     197     198     199     200
+                    209     210     211     212     213     214     215     216
+                    225     226     227     228     229     230     231     232
+                    241     242     243     244     245     246     247     248
+ element load imbalance:            0          32          32
+ done :: mapping elements to processors
+  
+           0  objects found
+ done :: read .rea file   0.13114E-01 sec
+
+ Reset the target Courant number to .5
+ setup mesh topology
+   Right-handed check complete for     256 elements. OK.
+   setvert2d:   8        3328       12544        3328        3328
+ call usrsetvert
+ done :: usrsetvert
+
+   setupds time 6.4960E-03 seconds   0  8        3328         256
+           4  max multiplicity
+ done :: setup mesh topology
+  
+ call usrdat
+ done :: usrdat
+
+ generate geomerty data
+ vol_t,vol_v:   39.478417604357865        39.478417604357865     
+ done :: generate geomerty data
+  
+ call usrdat2
+ done :: usrdat2
+
+ regenerate geomerty data           1
+ vol_t,vol_v:   39.478417604357844        39.478417604357844     
+ done :: regenerate geomerty data           1
+  
+ verify mesh topology
+   0.0000000000000000        6.2831853071795871       Xrange
+   0.0000000000000000        6.2831853071795871       Yrange
+   0.0000000000000000        0.0000000000000000       Zrange
+ done :: verify mesh topology
+  
+ 103   Parameters from file:/homes/tpeterka/itl/examples/Nek5000/examples/eddy/eddy_uv.rea
+   1      1.00000         p1  DENSITY
+   2     -20.0000         p2  VISCOS
+   7      1.00000         p7  RHOCP
+   8      1.00000         p8  CONDUCT
+  11      1000.0          p11 NSTEPS
+  12     -1.000000E-04    p12 DT
+  15      100.000         p15 IOSTEP
+  18      0.250000E-01    p18 GRID
+  19     -1.00000         p19 INTYPE
+  20      12.0000         p20 NORDER
+  21      0.100000E-10    p21 DIVERGENCE
+  22      0.100000E-11    p22 HELMHOLTZ
+  24      0.100000E-09    p24 TOLREL
+  25      0.100000E-09    p25 TOLABS
+  26      1.00000         p26 COURANT/NTAU
+  27      3.00000         p27 TORDER
+  28      0.              p28 TORDER: mesh velocity (0: p28=p27)
+  43      1.00000         p43 0=semg/1=schwarz
+  66      4.00000         p66 output : <0=ascii, else binary
+  67      4.00000         p67 restart: <0=ascii, else binary
+  93      20.0000          p93 Number of previous pressure solns saved
+  94      5.00000          p94 start projecting velocity after p94 step
+  95      5.00000          p95 start projecting pressure after p95 step
+  96      1.00000          p96 u0 translational velocity (in .usr)
+  97      0.30000          p97 v0 translational velocity (in .usr)
+  99      3.00000          p99   dealiasing: <0--> off/3--> old/4--> new
+ 102      1.00000          p102   Dump out divergence at each time step
+  
+ IFTRAN   = T
+ IFFLOW   = T
+ IFHEAT   = F
+ IFSPLIT  = F
+ IFLOMACH = F
+ IFUSERVP = F
+ IFUSERMV = F
+ IFSTRS   = F
+ IFCHAR   = F
+ IFCYCLIC = F
+ IFAXIS   = F
+ IFMVBD   = F
+ IFMELT   = F
+ IFMODEL  = F
+ IFKEPS   = F
+ IFMOAB   = F
+ IFSYNC   = T
+   
+ IFVCOR   = T
+ IFINTQ   = F
+ IFCWUZ   = F
+ IFSWALL  = F
+ IFGEOM   = F
+ IFSURT   = F
+ IFWCNO   = F
+   
+ IFTMSH for field           1    =  F
+ IFADVC for field           1    =  T
+ IFNONL for field           1    =  F
+   
+ Dealiasing enabled, lxd=          12
+  
+ Estimated eigenvalues
+ EIGAA =   0.24999999999999997     
+ EIGGA =    16918.697284912883     
+ EIGAE =   0.24999999999999997     
+ EIGAS =   0.12500000000000000     
+ EIGGE =    16918.697284912883     
+ EIGGS =    2.0000000000000000     
+  
+ verify mesh topology
+   0.0000000000000000        6.2831853071795871       Xrange
+   0.0000000000000000        6.2831853071795871       Yrange
+   0.0000000000000000        0.0000000000000000       Zrange
+ done :: verify mesh topology
+  
+  E-solver strategy:  1 itr
+ setup h1 coarse grid, nx_crs=           2
+ call usrsetvert
+ done :: usrsetvert
+
+ done :: setup h1 coarse grid   3.03912162780761719E-003  sec
+  
+ call usrdat3
+ done :: usrdat3
+
+ set initial conditions
+ call nekuic for vel  
+ xyz min     0.0000       0.0000       0.0000    
+ uvwpt min  -1.0000      -1.4120     -0.97825E-20   0.0000     -0.97825E-20
+ PS min     0.99000E+22
+ xyz max     6.2832       6.2832       0.0000    
+ uvwpt max   3.0000       2.0120      0.39952E-19   0.0000      0.39952E-19
+ PS max    -0.99000E+22
+ done :: set initial conditions
+  
+ call userchk
+ calling prepost               0
+ schfile:/homes/tpeterka/itl/examples/Nek5000/examples/eddy/eddy_uv.sch                                                                      
+ERROR: .sch file already exists.  ierr=  1 
+  
+call exitt: dying ...
+  
+  
+total elapsed time             :   4.14109E-02 sec
+total solver time incl. I/O    :   0.00000E+00 sec
+time/timestep                  :   0.00000E+00 sec
+CPU seconds/timestep/gridpt    :   0.00000E+00 sec
+
+           3          32          32         256         256  NELV
+           1          32          32         256         256  NELV
+           2          32          32         256         256  NELV
+           4          32          32         256         256  NELV
+           6          32          32         256         256  NELV
+           7          32          32         256         256  NELV
+           5          32          32         256         256  NELV

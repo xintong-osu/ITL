@@ -1,0 +1,27 @@
+-------------------
+
+Questions / contact info:
+
+Tom Peterka
+Argonne National Laboratory
+9700 S. Cass Ave.
+Argonne, IL 60439
+tpeterka@mcs.anl.gov
+
+-------------------
+
+Building itl:
+
+cd itl
+./configure
+make
+make install
+
+-------------------
+
+Building Nek5000 example:
+
+cd itl/examples/Nek5000/eddy
+makenek eddy_uv
+nekb_linux eddy_uv <num_procs>
+

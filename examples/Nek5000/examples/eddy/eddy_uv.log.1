@@ -1,0 +1,227 @@
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+/----------------------------------------------------------\\
+|      _   __ ______ __ __  ______  ____   ____   ____     |
+|     / | / // ____// //_/ / ____/ / __ \\ / __ \\ / __ \\    |
+|    /  |/ // __/  / ,<   /___ \\  / / / // / / // / / /    |
+|   / /|  // /___ / /| | ____/ / / /_/ // /_/ // /_/ /     |
+|  /_/ |_//_____//_/ |_|/_____/  \\____/ \\____/ \\____/      |
+|                                                          |
+|----------------------------------------------------------|
+|                                                          |
+| NEK5000:  Open Source Spectral Element Solver            |
+| COPYRIGHT (c) 2008-2010 UCHICAGO ARGONNE, LLC            |
+| Version:  1.0rc1 / SVN r586                              |
+| Web:      http://nek5000.mcs.anl.gov                     |
+|                                                          |
+\\----------------------------------------------------------/
+                                                              
+
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+
+
+  Beginning session:
+  /homes/tpeterka/itl/Nek5000/examples/t3/eddy_uv.rea                           
+
+ 
+ timer accuracy:   0.0000000E+00 sec
+
+ read .rea file
+ nelgt/nelgv/lelt:      256      256      300
+ lx1  /lx2  /lx3 :        8        6        8
+
+ mapping elements to processors
+           0         256         256         256         256  NELV
+ RANK     0 IEG       1       2       3       4       5       6       7       8
+                      9      10      11      12      13      14      15      16
+                     17      18      19      20      21      22      23      24
+                     25      26      27      28      29      30      31      32
+                     33      34      35      36      37      38      39      40
+                     41      42      43      44      45      46      47      48
+                     49      50      51      52      53      54      55      56
+                     57      58      59      60      61      62      63      64
+                     65      66      67      68      69      70      71      72
+                     73      74      75      76      77      78      79      80
+                     81      82      83      84      85      86      87      88
+                     89      90      91      92      93      94      95      96
+                     97      98      99     100     101     102     103     104
+                    105     106     107     108     109     110     111     112
+                    113     114     115     116     117     118     119     120
+                    121     122     123     124     125     126     127     128
+                    129     130     131     132     133     134     135     136
+                    137     138     139     140     141     142     143     144
+                    145     146     147     148     149     150     151     152
+                    153     154     155     156     157     158     159     160
+                    161     162     163     164     165     166     167     168
+                    169     170     171     172     173     174     175     176
+                    177     178     179     180     181     182     183     184
+                    185     186     187     188     189     190     191     192
+                    193     194     195     196     197     198     199     200
+                    201     202     203     204     205     206     207     208
+                    209     210     211     212     213     214     215     216
+                    217     218     219     220     221     222     223     224
+                    225     226     227     228     229     230     231     232
+                    233     234     235     236     237     238     239     240
+                    241     242     243     244     245     246     247     248
+                    249     250     251     252     253     254     255     256
+ element load imbalance:            0         256         256
+ done :: mapping elements to processors
+  
+           0  objects found
+ done :: read .rea file   0.10540E-01 sec
+
+ Reset the target Courant number to .5
+ setup mesh topology
+   Right-handed check complete for     256 elements. OK.
+   setvert2d:   8        3328       12544        3328        3328
+ call usrsetvert
+ done :: usrsetvert
+
+   setupds time 2.8300E-03 seconds   0  8        3328         256
+           4  max multiplicity
+ done :: setup mesh topology
+  
+ call usrdat
+ done :: usrdat
+
+ generate geomerty data
+ vol_t,vol_v:   39.478417604358263        39.478417604358263     
+ done :: generate geomerty data
+  
+ call usrdat2
+ done :: usrdat2
+
+ regenerate geomerty data           1
+ vol_t,vol_v:   39.478417604358249        39.478417604358249     
+ done :: regenerate geomerty data           1
+  
+ verify mesh topology
+   0.0000000000000000        6.2831853071795871       Xrange
+   0.0000000000000000        6.2831853071795871       Yrange
+   0.0000000000000000        0.0000000000000000       Zrange
+ done :: verify mesh topology
+  
+ 103   Parameters from file:/homes/tpeterka/itl/Nek5000/examples/t3/eddy_uv.rea
+   1      1.00000         p1  DENSITY
+   2     -20.0000         p2  VISCOS
+   7      1.00000         p7  RHOCP
+   8      1.00000         p8  CONDUCT
+  11      1000.0          p11 NSTEPS
+  12     -1.000000E-04    p12 DT
+  15      100.000         p15 IOSTEP
+  18      0.250000E-01    p18 GRID
+  19     -1.00000         p19 INTYPE
+  20      12.0000         p20 NORDER
+  21      0.100000E-10    p21 DIVERGENCE
+  22      0.100000E-11    p22 HELMHOLTZ
+  24      0.100000E-09    p24 TOLREL
+  25      0.100000E-09    p25 TOLABS
+  26      1.00000         p26 COURANT/NTAU
+  27      3.00000         p27 TORDER
+  28      0.              p28 TORDER: mesh velocity (0: p28=p27)
+  43      1.00000         p43 0=semg/1=schwarz
+  66      4.00000         p66 output : <0=ascii, else binary
+  67      4.00000         p67 restart: <0=ascii, else binary
+  93      20.0000          p93 Number of previous pressure solns saved
+  94      5.00000          p94 start projecting velocity after p94 step
+  95      5.00000          p95 start projecting pressure after p95 step
+  96      1.00000          p96 u0 translational velocity (in .usr)
+  97      0.30000          p97 v0 translational velocity (in .usr)
+  99      3.00000          p99   dealiasing: <0--> off/3--> old/4--> new
+ 102      1.00000          p102   Dump out divergence at each time step
+  
+ IFTRAN   = T
+ IFFLOW   = T
+ IFHEAT   = F
+ IFSPLIT  = F
+ IFLOMACH = F
+ IFUSERVP = F
+ IFUSERMV = F
+ IFSTRS   = F
+ IFCHAR   = F
+ IFCYCLIC = F
+ IFAXIS   = F
+ IFMVBD   = F
+ IFMELT   = F
+ IFMODEL  = F
+ IFKEPS   = F
+ IFMOAB   = F
+ IFSYNC   = T
+   
+ IFVCOR   = T
+ IFINTQ   = F
+ IFCWUZ   = F
+ IFSWALL  = F
+ IFGEOM   = F
+ IFSURT   = F
+ IFWCNO   = F
+   
+ IFTMSH for field           1    =  F
+ IFADVC for field           1    =  T
+ IFNONL for field           1    =  F
+   
+ Dealiasing enabled, lxd=          12
+  
+ Estimated eigenvalues
+ EIGAA =   0.24999999999999997     
+ EIGGA =    16918.697284914528     
+ EIGAE =   0.24999999999999997     
+ EIGAS =   0.12500000000000000     
+ EIGGE =    16918.697284914528     
+ EIGGS =    2.0000000000000000     
+  
+ verify mesh topology
+   0.0000000000000000        6.2831853071795871       Xrange
+   0.0000000000000000        6.2831853071795871       Yrange
+   0.0000000000000000        0.0000000000000000       Zrange
+ done :: verify mesh topology
+  
+  E-solver strategy:  1 itr
+ setup h1 coarse grid, nx_crs=           2
+ call usrsetvert
+ done :: usrsetvert
+
+ done :: setup h1 coarse grid   3.04508209228515625E-003  sec
+  
+ call usrdat3
+ done :: usrdat3
+
+ set initial conditions
+ call nekuic for vel  
+ xyz min     0.0000       0.0000       0.0000    
+ uvwpt min  -1.0000      -1.4120     -0.97825E-20   0.0000     -0.97825E-20
+ PS min     0.99000E+22
+ xyz max     6.2832       6.2832       0.0000    
+ uvwpt max   3.0000       2.0120      0.39952E-19   0.0000      0.39952E-19
+ PS max    -0.99000E+22
+ done :: set initial conditions
+  
+ call userchk
+ calling prepost               0
+backtrace(): obtained 12 stack frames.
+./nek5000() [0x4d6d0a]
+./nek5000() [0x5ce9c1]
+./nek5000() [0x5ced09]
+./nek5000() [0x45b161]
+./nek5000() [0x4be4fe]
+./nek5000() [0x4be6f6]
+./nek5000() [0x402e96]
+./nek5000() [0x403e29]
+./nek5000() [0x40343a]
+./nek5000() [0x5fc0ca]
+/lib/libc.so.6(__libc_start_main+0xfd) [0x7fdda8d36c4d]
+./nek5000() [0x402789]
+ schfile:/homes/tpeterka/itl/Nek5000/examples/t3/eddy_uv.sch                                                                                 
+ERROR: .sch file already exists.  ierr=  1 
+  
+call exitt: dying ...
+  
+  
+total elapsed time             :   8.44450E-02 sec
+total solver time incl. I/O    :   0.00000E+00 sec
+time/timestep                  :   0.00000E+00 sec
+CPU seconds/timestep/gridpt    :   0.00000E+00 sec
+
