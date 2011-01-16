@@ -1,17 +1,17 @@
 gs_setup: 664 unique labels shared
-   pairwise times (avg, min, max): 4.76867e-05 4.43935e-05 4.8995e-05
-   crystal router                : 5.38677e-05 5.31912e-05 5.77927e-05
-   all reduce                    : 0.000104573 0.000104117 0.000104809
+   pairwise times (avg, min, max): 0.000442755 0.000415301 0.000470519
+   crystal router                : 0.00046328 0.000440812 0.000507498
+   all reduce                    : 0.00110008 0.0010828 0.00111868
    used all_to_all method: pairwise
 gs_setup: 88 unique labels shared
-   pairwise times (avg, min, max): 3.0756e-06 3.00407e-06 3.09944e-06
-   crystal router                : 3.05176e-06 3.00407e-06 3.09944e-06
-   all reduce                    : 5.79059e-06 5.60284e-06 5.91278e-06
+   pairwise times (avg, min, max): 0.00035041 0.000313497 0.000378704
+   crystal router                : 0.000466239 0.000431108 0.000482988
+   all reduce                    : 0.000718111 0.000709701 0.0007236
    used all_to_all method: pairwise
 gs_setup: 88 unique labels shared
-   pairwise times (avg, min, max): 3.12328e-06 3.00407e-06 3.19481e-06
-   crystal router                : 3.18289e-06 3.00407e-06 3.40939e-06
-   all reduce                    : 5.99623e-06 5.81741e-06 6.10352e-06
+   pairwise times (avg, min, max): 0.000319877 0.000290704 0.000347996
+   crystal router                : 0.000432017 0.00039618 0.0004601
+   all reduce                    : 0.000729433 0.000723696 0.000737309
    used all_to_all method: pairwise
 backtrace(): obtained 12 stack frames.
 ./nek5000() [0x4d772a]
@@ -24,7 +24,7 @@ backtrace(): obtained 12 stack frames.
 ./nek5000() [0x404849]
 ./nek5000() [0x403e5a]
 ./nek5000() [0x60095a]
-/lib/libc.so.6(__libc_start_main+0xfd) [0x7f2ed2f93c4d]
+/lib/libc.so.6(__libc_start_main+0xfd) [0x7f75610d7c4d]
 ./nek5000() [0x4031a9]
 /----------------------------------------------------------\\
 |      _   __ ______ __ __  ______  ____   ____   ____     |
@@ -52,7 +52,7 @@ backtrace(): obtained 12 stack frames.
   /homes/tpeterka/itl/examples/Nek5000/examples/eddy/eddy_uv.rea                
 
  
- timer accuracy:   1.9073486E-07 sec
+ timer accuracy:   9.5367432E-08 sec
 
  read .rea file
  nelgt/nelgv/lelt:      256      256      300
@@ -68,7 +68,7 @@ backtrace(): obtained 12 stack frames.
  done :: mapping elements to processors
   
            0  objects found
- done :: read .rea file   0.13114E-01 sec
+ done :: read .rea file   0.79588E-01 sec
 
  Reset the target Courant number to .5
  setup mesh topology
@@ -77,7 +77,7 @@ backtrace(): obtained 12 stack frames.
  call usrsetvert
  done :: usrsetvert
 
-   setupds time 6.4960E-03 seconds   0  8        3328         256
+   setupds time 5.9902E-02 seconds   0  8        3328         256
            4  max multiplicity
  done :: setup mesh topology
   
@@ -181,7 +181,7 @@ backtrace(): obtained 12 stack frames.
  call usrsetvert
  done :: usrsetvert
 
- done :: setup h1 coarse grid   3.03912162780761719E-003  sec
+ done :: setup h1 coarse grid   0.15140199661254883       sec
   
  call usrdat3
  done :: usrdat3
@@ -204,15 +204,15 @@ ERROR: .sch file already exists.  ierr=  1
 call exitt: dying ...
   
   
-total elapsed time             :   4.14109E-02 sec
+total elapsed time             :   5.83765E-01 sec
 total solver time incl. I/O    :   0.00000E+00 sec
 time/timestep                  :   0.00000E+00 sec
 CPU seconds/timestep/gridpt    :   0.00000E+00 sec
 
+           7          32          32         256         256  NELV
            3          32          32         256         256  NELV
            1          32          32         256         256  NELV
            2          32          32         256         256  NELV
+           5          32          32         256         256  NELV
            4          32          32         256         256  NELV
            6          32          32         256         256  NELV
-           7          32          32         256         256  NELV
-           5          32          32         256         256  NELV
