@@ -48,11 +48,10 @@ void itl_get_data_(int *nelv, int *nx1, int *ny1, int *nz1, double *vx, double *
     fprintf(stderr, "nelv = %d nx1 = %d ny1 = %d nz1 = %d\n", *nelv, *nx1, *ny1, *nz1);
 
     fprintf(stderr, "velocity field:\n");
-    for (int i = 0; i < *nx1 * *ny1 * *nz1; i++) {
+    for (int i = 0; i < *nx1 * *ny1 * *nz1; i++)
 	  fprintf(stderr, "[vx vy vz] = %.3lf %.3lf %.3lf at [x y z] = %.3lf %.3lf %.3lf\n", 
 		  vx[i], vy[i], vz[i], 
 		  xm1[i], ym1[i], zm1[i]);
-    }
 
   }
 
