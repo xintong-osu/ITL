@@ -24,6 +24,10 @@
 extern "C"
 #endif
 void ITL_begin();
+#ifdef __cplusplus
+extern "C"
+#endif
+void ITL_get_data();
 
 /*-------------------------------------------------------------------------*/
 

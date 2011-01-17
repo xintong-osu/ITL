@@ -170,8 +170,9 @@ c
       common /exacu/ ue(lx1,ly1,lz1,lelt),ve(lx1,ly1,lz1,lelt)
       common /exacd/ ud(lx1,ly1,lz1,lelt),vd(lx1,ly1,lz1,lelt)
 c
-c--- call ITL ---
-      call ITL()
+c--- call ITL here---
+      call ITL_begin()
+      call ITL_get_data(nelv, nx1, ny1, nz1, vx, vy, vz, xm1, ym1, zm1)
 c
       ifield = 1  ! for outpost
 
