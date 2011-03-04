@@ -1,4 +1,4 @@
-### makefile automatically created by makenek 01/16/2011 17:03:27 ###
+### makefile automatically created by makenek 03/04/2011 10:30:28 ###
 BINNAME=nek5000
 CASENAME:=eddy_uv
 CASEDIR:=/homes/tpeterka/itl/examples/Nek5000/examples/eddy
