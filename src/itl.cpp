@@ -19,6 +19,10 @@ void ITL_begin() {
 
 }
 
+void ITL_end() {
+
+}
+
 // fortran wrapper
 extern "C"
 void itl_begin_() {
@@ -28,6 +32,17 @@ void itl_begin_() {
 
   if (rank == 0)
     fprintf(stderr, "Beginning ITL\n");
+
+}
+
+extern "C"
+void itl_end_() {
+
+  int rank; // MPI usual
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  if (rank == 0)
+    fprintf(stderr, "Ending ITL\n");
 
 }
 
@@ -46,7 +61,7 @@ void ITL_get_data() {
 // fastest and element changing slowest
 //
 extern "C"
-void itl_get_data_(int *nelv, int *nx1, int *ny1, int *nz1, double *vx, double *vy, double *vz, double *xm1, double *ym1, double *zm1) {
+void itl_get_nek_data_(int *nelv, int *nx1, int *ny1, int *nz1, double *vx, double *vy, double *vz, double *xm1, double *ym1, double *zm1) {
 
   int rank; // MPI usual
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -61,6 +76,24 @@ void itl_get_data_(int *nelv, int *nx1, int *ny1, int *nz1, double *vx, double *
 	  fprintf(stderr, "[vx vy vz] = %.3lf %.3lf %.3lf at [x y z] = %.3lf %.3lf %.3lf\n", 
 		  vx[i], vy[i], vz[i], 
 		  xm1[i], ym1[i], zm1[i]);
+
+  }
+
+}
+
+//
+// fortran wrapper for flash data
+//
+extern "C"
+void itl_get_flash_data_() {
+
+  int rank; // MPI usual
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  // only printing rank 0 to reduce the amount of output
+  if (rank == 0) {
+
+    fprintf(stderr, "Calling ITL\n");
 
   }
 

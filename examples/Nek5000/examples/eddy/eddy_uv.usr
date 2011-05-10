@@ -177,7 +177,7 @@ c vx, vy, vz = velocity data
 c xm1, xm2, xm2 = geometry data
 c velocity and geometry data ordered in (x,y,z,element) order, x changing fastest
       call ITL_begin()
-      call ITL_get_data(nelv, nx1, ny1, nz1, vx, vy, vz, xm1, ym1, zm1)
+      call ITL_get_nek_data(nelv, nx1, ny1, nz1, vx, vy, vz, xm1, ym1, zm1)
 c
       ifield = 1  ! for outpost
 
