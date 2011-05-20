@@ -1,0 +1,368 @@
+\hypertarget{classITL__histogram}{
+\section{ITL\_\-histogram Class Reference}
+\label{classITL__histogram}\index{ITL\_\-histogram@{ITL\_\-histogram}}
+}
+
+
+Histogram class.  
+
+
+
+
+{\ttfamily \#include $<$ITL\_\-histogram.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classITL__histogram_a5bbbc427af2d4b960be619fd34b7d272}{ITL\_\-histogram} (const char $\ast$patchFileName, int nBins)
+\begin{DoxyCompactList}\small\item\em Constructor. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{classITL__histogram_a249b31d421d1568bd0e3e217e861582e}{ITL\_\-init\_\-histogram} (const char $\ast$patchFileName, int nBins)
+\begin{DoxyCompactList}\small\item\em Histogram initialization function. \item\end{DoxyCompactList}\item 
+static void \hyperlink{classITL__histogram_a2e5cd6212ddb7688ec647cce780da882}{readPatches\_\-region} (const char $\ast$patchFileName)
+\begin{DoxyCompactList}\small\item\em Patch file reader. \item\end{DoxyCompactList}\item 
+static void \hyperlink{classITL__histogram_a766a51e4f00bdbca0147a824295a42a3}{ITL\_\-compute\_\-table} (int nBins)
+\begin{DoxyCompactList}\small\item\em Actual angle map computation doen here. \item\end{DoxyCompactList}\item 
+static int \hyperlink{classITL__histogram_a0f3a4726fd8f77aec337c2097d43a533}{get\_\-bin\_\-by\_\-angle} (float mytheta, float myphi, int binnum)
+\begin{DoxyCompactList}\small\item\em Actual angle map computation done here. \item\end{DoxyCompactList}\item 
+static int \hyperlink{classITL__histogram_a2c91f7397774c26ba629c8e6cb0e9e85}{get\_\-bin\_\-number\_\-3D} (\hyperlink{ITL__vectormatrix_8h_ac78944183bdabdd5ba8374baabe2ef85}{SCALAR} v, int nBins)
+\begin{DoxyCompactList}\small\item\em Scala-\/to-\/bin conversion Routine. \item\end{DoxyCompactList}\item 
+static int \hyperlink{classITL__histogram_a18c5da3a4545be422d7b33c0dd1d0594}{get\_\-bin\_\-number\_\-3D} (\hyperlink{classVECTOR3}{VECTOR3} v, int nBins)
+\begin{DoxyCompactList}\small\item\em Vector-\/to-\/bin conversion Routine. \item\end{DoxyCompactList}\item 
+static float \hyperlink{classITL__histogram_a4281e6d3a1b694340308520139c0be93}{getAngle} (float x, float y)
+\begin{DoxyCompactList}\small\item\em Theta computation. \item\end{DoxyCompactList}\item 
+static float \hyperlink{classITL__histogram_a9734482a7ba043f0c0214518bd68fed3}{getAngle2} (float x, float y)
+\begin{DoxyCompactList}\small\item\em Phi computation. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static float $\ast$ \hyperlink{classITL__histogram_a3111dfec91196d7ed491c3552997ba59}{theta} = new float\mbox{[}2$\ast$360\mbox{]}
+\begin{DoxyCompactList}\small\item\em Angle variable. \item\end{DoxyCompactList}\item 
+static float $\ast$ \hyperlink{classITL__histogram_a055060af9afbc0a52ded8c00b7532ab4}{phi} = new float\mbox{[}2$\ast$360\mbox{]}
+\begin{DoxyCompactList}\small\item\em Angle variable. \item\end{DoxyCompactList}\item 
+static bool \hyperlink{classITL__histogram_ab5e8522dc950efff727735f4a8176be5}{bIsAngleMapInitialized} = false
+\begin{DoxyCompactList}\small\item\em Boolean flag. \item\end{DoxyCompactList}\item 
+static bool \hyperlink{classITL__histogram_a952fde093bb3f0e06f6504a3fd3f2115}{bIsPatchRead} = false
+\begin{DoxyCompactList}\small\item\em Boolean flag. \item\end{DoxyCompactList}\item 
+static int \hyperlink{classITL__histogram_a635c7179b23ea13e38258f24582e3e8b}{iNrOfThetas} = 720
+\begin{DoxyCompactList}\small\item\em Histogram parameter. \item\end{DoxyCompactList}\item 
+static int \hyperlink{classITL__histogram_ac58c7bb82ec5d99ae86223e414d34c26}{iNrOfPhis} = 360
+\begin{DoxyCompactList}\small\item\em Histogram parameter. \item\end{DoxyCompactList}\item 
+static float \hyperlink{classITL__histogram_a693544af37d885b4b52316fd27f0c8af}{fNrOfThetas} = float(\hyperlink{classITL__histogram_a635c7179b23ea13e38258f24582e3e8b}{ITL\_\-histogram::iNrOfThetas})
+\begin{DoxyCompactList}\small\item\em Histogram parameter. \item\end{DoxyCompactList}\item 
+static float \hyperlink{classITL__histogram_adb7718f57d485c9cb69c4dc91ead14ad}{fNrOfPhis} = float(\hyperlink{classITL__histogram_ac58c7bb82ec5d99ae86223e414d34c26}{ITL\_\-histogram::iNrOfPhis})
+\begin{DoxyCompactList}\small\item\em Histogram parameter. \item\end{DoxyCompactList}\item 
+static int $\ast$ \hyperlink{classITL__histogram_aafbb8f075bd599b3f4fa8916473b0062}{piAngleMap} = new int\mbox{[}\hyperlink{classITL__histogram_a635c7179b23ea13e38258f24582e3e8b}{ITL\_\-histogram::iNrOfThetas}$\ast$\hyperlink{classITL__histogram_ac58c7bb82ec5d99ae86223e414d34c26}{ITL\_\-histogram::iNrOfPhis}\mbox{]}
+\begin{DoxyCompactList}\small\item\em Histogram parameter. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Histogram class. The histogram assigns a field value to a bin of the histogram. Created on: Nov 17, 2010. \begin{DoxyAuthor}{Author}
+Teng-\/Yok 
+
+Abon 
+\end{DoxyAuthor}
+\begin{DoxySeeAlso}{See also}
+ITL\_\-histogramconstants 
+\end{DoxySeeAlso}
+
+
+Definition at line 16 of file ITL\_\-histogram.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classITL__histogram_a5bbbc427af2d4b960be619fd34b7d272}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!ITL\_\-histogram@{ITL\_\-histogram}}
+\index{ITL\_\-histogram@{ITL\_\-histogram}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{ITL\_\-histogram}]{\setlength{\rightskip}{0pt plus 5cm}ITL\_\-histogram::ITL\_\-histogram (const char $\ast$ {\em patchFileName}, \/  int {\em nBins})}}
+\label{classITL__histogram_a5bbbc427af2d4b960be619fd34b7d272}
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em patchFileName}]Path of patch file on disc. \item[{\em nBins}]Desired number of bins in the histogram. \end{DoxyParams}
+
+
+Definition at line 10 of file ITL\_\-histogram.cpp.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classITL__histogram_a0f3a4726fd8f77aec337c2097d43a533}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!get\_\-bin\_\-by\_\-angle@{get\_\-bin\_\-by\_\-angle}}
+\index{get\_\-bin\_\-by\_\-angle@{get\_\-bin\_\-by\_\-angle}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{get\_\-bin\_\-by\_\-angle}]{\setlength{\rightskip}{0pt plus 5cm}int ITL\_\-histogram::get\_\-bin\_\-by\_\-angle (float {\em mytheta}, \/  float {\em myphi}, \/  int {\em binnum})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a0f3a4726fd8f77aec337c2097d43a533}
+
+
+Actual angle map computation done here. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em mytheta}]theta corresponding to the local vector. \item[{\em myphi}]phi corresponding to the local vector. \item[{\em binnum}]Desired number of bins in the histogram. \end{DoxyParams}
+
+
+Definition at line 75 of file ITL\_\-histogram.cpp.
+
+\hypertarget{classITL__histogram_a18c5da3a4545be422d7b33c0dd1d0594}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!get\_\-bin\_\-number\_\-3D@{get\_\-bin\_\-number\_\-3D}}
+\index{get\_\-bin\_\-number\_\-3D@{get\_\-bin\_\-number\_\-3D}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{get\_\-bin\_\-number\_\-3D}]{\setlength{\rightskip}{0pt plus 5cm}int ITL\_\-histogram::get\_\-bin\_\-number\_\-3D ({\bf VECTOR3} {\em v}, \/  int {\em nBins})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a18c5da3a4545be422d7b33c0dd1d0594}
+
+
+Vector-\/to-\/bin conversion Routine. 
+
+Function converts the vector from Cartesian coodinates to the patch index via the specified lookup table. 
+\begin{DoxyParams}{Parameters}
+\item[{\em v}]at some Cartesian co-\/ordinate of the field \item[{\em nBins}]Desired number of bins in the histogram. \end{DoxyParams}
+
+
+Definition at line 151 of file ITL\_\-histogram.cpp.
+
+\hypertarget{classITL__histogram_a2c91f7397774c26ba629c8e6cb0e9e85}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!get\_\-bin\_\-number\_\-3D@{get\_\-bin\_\-number\_\-3D}}
+\index{get\_\-bin\_\-number\_\-3D@{get\_\-bin\_\-number\_\-3D}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{get\_\-bin\_\-number\_\-3D}]{\setlength{\rightskip}{0pt plus 5cm}int ITL\_\-histogram::get\_\-bin\_\-number\_\-3D ({\bf SCALAR} {\em v}, \/  int {\em nBins})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a2c91f7397774c26ba629c8e6cb0e9e85}
+
+
+Scala-\/to-\/bin conversion Routine. 
+
+Function converts the scalar to bin id. 
+\begin{DoxyParams}{Parameters}
+\item[{\em v}]at some Cartesian co-\/ordinate of the field \item[{\em nBins}]Desired number of bins in the histogram. \end{DoxyParams}
+
+
+Definition at line 144 of file ITL\_\-histogram.cpp.
+
+\hypertarget{classITL__histogram_a4281e6d3a1b694340308520139c0be93}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!getAngle@{getAngle}}
+\index{getAngle@{getAngle}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{getAngle}]{\setlength{\rightskip}{0pt plus 5cm}float ITL\_\-histogram::getAngle (float {\em x}, \/  float {\em y})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a4281e6d3a1b694340308520139c0be93}
+
+
+Theta computation. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em x}]x-\/component of vector \item[{\em y}]y-\/computation of vector \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Theta 
+\end{DoxyReturn}
+
+
+Definition at line 119 of file ITL\_\-histogram.cpp.
+
+\hypertarget{classITL__histogram_a9734482a7ba043f0c0214518bd68fed3}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!getAngle2@{getAngle2}}
+\index{getAngle2@{getAngle2}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{getAngle2}]{\setlength{\rightskip}{0pt plus 5cm}float ITL\_\-histogram::getAngle2 (float {\em x}, \/  float {\em y})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a9734482a7ba043f0c0214518bd68fed3}
+
+
+Phi computation. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em x}]x-\/component of vector \item[{\em y}]y-\/computation of vector \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Phi 
+\end{DoxyReturn}
+
+
+Definition at line 132 of file ITL\_\-histogram.cpp.
+
+\hypertarget{classITL__histogram_a766a51e4f00bdbca0147a824295a42a3}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!ITL\_\-compute\_\-table@{ITL\_\-compute\_\-table}}
+\index{ITL\_\-compute\_\-table@{ITL\_\-compute\_\-table}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{ITL\_\-compute\_\-table}]{\setlength{\rightskip}{0pt plus 5cm}void ITL\_\-histogram::ITL\_\-compute\_\-table (int {\em nBins})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a766a51e4f00bdbca0147a824295a42a3}
+
+
+Actual angle map computation doen here. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Desired number of bins in the histogram. \end{DoxyParams}
+
+
+Definition at line 53 of file ITL\_\-histogram.cpp.
+
+\hypertarget{classITL__histogram_a249b31d421d1568bd0e3e217e861582e}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!ITL\_\-init\_\-histogram@{ITL\_\-init\_\-histogram}}
+\index{ITL\_\-init\_\-histogram@{ITL\_\-init\_\-histogram}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{ITL\_\-init\_\-histogram}]{\setlength{\rightskip}{0pt plus 5cm}void ITL\_\-histogram::ITL\_\-init\_\-histogram (const char $\ast$ {\em patchFileName}, \/  int {\em nBins})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a249b31d421d1568bd0e3e217e861582e}
+
+
+Histogram initialization function. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em patchFileName}]Path of patch file on disc. \item[{\em nBins}]Desired number of bins in the histogram. \end{DoxyParams}
+
+
+Definition at line 15 of file ITL\_\-histogram.cpp.
+
+\hypertarget{classITL__histogram_a2e5cd6212ddb7688ec647cce780da882}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!readPatches\_\-region@{readPatches\_\-region}}
+\index{readPatches\_\-region@{readPatches\_\-region}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{readPatches\_\-region}]{\setlength{\rightskip}{0pt plus 5cm}void ITL\_\-histogram::readPatches\_\-region (const char $\ast$ {\em patchFileName})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a2e5cd6212ddb7688ec647cce780da882}
+
+
+Patch file reader. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em patchFileName}]Path of patch file on disc. \end{DoxyParams}
+
+
+Definition at line 28 of file ITL\_\-histogram.cpp.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classITL__histogram_ab5e8522dc950efff727735f4a8176be5}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!bIsAngleMapInitialized@{bIsAngleMapInitialized}}
+\index{bIsAngleMapInitialized@{bIsAngleMapInitialized}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{bIsAngleMapInitialized}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf ITL\_\-histogram::bIsAngleMapInitialized} = false\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_ab5e8522dc950efff727735f4a8176be5}
+
+
+Boolean flag. 
+
+Histogram parameters.
+
+Flag is set if the angle maps have been initialized.
+
+Created on: Nov 21, 2010 \begin{DoxyAuthor}{Author}
+Teng-\/Yok 
+
+Abon 
+\end{DoxyAuthor}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{classITL__histogram}{ITL\_\-histogram} 
+\end{DoxySeeAlso}
+
+
+Definition at line 23 of file ITL\_\-histogram.h.
+
+\hypertarget{classITL__histogram_a952fde093bb3f0e06f6504a3fd3f2115}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!bIsPatchRead@{bIsPatchRead}}
+\index{bIsPatchRead@{bIsPatchRead}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{bIsPatchRead}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf ITL\_\-histogram::bIsPatchRead} = false\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a952fde093bb3f0e06f6504a3fd3f2115}
+
+
+Boolean flag. 
+
+Flag is set if the patch file has been read. 
+
+Definition at line 24 of file ITL\_\-histogram.h.
+
+\hypertarget{classITL__histogram_adb7718f57d485c9cb69c4dc91ead14ad}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!fNrOfPhis@{fNrOfPhis}}
+\index{fNrOfPhis@{fNrOfPhis}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{fNrOfPhis}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf ITL\_\-histogram::fNrOfPhis} = float({\bf ITL\_\-histogram::iNrOfPhis})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_adb7718f57d485c9cb69c4dc91ead14ad}
+
+
+Histogram parameter. 
+
+Number of phis. 
+
+Definition at line 28 of file ITL\_\-histogram.h.
+
+\hypertarget{classITL__histogram_a693544af37d885b4b52316fd27f0c8af}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!fNrOfThetas@{fNrOfThetas}}
+\index{fNrOfThetas@{fNrOfThetas}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{fNrOfThetas}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf ITL\_\-histogram::fNrOfThetas} = float({\bf ITL\_\-histogram::iNrOfThetas})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a693544af37d885b4b52316fd27f0c8af}
+
+
+Histogram parameter. 
+
+Number of phis. 
+
+Definition at line 27 of file ITL\_\-histogram.h.
+
+\hypertarget{classITL__histogram_ac58c7bb82ec5d99ae86223e414d34c26}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!iNrOfPhis@{iNrOfPhis}}
+\index{iNrOfPhis@{iNrOfPhis}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{iNrOfPhis}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf ITL\_\-histogram::iNrOfPhis} = 360\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_ac58c7bb82ec5d99ae86223e414d34c26}
+
+
+Histogram parameter. 
+
+Number of phis. 
+
+Definition at line 26 of file ITL\_\-histogram.h.
+
+\hypertarget{classITL__histogram_a635c7179b23ea13e38258f24582e3e8b}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!iNrOfThetas@{iNrOfThetas}}
+\index{iNrOfThetas@{iNrOfThetas}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{iNrOfThetas}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf ITL\_\-histogram::iNrOfThetas} = 720\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a635c7179b23ea13e38258f24582e3e8b}
+
+
+Histogram parameter. 
+
+Number of thetas. 
+
+Definition at line 25 of file ITL\_\-histogram.h.
+
+\hypertarget{classITL__histogram_a055060af9afbc0a52ded8c00b7532ab4}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!phi@{phi}}
+\index{phi@{phi}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{phi}]{\setlength{\rightskip}{0pt plus 5cm}float $\ast$ {\bf ITL\_\-histogram::phi} = new float\mbox{[}2$\ast$360\mbox{]}\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a055060af9afbc0a52ded8c00b7532ab4}
+
+
+Angle variable. 
+
+Angle related to spherical coordinates. 
+
+Definition at line 21 of file ITL\_\-histogram.h.
+
+\hypertarget{classITL__histogram_aafbb8f075bd599b3f4fa8916473b0062}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!piAngleMap@{piAngleMap}}
+\index{piAngleMap@{piAngleMap}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{piAngleMap}]{\setlength{\rightskip}{0pt plus 5cm}int $\ast$ {\bf ITL\_\-histogram::piAngleMap} = new int\mbox{[}{\bf ITL\_\-histogram::iNrOfThetas}$\ast${\bf ITL\_\-histogram::iNrOfPhis}\mbox{]}\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_aafbb8f075bd599b3f4fa8916473b0062}
+
+
+Histogram parameter. 
+
+Mapping from vector to a region in sperical coordinates. 
+
+Definition at line 29 of file ITL\_\-histogram.h.
+
+\hypertarget{classITL__histogram_a3111dfec91196d7ed491c3552997ba59}{
+\index{ITL\_\-histogram@{ITL\_\-histogram}!theta@{theta}}
+\index{theta@{theta}!ITL_histogram@{ITL\_\-histogram}}
+\subsubsection[{theta}]{\setlength{\rightskip}{0pt plus 5cm}float $\ast$ {\bf ITL\_\-histogram::theta} = new float\mbox{[}2$\ast$360\mbox{]}\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__histogram_a3111dfec91196d7ed491c3552997ba59}
+
+
+Angle variable. 
+
+Angle related to spherical coordinates. 
+
+Definition at line 20 of file ITL\_\-histogram.h.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__histogram_8h}{ITL\_\-histogram.h}\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__histogramconstants_8h}{ITL\_\-histogramconstants.h}\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/src/\hyperlink{ITL__histogram_8cpp}{ITL\_\-histogram.cpp}\end{DoxyCompactItemize}

@@ -1,0 +1,14 @@
+functionType 2
+vectorField ../../sampledata/source.vec
+outField source_en.vol
+patchFile patch.txt
+nDim 3
+nBin 360
+neighborhoodSize 6
+neighborhoodSizeX 6
+neighborhoodSizeY 6
+neighborhoodSizeZ 6
+nBlockX 2
+nBlockY 1
+nBlockZ 1
+EOF

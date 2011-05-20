@@ -1,0 +1,267 @@
+\hypertarget{classVECTOR3}{
+\section{VECTOR3 Class Reference}
+\label{classVECTOR3}\index{VECTOR3@{VECTOR3}}
+}
+
+
+{\ttfamily \#include $<$ITL\_\-vectormatrix.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classVECTOR3_a67df11517cf0d5f78bc4fbf7c8428c74}{VECTOR3} ()
+\item 
+\hyperlink{classVECTOR3_a36d21006a60aab59533ad9ef1f0dbec0}{VECTOR3} (const float x0, const float x1, const float x2)
+\item 
+void \hyperlink{classVECTOR3_a032256fc81e39310d30a38fb303ce48f}{Set} (const float x0, const float x1, const float x2)
+\item 
+int \hyperlink{classVECTOR3_a0f24d4dfcad2cf3bb11caa5a8f3bb758}{Dimension} () const 
+\item 
+float \hyperlink{classVECTOR3_ac05d9ef1b78723c720085c2d914bf504}{x} ()
+\item 
+float \hyperlink{classVECTOR3_aa6d52065fe15476ad2f169f93e8e4539}{y} ()
+\item 
+float \hyperlink{classVECTOR3_a8962966f79d06da320d958555cd7c98e}{z} ()
+\item 
+float \& \hyperlink{classVECTOR3_ad036f6898236422beeb85ea329ee510f}{operator\mbox{[}$\,$\mbox{]}} (const int i)
+\item 
+float \hyperlink{classVECTOR3_a3ed6b977aafcd21ffca8bbc081a55694}{operator()} (const int i) const 
+\item 
+bool \hyperlink{classVECTOR3_a4fd7d880a7bdab66567d23dccaaf27d4}{operator==} (const \hyperlink{classVECTOR3}{VECTOR3} \&v) const 
+\item 
+void \hyperlink{classVECTOR3_a55e86265b134a80232d1fb4f8857d3e2}{Zero} ()
+\item 
+float \hyperlink{classVECTOR3_ad0453425d5ddd7acc41e779e58292c82}{GetMag} ()
+\item 
+const \hyperlink{classVECTOR3}{VECTOR3} \& \hyperlink{classVECTOR3_a09838095d5261acb5d316ff1b1748c6a}{operator=} (const \hyperlink{classVECTOR3}{VECTOR3} \&v0)
+\item 
+float \hyperlink{classVECTOR3_ad3d4922b7faecfbf09a04e7ec63f8b97}{GetMax} ()
+\item 
+void \hyperlink{classVECTOR3_a5ff1e83937b7cb26817fcb880dd1775e}{Clamp} ()
+\item 
+void \hyperlink{classVECTOR3_a806c8a5b345ce23d4cadf5b4ed892d2c}{Normalize} ()
+\item 
+bool \hyperlink{classVECTOR3_a596224f61911d8e49f8a16e4de1752cd}{IsSame} (\hyperlink{classVECTOR3}{VECTOR3} \&a)
+\item 
+void \hyperlink{classVECTOR3_a7b9d1162d5fd227a4cbbd254839e270c}{scale} (const float s)
+\item 
+void \hyperlink{classVECTOR3_a3540269e74f969f2d20e6907f495d852}{minus} (\hyperlink{classVECTOR3}{VECTOR3} \&v1, \hyperlink{classVECTOR3}{VECTOR3} \&v2)
+\item 
+void \hyperlink{classVECTOR3_aa5db49d73f2676c01fb2e11c5ead2f31}{add} (float a, float b, float c)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+float \hyperlink{classVECTOR3_a6550870fd8405ddc131bdb4643940fcd}{vec} \mbox{[}3\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+
+
+Definition at line 61 of file ITL\_\-vectormatrix.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classVECTOR3_a67df11517cf0d5f78bc4fbf7c8428c74}{
+\index{VECTOR3@{VECTOR3}!VECTOR3@{VECTOR3}}
+\index{VECTOR3@{VECTOR3}!VECTOR3@{VECTOR3}}
+\subsubsection[{VECTOR3}]{\setlength{\rightskip}{0pt plus 5cm}VECTOR3::VECTOR3 ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a67df11517cf0d5f78bc4fbf7c8428c74}
+
+
+Definition at line 68 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_a36d21006a60aab59533ad9ef1f0dbec0}{
+\index{VECTOR3@{VECTOR3}!VECTOR3@{VECTOR3}}
+\index{VECTOR3@{VECTOR3}!VECTOR3@{VECTOR3}}
+\subsubsection[{VECTOR3}]{\setlength{\rightskip}{0pt plus 5cm}VECTOR3::VECTOR3 (const float {\em x0}, \/  const float {\em x1}, \/  const float {\em x2})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a36d21006a60aab59533ad9ef1f0dbec0}
+
+
+Definition at line 69 of file ITL\_\-vectormatrix.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classVECTOR3_aa5db49d73f2676c01fb2e11c5ead2f31}{
+\index{VECTOR3@{VECTOR3}!add@{add}}
+\index{add@{add}!VECTOR3@{VECTOR3}}
+\subsubsection[{add}]{\setlength{\rightskip}{0pt plus 5cm}void VECTOR3::add (float {\em a}, \/  float {\em b}, \/  float {\em c})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_aa5db49d73f2676c01fb2e11c5ead2f31}
+
+
+Definition at line 95 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_a5ff1e83937b7cb26817fcb880dd1775e}{
+\index{VECTOR3@{VECTOR3}!Clamp@{Clamp}}
+\index{Clamp@{Clamp}!VECTOR3@{VECTOR3}}
+\subsubsection[{Clamp}]{\setlength{\rightskip}{0pt plus 5cm}void VECTOR3::Clamp ()}}
+\label{classVECTOR3_a5ff1e83937b7cb26817fcb880dd1775e}
+
+
+Definition at line 35 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{classVECTOR3_a0f24d4dfcad2cf3bb11caa5a8f3bb758}{
+\index{VECTOR3@{VECTOR3}!Dimension@{Dimension}}
+\index{Dimension@{Dimension}!VECTOR3@{VECTOR3}}
+\subsubsection[{Dimension}]{\setlength{\rightskip}{0pt plus 5cm}int VECTOR3::Dimension () const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a0f24d4dfcad2cf3bb11caa5a8f3bb758}
+
+
+Definition at line 72 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_ad0453425d5ddd7acc41e779e58292c82}{
+\index{VECTOR3@{VECTOR3}!GetMag@{GetMag}}
+\index{GetMag@{GetMag}!VECTOR3@{VECTOR3}}
+\subsubsection[{GetMag}]{\setlength{\rightskip}{0pt plus 5cm}float VECTOR3::GetMag ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_ad0453425d5ddd7acc41e779e58292c82}
+
+
+Definition at line 86 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_ad3d4922b7faecfbf09a04e7ec63f8b97}{
+\index{VECTOR3@{VECTOR3}!GetMax@{GetMax}}
+\index{GetMax@{GetMax}!VECTOR3@{VECTOR3}}
+\subsubsection[{GetMax}]{\setlength{\rightskip}{0pt plus 5cm}float VECTOR3::GetMax ()}}
+\label{classVECTOR3_ad3d4922b7faecfbf09a04e7ec63f8b97}
+
+
+Definition at line 26 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{classVECTOR3_a596224f61911d8e49f8a16e4de1752cd}{
+\index{VECTOR3@{VECTOR3}!IsSame@{IsSame}}
+\index{IsSame@{IsSame}!VECTOR3@{VECTOR3}}
+\subsubsection[{IsSame}]{\setlength{\rightskip}{0pt plus 5cm}bool VECTOR3::IsSame ({\bf VECTOR3} \& {\em a})}}
+\label{classVECTOR3_a596224f61911d8e49f8a16e4de1752cd}
+
+
+Definition at line 41 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{classVECTOR3_a3540269e74f969f2d20e6907f495d852}{
+\index{VECTOR3@{VECTOR3}!minus@{minus}}
+\index{minus@{minus}!VECTOR3@{VECTOR3}}
+\subsubsection[{minus}]{\setlength{\rightskip}{0pt plus 5cm}void VECTOR3::minus ({\bf VECTOR3} \& {\em v1}, \/  {\bf VECTOR3} \& {\em v2})}}
+\label{classVECTOR3_a3540269e74f969f2d20e6907f495d852}
+
+
+Definition at line 55 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{classVECTOR3_a806c8a5b345ce23d4cadf5b4ed892d2c}{
+\index{VECTOR3@{VECTOR3}!Normalize@{Normalize}}
+\index{Normalize@{Normalize}!VECTOR3@{VECTOR3}}
+\subsubsection[{Normalize}]{\setlength{\rightskip}{0pt plus 5cm}void VECTOR3::Normalize ()}}
+\label{classVECTOR3_a806c8a5b345ce23d4cadf5b4ed892d2c}
+
+
+Definition at line 15 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{classVECTOR3_a3ed6b977aafcd21ffca8bbc081a55694}{
+\index{VECTOR3@{VECTOR3}!operator()@{operator()}}
+\index{operator()@{operator()}!VECTOR3@{VECTOR3}}
+\subsubsection[{operator()}]{\setlength{\rightskip}{0pt plus 5cm}float VECTOR3::operator() (const int {\em i}) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a3ed6b977aafcd21ffca8bbc081a55694}
+
+
+Definition at line 77 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_a09838095d5261acb5d316ff1b1748c6a}{
+\index{VECTOR3@{VECTOR3}!operator=@{operator=}}
+\index{operator=@{operator=}!VECTOR3@{VECTOR3}}
+\subsubsection[{operator=}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf VECTOR3}\& VECTOR3::operator= (const {\bf VECTOR3} \& {\em v0})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a09838095d5261acb5d316ff1b1748c6a}
+
+
+Definition at line 87 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_a4fd7d880a7bdab66567d23dccaaf27d4}{
+\index{VECTOR3@{VECTOR3}!operator==@{operator==}}
+\index{operator==@{operator==}!VECTOR3@{VECTOR3}}
+\subsubsection[{operator==}]{\setlength{\rightskip}{0pt plus 5cm}bool VECTOR3::operator== (const {\bf VECTOR3} \& {\em v}) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a4fd7d880a7bdab66567d23dccaaf27d4}
+
+
+Definition at line 78 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_ad036f6898236422beeb85ea329ee510f}{
+\index{VECTOR3@{VECTOR3}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!VECTOR3@{VECTOR3}}
+\subsubsection[{operator[]}]{\setlength{\rightskip}{0pt plus 5cm}float\& VECTOR3::operator\mbox{[}$\,$\mbox{]} (const int {\em i})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_ad036f6898236422beeb85ea329ee510f}
+
+
+Definition at line 76 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_a7b9d1162d5fd227a4cbbd254839e270c}{
+\index{VECTOR3@{VECTOR3}!scale@{scale}}
+\index{scale@{scale}!VECTOR3@{VECTOR3}}
+\subsubsection[{scale}]{\setlength{\rightskip}{0pt plus 5cm}void VECTOR3::scale (const float {\em s})}}
+\label{classVECTOR3_a7b9d1162d5fd227a4cbbd254839e270c}
+
+
+Definition at line 49 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{classVECTOR3_a032256fc81e39310d30a38fb303ce48f}{
+\index{VECTOR3@{VECTOR3}!Set@{Set}}
+\index{Set@{Set}!VECTOR3@{VECTOR3}}
+\subsubsection[{Set}]{\setlength{\rightskip}{0pt plus 5cm}void VECTOR3::Set (const float {\em x0}, \/  const float {\em x1}, \/  const float {\em x2})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a032256fc81e39310d30a38fb303ce48f}
+
+
+Definition at line 71 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_ac05d9ef1b78723c720085c2d914bf504}{
+\index{VECTOR3@{VECTOR3}!x@{x}}
+\index{x@{x}!VECTOR3@{VECTOR3}}
+\subsubsection[{x}]{\setlength{\rightskip}{0pt plus 5cm}float VECTOR3::x ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_ac05d9ef1b78723c720085c2d914bf504}
+
+
+Definition at line 73 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_aa6d52065fe15476ad2f169f93e8e4539}{
+\index{VECTOR3@{VECTOR3}!y@{y}}
+\index{y@{y}!VECTOR3@{VECTOR3}}
+\subsubsection[{y}]{\setlength{\rightskip}{0pt plus 5cm}float VECTOR3::y ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_aa6d52065fe15476ad2f169f93e8e4539}
+
+
+Definition at line 74 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_a8962966f79d06da320d958555cd7c98e}{
+\index{VECTOR3@{VECTOR3}!z@{z}}
+\index{z@{z}!VECTOR3@{VECTOR3}}
+\subsubsection[{z}]{\setlength{\rightskip}{0pt plus 5cm}float VECTOR3::z ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a8962966f79d06da320d958555cd7c98e}
+
+
+Definition at line 75 of file ITL\_\-vectormatrix.h.
+
+\hypertarget{classVECTOR3_a55e86265b134a80232d1fb4f8857d3e2}{
+\index{VECTOR3@{VECTOR3}!Zero@{Zero}}
+\index{Zero@{Zero}!VECTOR3@{VECTOR3}}
+\subsubsection[{Zero}]{\setlength{\rightskip}{0pt plus 5cm}void VECTOR3::Zero ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classVECTOR3_a55e86265b134a80232d1fb4f8857d3e2}
+
+
+Definition at line 85 of file ITL\_\-vectormatrix.h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classVECTOR3_a6550870fd8405ddc131bdb4643940fcd}{
+\index{VECTOR3@{VECTOR3}!vec@{vec}}
+\index{vec@{vec}!VECTOR3@{VECTOR3}}
+\subsubsection[{vec}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf VECTOR3::vec}\mbox{[}3\mbox{]}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}
+\label{classVECTOR3_a6550870fd8405ddc131bdb4643940fcd}
+
+
+Definition at line 64 of file ITL\_\-vectormatrix.h.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__vectormatrix_8h}{ITL\_\-vectormatrix.h}\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/src/\hyperlink{ITL__vectormatrix_8cpp}{ITL\_\-vectormatrix.cpp}\end{DoxyCompactItemize}

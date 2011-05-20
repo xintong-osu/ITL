@@ -1,0 +1,198 @@
+\hypertarget{classITL__datastore}{
+\section{ITL\_\-datastore$<$ T $>$ Class Template Reference}
+\label{classITL__datastore}\index{ITL\_\-datastore@{ITL\_\-datastore}}
+}
+
+
+The container class for data.  
+
+
+
+
+{\ttfamily \#include $<$ITL\_\-datastore.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classITL__datastore_a1da115b3d395ac0482d2b0c980a2384f}{ITL\_\-datastore} ()
+\begin{DoxyCompactList}\small\item\em Default Constructor. \item\end{DoxyCompactList}\item 
+\hyperlink{classITL__datastore_a3beff9f7ee4e7ce2a65cc3bce3418b99}{ITL\_\-datastore} (T $\ast$\hyperlink{MainIT__regvector_8cpp_a783b2b1c03f80ec0d3ed965238d6bd65}{data})
+\begin{DoxyCompactList}\small\item\em Constructor. \item\end{DoxyCompactList}\item 
+\hyperlink{classITL__datastore_a017cff7441532e53a2a0897cc8790e3a}{ITL\_\-datastore} (int nData)
+\begin{DoxyCompactList}\small\item\em Constructor. \item\end{DoxyCompactList}\item 
+virtual bool \hyperlink{classITL__datastore_a43b1843d9ccedc71295116de3d31edb0}{hasData} ()
+\begin{DoxyCompactList}\small\item\em Boolean function that returns TRUE if datastore contains data. \item\end{DoxyCompactList}\item 
+virtual T $\ast$ \hyperlink{classITL__datastore_ac5d73b1499462140fafa2ca90634c721}{getData} ()
+\begin{DoxyCompactList}\small\item\em Data accessor function. \item\end{DoxyCompactList}\item 
+\hyperlink{classITL__datastore_a4691b58e9218237b709195d8f2a811eb}{$\sim$ITL\_\-datastore} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+FILE $\ast$ \hyperlink{classITL__datastore_a63d8cfcd308a6dd6763bd784c3870197}{datafile}
+\begin{DoxyCompactList}\small\item\em Pointer to data file. \item\end{DoxyCompactList}\item 
+int \hyperlink{classITL__datastore_aceb858e3255e686bc8567e4f203adc88}{nel}
+\begin{DoxyCompactList}\small\item\em Total number of elements in the 1D array. \item\end{DoxyCompactList}\item 
+T $\ast$ \hyperlink{classITL__datastore_a63e6e00d86fa6f227686e0612518e26e}{array}
+\begin{DoxyCompactList}\small\item\em Pointer to the 1D array containing data elements. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class T$>$ class ITL\_\-datastore$<$ T $>$}
+
+The container class for data. This template class is the container for the raw data for a field. This class does not have any information regarding indexing and spatial arrangement of the data. Created on: Nov 18, 2010. \begin{DoxyAuthor}{Authors}
+Abon 
+\end{DoxyAuthor}
+\begin{DoxyAuthor}{Author}
+Teng-\/Yok 
+\end{DoxyAuthor}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{classITL__grid}{ITL\_\-grid} 
+\end{DoxySeeAlso}
+
+
+Definition at line 17 of file ITL\_\-datastore.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classITL__datastore_a1da115b3d395ac0482d2b0c980a2384f}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!ITL\_\-datastore@{ITL\_\-datastore}}
+\index{ITL\_\-datastore@{ITL\_\-datastore}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{ITL\_\-datastore}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-datastore}$<$ T $>$::{\bf ITL\_\-datastore} ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__datastore_a1da115b3d395ac0482d2b0c980a2384f}
+
+
+Default Constructor. 
+
+
+
+Definition at line 30 of file ITL\_\-datastore.h.
+
+\hypertarget{classITL__datastore_a3beff9f7ee4e7ce2a65cc3bce3418b99}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!ITL\_\-datastore@{ITL\_\-datastore}}
+\index{ITL\_\-datastore@{ITL\_\-datastore}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{ITL\_\-datastore}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-datastore}$<$ T $>$::{\bf ITL\_\-datastore} (T $\ast$ {\em data})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__datastore_a3beff9f7ee4e7ce2a65cc3bce3418b99}
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em data}]pointer to template array conaining data. \end{DoxyParams}
+
+
+Definition at line 41 of file ITL\_\-datastore.h.
+
+\hypertarget{classITL__datastore_a017cff7441532e53a2a0897cc8790e3a}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!ITL\_\-datastore@{ITL\_\-datastore}}
+\index{ITL\_\-datastore@{ITL\_\-datastore}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{ITL\_\-datastore}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-datastore}$<$ T $>$::{\bf ITL\_\-datastore} (int {\em nData})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__datastore_a017cff7441532e53a2a0897cc8790e3a}
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em nData}]Number of data elements. This constructor allocates memory for data. \end{DoxyParams}
+
+
+Definition at line 53 of file ITL\_\-datastore.h.
+
+\hypertarget{classITL__datastore_a4691b58e9218237b709195d8f2a811eb}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!$\sim$ITL\_\-datastore@{$\sim$ITL\_\-datastore}}
+\index{$\sim$ITL\_\-datastore@{$\sim$ITL\_\-datastore}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{$\sim$ITL\_\-datastore}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-datastore}$<$ T $>$::$\sim${\bf ITL\_\-datastore} ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__datastore_a4691b58e9218237b709195d8f2a811eb}
+
+
+Destructor. 
+
+
+
+Definition at line 81 of file ITL\_\-datastore.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classITL__datastore_ac5d73b1499462140fafa2ca90634c721}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!getData@{getData}}
+\index{getData@{getData}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{getData}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ virtual T$\ast$ {\bf ITL\_\-datastore}$<$ T $>$::getData ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline, virtual\mbox{]}}}}
+\label{classITL__datastore_ac5d73b1499462140fafa2ca90634c721}
+
+
+Data accessor function. 
+
+\begin{DoxyReturn}{Returns}
+Pointer to data. 
+\end{DoxyReturn}
+
+
+Definition at line 73 of file ITL\_\-datastore.h.
+
+\hypertarget{classITL__datastore_a43b1843d9ccedc71295116de3d31edb0}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!hasData@{hasData}}
+\index{hasData@{hasData}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{hasData}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ virtual bool {\bf ITL\_\-datastore}$<$ T $>$::hasData ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline, virtual\mbox{]}}}}
+\label{classITL__datastore_a43b1843d9ccedc71295116de3d31edb0}
+
+
+Boolean function that returns TRUE if datastore contains data. 
+
+\begin{DoxyReturn}{Returns}
+Boolean flag. 
+\end{DoxyReturn}
+
+
+Definition at line 64 of file ITL\_\-datastore.h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classITL__datastore_a63e6e00d86fa6f227686e0612518e26e}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!array@{array}}
+\index{array@{array}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{array}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ T$\ast$ {\bf ITL\_\-datastore}$<$ T $>$::{\bf array}}}
+\label{classITL__datastore_a63e6e00d86fa6f227686e0612518e26e}
+
+
+Pointer to the 1D array containing data elements. 
+
+
+
+Definition at line 23 of file ITL\_\-datastore.h.
+
+\hypertarget{classITL__datastore_a63d8cfcd308a6dd6763bd784c3870197}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!datafile@{datafile}}
+\index{datafile@{datafile}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{datafile}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ FILE$\ast$ {\bf ITL\_\-datastore}$<$ T $>$::{\bf datafile}}}
+\label{classITL__datastore_a63d8cfcd308a6dd6763bd784c3870197}
+
+
+Pointer to data file. 
+
+Required if data has to be read directly from file. 
+
+Definition at line 21 of file ITL\_\-datastore.h.
+
+\hypertarget{classITL__datastore_aceb858e3255e686bc8567e4f203adc88}{
+\index{ITL\_\-datastore@{ITL\_\-datastore}!nel@{nel}}
+\index{nel@{nel}!ITL_datastore@{ITL\_\-datastore}}
+\subsubsection[{nel}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ int {\bf ITL\_\-datastore}$<$ T $>$::{\bf nel}}}
+\label{classITL__datastore_aceb858e3255e686bc8567e4f203adc88}
+
+
+Total number of elements in the 1D array. 
+
+
+
+Definition at line 22 of file ITL\_\-datastore.h.
+
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__datastore_8h}{ITL\_\-datastore.h}\end{DoxyCompactItemize}

@@ -1,0 +1,246 @@
+\hypertarget{classITL__localjointentropy}{
+\section{ITL\_\-localjointentropy$<$ T $>$ Class Template Reference}
+\label{classITL__localjointentropy}\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}}
+}
+
+
+Joint entropy computation class.  
+
+
+
+
+{\ttfamily \#include $<$ITL\_\-localjointentropy.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classITL__localjointentropy_a5e579f10a227887be6f31d7b3c8f6264}{ITL\_\-localjointentropy} (\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ T $>$ $\ast$f1, \hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ T $>$ $\ast$f2)
+\begin{DoxyCompactList}\small\item\em Default Constructor. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localjointentropy_ae9be80bf2f4a78369bcbddcddc59d6d7}{computeJointHistogramBinField} (char $\ast$fieldType, int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin}=0)
+\begin{DoxyCompactList}\small\item\em Joint histogram bin assignment function. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localjointentropy_a1b96f07f6412ed4de52831b52b1c76b3}{computeJointHistogramBinField\_\-Scalar} (int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin})
+\begin{DoxyCompactList}\small\item\em Joint histogram bin assignment function for scalar field. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localjointentropy_aea0240252de7ae30bf4835451421f689}{computeJointHistogramBinField\_\-Vector} (int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin})
+\begin{DoxyCompactList}\small\item\em Joint histogram bin assignment function for vector field. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localjointentropy_a61e8069fb43ede8ff287ec52b7ac3209}{computeJointEntropyOfField} (int nBins)
+\begin{DoxyCompactList}\small\item\em Joint Entropy computation function. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localjointentropy_addf9e3b48606d41d21d3f8de92e301dc}{computeJointEntropySinglePoint} (int x, int y, int z, int nNeighbors, int nBins, int entropyFieldIndex)
+\begin{DoxyCompactList}\small\item\em Entropy computation function. \item\end{DoxyCompactList}\item 
+float \hyperlink{classITL__localjointentropy_a55d22392f68f774dc49ba7ee1d63f5e4}{computeJointEntropy} (int $\ast$binIds, int nels, int nbins)
+\begin{DoxyCompactList}\small\item\em Joint entropy computation function. \item\end{DoxyCompactList}\item 
+float \hyperlink{classITL__localjointentropy_a340a81aab892167d4e1237a2c8dc32f4}{getEntropy} ()
+\begin{DoxyCompactList}\small\item\em Entropy accessor function. \item\end{DoxyCompactList}\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ float $>$ $\ast$ \hyperlink{classITL__localjointentropy_a6692663398468a38585e53b005fef179}{getJointEntropyField} ()
+\begin{DoxyCompactList}\small\item\em Entropy field accessor function. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ T $>$ $\ast$ \hyperlink{classITL__localjointentropy_a8ff2f16dad74ac2c1e6d9e2669c49990}{dataField1}
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ T $>$ $\ast$ \hyperlink{classITL__localjointentropy_a68b8981e78713334160e6c1c0dd522ff}{dataField2}
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ int $>$ $\ast$ \hyperlink{classITL__localjointentropy_a3464cac89446ff42d3c39a703f7e35fe}{binData}
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ float $>$ $\ast$ \hyperlink{classITL__localjointentropy_a374226ab54b6d5cf039a4d8ed99bc07f}{jointEntropyField}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class T$>$ class ITL\_\-localjointentropy$<$ T $>$}
+
+Joint entropy computation class. Created on: Jan 05, 2011. \begin{DoxyAuthor}{Author}
+Abon 
+
+Teng-\/Yok 
+\end{DoxyAuthor}
+
+
+Definition at line 16 of file ITL\_\-localjointentropy.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classITL__localjointentropy_a5e579f10a227887be6f31d7b3c8f6264}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!ITL\_\-localjointentropy@{ITL\_\-localjointentropy}}
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{ITL\_\-localjointentropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-localjointentropy}$<$ T $>$::{\bf ITL\_\-localjointentropy} ({\bf ITL\_\-field\_\-regular}$<$ T $>$ $\ast$ {\em f1}, \/  {\bf ITL\_\-field\_\-regular}$<$ T $>$ $\ast$ {\em f2})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localjointentropy_a5e579f10a227887be6f31d7b3c8f6264}
+
+
+Default Constructor. 
+
+
+
+Definition at line 30 of file ITL\_\-localjointentropy.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classITL__localjointentropy_a55d22392f68f774dc49ba7ee1d63f5e4}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!computeJointEntropy@{computeJointEntropy}}
+\index{computeJointEntropy@{computeJointEntropy}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{computeJointEntropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ float {\bf ITL\_\-localjointentropy}$<$ T $>$::computeJointEntropy (int $\ast$ {\em binIds}, \/  int {\em nels}, \/  int {\em nbins})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localjointentropy_a55d22392f68f774dc49ba7ee1d63f5e4}
+
+
+Joint entropy computation function. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em binIds}]Pointer to array containing histogram bin assignments of the points in the neighborhood. \item[{\em nels}]Number of points in the neighborhood. Same as the length of bin array. \item[{\em nbins}]Number of bins used in histogram computation. \end{DoxyParams}
+
+
+Definition at line 292 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_a61e8069fb43ede8ff287ec52b7ac3209}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!computeJointEntropyOfField@{computeJointEntropyOfField}}
+\index{computeJointEntropyOfField@{computeJointEntropyOfField}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{computeJointEntropyOfField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localjointentropy}$<$ T $>$::computeJointEntropyOfField (int {\em nBins})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localjointentropy_a61e8069fb43ede8ff287ec52b7ac3209}
+
+
+Joint Entropy computation function. 
+
+Creates a scalar field that contains entropy at each grid vertex. 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins used in histogram computation. \end{DoxyParams}
+
+
+Definition at line 204 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_addf9e3b48606d41d21d3f8de92e301dc}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!computeJointEntropySinglePoint@{computeJointEntropySinglePoint}}
+\index{computeJointEntropySinglePoint@{computeJointEntropySinglePoint}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{computeJointEntropySinglePoint}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localjointentropy}$<$ T $>$::computeJointEntropySinglePoint (int {\em x}, \/  int {\em y}, \/  int {\em z}, \/  int {\em nNeighbors}, \/  int {\em nBins}, \/  int {\em entropyFieldIndex})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localjointentropy_addf9e3b48606d41d21d3f8de92e301dc}
+
+
+Entropy computation function. 
+
+Computes entropy at a spatial point in the field. 
+\begin{DoxyParams}{Parameters}
+\item[{\em x}]x-\/coordinate of the spatial point. \item[{\em y}]y-\/coordinate of the spatial point. \item[{\em z}]z-\/coordinate of the spatial point. \item[{\em nNeighbors}]total number of neighbors in the neighborhood (including self). \item[{\em nBins}]Number of bins to use in histogram computation. \item[{\em entropyFieldIndex}]1D index to the entopy field. \end{DoxyParams}
+
+
+Definition at line 242 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_ae9be80bf2f4a78369bcbddcddc59d6d7}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!computeJointHistogramBinField@{computeJointHistogramBinField}}
+\index{computeJointHistogramBinField@{computeJointHistogramBinField}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{computeJointHistogramBinField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localjointentropy}$<$ T $>$::computeJointHistogramBinField (char $\ast$ {\em fieldType}, \/  int {\em nBin} = {\ttfamily 0})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localjointentropy_ae9be80bf2f4a78369bcbddcddc59d6d7}
+
+
+Joint histogram bin assignment function. 
+
+Calls the appropriate function based on field type 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins to use in histogram computation. \end{DoxyParams}
+
+
+Definition at line 43 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_a1b96f07f6412ed4de52831b52b1c76b3}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!computeJointHistogramBinField\_\-Scalar@{computeJointHistogramBinField\_\-Scalar}}
+\index{computeJointHistogramBinField\_\-Scalar@{computeJointHistogramBinField\_\-Scalar}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{computeJointHistogramBinField\_\-Scalar}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localjointentropy}$<$ T $>$::computeJointHistogramBinField\_\-Scalar (int {\em nBin})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localjointentropy_a1b96f07f6412ed4de52831b52b1c76b3}
+
+
+Joint histogram bin assignment function for scalar field. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em nBin}]Number of bins to be used in histogram computation. \end{DoxyParams}
+
+
+Definition at line 65 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_aea0240252de7ae30bf4835451421f689}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!computeJointHistogramBinField\_\-Vector@{computeJointHistogramBinField\_\-Vector}}
+\index{computeJointHistogramBinField\_\-Vector@{computeJointHistogramBinField\_\-Vector}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{computeJointHistogramBinField\_\-Vector}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localjointentropy}$<$ T $>$::computeJointHistogramBinField\_\-Vector (int {\em nBin})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localjointentropy_aea0240252de7ae30bf4835451421f689}
+
+
+Joint histogram bin assignment function for vector field. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em nBin}]Number of bins to be used in joint histogram computation. \end{DoxyParams}
+
+
+Definition at line 142 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_a340a81aab892167d4e1237a2c8dc32f4}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!getEntropy@{getEntropy}}
+\index{getEntropy@{getEntropy}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{getEntropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ float {\bf ITL\_\-localjointentropy}$<$ T $>$::getEntropy ()}}
+\label{classITL__localjointentropy_a340a81aab892167d4e1237a2c8dc32f4}
+
+
+Entropy accessor function. 
+
+\begin{DoxyReturn}{Returns}
+computed entropy. 
+\end{DoxyReturn}
+\hypertarget{classITL__localjointentropy_a6692663398468a38585e53b005fef179}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!getJointEntropyField@{getJointEntropyField}}
+\index{getJointEntropyField@{getJointEntropyField}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{getJointEntropyField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$float$>$$\ast$ {\bf ITL\_\-localjointentropy}$<$ T $>$::getJointEntropyField ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localjointentropy_a6692663398468a38585e53b005fef179}
+
+
+Entropy field accessor function. 
+
+Returns computed entropy field. \begin{DoxyReturn}{Returns}
+pointer to entropy field. 
+\end{DoxyReturn}
+
+
+Definition at line 331 of file ITL\_\-localjointentropy.h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classITL__localjointentropy_a3464cac89446ff42d3c39a703f7e35fe}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!binData@{binData}}
+\index{binData@{binData}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{binData}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$int$>$$\ast$ {\bf ITL\_\-localjointentropy}$<$ T $>$::{\bf binData}}}
+\label{classITL__localjointentropy_a3464cac89446ff42d3c39a703f7e35fe}
+
+
+Definition at line 22 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_a8ff2f16dad74ac2c1e6d9e2669c49990}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!dataField1@{dataField1}}
+\index{dataField1@{dataField1}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{dataField1}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$T$>$$\ast$ {\bf ITL\_\-localjointentropy}$<$ T $>$::{\bf dataField1}}}
+\label{classITL__localjointentropy_a8ff2f16dad74ac2c1e6d9e2669c49990}
+
+
+Definition at line 20 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_a68b8981e78713334160e6c1c0dd522ff}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!dataField2@{dataField2}}
+\index{dataField2@{dataField2}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{dataField2}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$T$>$$\ast$ {\bf ITL\_\-localjointentropy}$<$ T $>$::{\bf dataField2}}}
+\label{classITL__localjointentropy_a68b8981e78713334160e6c1c0dd522ff}
+
+
+Definition at line 21 of file ITL\_\-localjointentropy.h.
+
+\hypertarget{classITL__localjointentropy_a374226ab54b6d5cf039a4d8ed99bc07f}{
+\index{ITL\_\-localjointentropy@{ITL\_\-localjointentropy}!jointEntropyField@{jointEntropyField}}
+\index{jointEntropyField@{jointEntropyField}!ITL_localjointentropy@{ITL\_\-localjointentropy}}
+\subsubsection[{jointEntropyField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$float$>$$\ast$ {\bf ITL\_\-localjointentropy}$<$ T $>$::{\bf jointEntropyField}}}
+\label{classITL__localjointentropy_a374226ab54b6d5cf039a4d8ed99bc07f}
+
+
+Definition at line 23 of file ITL\_\-localjointentropy.h.
+
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__localjointentropy_8h}{ITL\_\-localjointentropy.h}\end{DoxyCompactItemize}

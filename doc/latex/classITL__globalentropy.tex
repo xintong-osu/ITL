@@ -1,0 +1,208 @@
+\hypertarget{classITL__globalentropy}{
+\section{ITL\_\-globalentropy$<$ T $>$ Class Template Reference}
+\label{classITL__globalentropy}\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}}
+}
+
+
+Gloabl entropy computation class.  
+
+
+
+
+{\ttfamily \#include $<$ITL\_\-globalentropy.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classITL__globalentropy_af82eb0ffa8d7d33ec3e3c6af95322cf2}{ITL\_\-globalentropy} (\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ T $>$ $\ast$f)
+\begin{DoxyCompactList}\small\item\em Default Constructor. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__globalentropy_afe13cb031dbfa959c547ac1a0d849472}{computeHistogramBinField} (char $\ast$fieldType, int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin}=0)
+\begin{DoxyCompactList}\small\item\em Histogram bin assignment function. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__globalentropy_aad50922e014e3b5929e9415c8ddef382}{computeHistogramBinField\_\-Scalar} (int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin})
+\begin{DoxyCompactList}\small\item\em Histogram bin assignment function for scalar fields. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__globalentropy_a6929e8efe91de1d1d604897ac1d1cb0f}{computeHistogramBinField\_\-Vector} (int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin})
+\begin{DoxyCompactList}\small\item\em Histogram bin assignment function for vector fields. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__globalentropy_ad6e98f40d85501050f6a055bd8218525}{computeGlobalEntropyOfField} (int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin}, bool toNormalize, int \hyperlink{MainIT__regscalar_8cpp_adcc9a19ad3119f823a658f6a49a24e64}{method}=0)
+\begin{DoxyCompactList}\small\item\em Entropy computation function. \item\end{DoxyCompactList}\item 
+float \hyperlink{classITL__globalentropy_a971ff6f68ca3399c374f52f24bb1232c}{getGlobalEntropy} ()
+\begin{DoxyCompactList}\small\item\em Entropy field accessor function. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ T $>$ $\ast$ \hyperlink{classITL__globalentropy_adc0074ac722c23f71868d43ed818e063}{dataField}
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ int $>$ $\ast$ \hyperlink{classITL__globalentropy_ac546157f722e8b579c020180a0473ea0}{binData}
+\begin{DoxyCompactList}\small\item\em A scalar field containing histogram bins corresponding to field points. \item\end{DoxyCompactList}\item 
+float \hyperlink{classITL__globalentropy_a462d47cb4eb2b6b7dae04113db7f301a}{globalEntropy}
+\begin{DoxyCompactList}\small\item\em Value of computed global entropy of the field. \item\end{DoxyCompactList}\item 
+float $\ast$ \hyperlink{classITL__globalentropy_a65aa14c47161756fa3dd18b171c232f1}{probarray}
+\begin{DoxyCompactList}\small\item\em Probability array used in entropy computation. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class T$>$ class ITL\_\-globalentropy$<$ T $>$}
+
+Gloabl entropy computation class. Created on: April 02, 2011. \begin{DoxyAuthor}{Author}
+Abon 
+
+Teng-\/Yok 
+\end{DoxyAuthor}
+
+
+Definition at line 16 of file ITL\_\-globalentropy.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classITL__globalentropy_af82eb0ffa8d7d33ec3e3c6af95322cf2}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!ITL\_\-globalentropy@{ITL\_\-globalentropy}}
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{ITL\_\-globalentropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-globalentropy}$<$ T $>$::{\bf ITL\_\-globalentropy} ({\bf ITL\_\-field\_\-regular}$<$ T $>$ $\ast$ {\em f})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__globalentropy_af82eb0ffa8d7d33ec3e3c6af95322cf2}
+
+
+Default Constructor. 
+
+
+
+Definition at line 27 of file ITL\_\-globalentropy.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classITL__globalentropy_ad6e98f40d85501050f6a055bd8218525}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!computeGlobalEntropyOfField@{computeGlobalEntropyOfField}}
+\index{computeGlobalEntropyOfField@{computeGlobalEntropyOfField}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{computeGlobalEntropyOfField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-globalentropy}$<$ T $>$::computeGlobalEntropyOfField (int {\em nBin}, \/  bool {\em toNormalize}, \/  int {\em method} = {\ttfamily 0})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__globalentropy_ad6e98f40d85501050f6a055bd8218525}
+
+
+Entropy computation function. 
+
+Creates a scalar field that contains entropy at each grid vertex. 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins used in histogram computation/Number of sample points in KDE estimation.  toNormalize boolean flag, TRUE indicates that the computed entropy value needs to be normalized \end{DoxyParams}
+
+
+Definition at line 193 of file ITL\_\-globalentropy.h.
+
+\hypertarget{classITL__globalentropy_afe13cb031dbfa959c547ac1a0d849472}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!computeHistogramBinField@{computeHistogramBinField}}
+\index{computeHistogramBinField@{computeHistogramBinField}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{computeHistogramBinField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-globalentropy}$<$ T $>$::computeHistogramBinField (char $\ast$ {\em fieldType}, \/  int {\em nBin} = {\ttfamily 0})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__globalentropy_afe13cb031dbfa959c547ac1a0d849472}
+
+
+Histogram bin assignment function. 
+
+Calls the appropriate function based on field type 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins to use in histogram computation. \end{DoxyParams}
+
+
+Definition at line 39 of file ITL\_\-globalentropy.h.
+
+\hypertarget{classITL__globalentropy_aad50922e014e3b5929e9415c8ddef382}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!computeHistogramBinField\_\-Scalar@{computeHistogramBinField\_\-Scalar}}
+\index{computeHistogramBinField\_\-Scalar@{computeHistogramBinField\_\-Scalar}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{computeHistogramBinField\_\-Scalar}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-globalentropy}$<$ T $>$::computeHistogramBinField\_\-Scalar (int {\em nBin})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__globalentropy_aad50922e014e3b5929e9415c8ddef382}
+
+
+Histogram bin assignment function for scalar fields. 
+
+Creates a scalar field of histogram at each grid vertex. 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins to use in histogram computation. \end{DoxyParams}
+
+
+Definition at line 62 of file ITL\_\-globalentropy.h.
+
+\hypertarget{classITL__globalentropy_a6929e8efe91de1d1d604897ac1d1cb0f}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!computeHistogramBinField\_\-Vector@{computeHistogramBinField\_\-Vector}}
+\index{computeHistogramBinField\_\-Vector@{computeHistogramBinField\_\-Vector}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{computeHistogramBinField\_\-Vector}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-globalentropy}$<$ T $>$::computeHistogramBinField\_\-Vector (int {\em nBin})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__globalentropy_a6929e8efe91de1d1d604897ac1d1cb0f}
+
+
+Histogram bin assignment function for vector fields. 
+
+Creates a scalar field of histogram at each grid vertex. 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins to use in histogram computation. \end{DoxyParams}
+
+
+Definition at line 135 of file ITL\_\-globalentropy.h.
+
+\hypertarget{classITL__globalentropy_a971ff6f68ca3399c374f52f24bb1232c}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!getGlobalEntropy@{getGlobalEntropy}}
+\index{getGlobalEntropy@{getGlobalEntropy}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{getGlobalEntropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ float {\bf ITL\_\-globalentropy}$<$ T $>$::getGlobalEntropy ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__globalentropy_a971ff6f68ca3399c374f52f24bb1232c}
+
+
+Entropy field accessor function. 
+
+Returns computed entropy field. \begin{DoxyReturn}{Returns}
+pointer to entropy field. 
+\end{DoxyReturn}
+
+
+Definition at line 206 of file ITL\_\-globalentropy.h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classITL__globalentropy_ac546157f722e8b579c020180a0473ea0}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!binData@{binData}}
+\index{binData@{binData}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{binData}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$int$>$$\ast$ {\bf ITL\_\-globalentropy}$<$ T $>$::{\bf binData}}}
+\label{classITL__globalentropy_ac546157f722e8b579c020180a0473ea0}
+
+
+A scalar field containing histogram bins corresponding to field points. 
+
+
+
+Definition at line 18 of file ITL\_\-globalentropy.h.
+
+\hypertarget{classITL__globalentropy_adc0074ac722c23f71868d43ed818e063}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!dataField@{dataField}}
+\index{dataField@{dataField}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{dataField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$T$>$$\ast$ {\bf ITL\_\-globalentropy}$<$ T $>$::{\bf dataField}}}
+\label{classITL__globalentropy_adc0074ac722c23f71868d43ed818e063}
+
+
+Definition at line 17 of file ITL\_\-globalentropy.h.
+
+\hypertarget{classITL__globalentropy_a462d47cb4eb2b6b7dae04113db7f301a}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!globalEntropy@{globalEntropy}}
+\index{globalEntropy@{globalEntropy}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{globalEntropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ float {\bf ITL\_\-globalentropy}$<$ T $>$::{\bf globalEntropy}}}
+\label{classITL__globalentropy_a462d47cb4eb2b6b7dae04113db7f301a}
+
+
+Value of computed global entropy of the field. 
+
+
+
+Definition at line 19 of file ITL\_\-globalentropy.h.
+
+\hypertarget{classITL__globalentropy_a65aa14c47161756fa3dd18b171c232f1}{
+\index{ITL\_\-globalentropy@{ITL\_\-globalentropy}!probarray@{probarray}}
+\index{probarray@{probarray}!ITL_globalentropy@{ITL\_\-globalentropy}}
+\subsubsection[{probarray}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ float$\ast$ {\bf ITL\_\-globalentropy}$<$ T $>$::{\bf probarray}}}
+\label{classITL__globalentropy_a65aa14c47161756fa3dd18b171c232f1}
+
+
+Probability array used in entropy computation. 
+
+
+
+Definition at line 20 of file ITL\_\-globalentropy.h.
+
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__globalentropy_8h}{ITL\_\-globalentropy.h}\end{DoxyCompactItemize}

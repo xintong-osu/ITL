@@ -1,0 +1,12 @@
+functionType 0
+scalarField ../../sampledata/fuel.vol 
+outField fuel_en.vol
+nDim 3
+nBin 1000
+neighborhoodSizeX 6
+neighborhoodSizeY 6
+neighborhoodSizeZ 6
+nBlockX 4
+nBlockY 2
+nBlockZ 1
+EOF

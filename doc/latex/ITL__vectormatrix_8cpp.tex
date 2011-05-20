@@ -1,0 +1,243 @@
+\hypertarget{ITL__vectormatrix_8cpp}{
+\section{/home/abon/Code/workspace\_\-unix/ITL\_\-repo/src/ITL\_\-vectormatrix.cpp File Reference}
+\label{ITL__vectormatrix_8cpp}\index{/home/abon/Code/workspace\_\-unix/ITL\_\-repo/src/ITL\_\-vectormatrix.cpp@{/home/abon/Code/workspace\_\-unix/ITL\_\-repo/src/ITL\_\-vectormatrix.cpp}}
+}
+
+
+Source file for vector and matrix classes adopted from OSUFlow.  
+
+
+{\ttfamily \#include \char`\"{}ITL\_\-vectormatrix.h\char`\"{}}\par
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classMATRIX3}{MATRIX3} \hyperlink{ITL__vectormatrix_8cpp_a818ea610798e528eb27cbd9ee0bd92ad}{operator+} (const \hyperlink{classMATRIX3}{MATRIX3} \&m0, const \hyperlink{classMATRIX3}{MATRIX3} \&m1)
+\item 
+\hyperlink{classMATRIX3}{MATRIX3} \hyperlink{ITL__vectormatrix_8cpp_ab69791996250b1ce888a8622fdbcafe2}{operator-\/} (const \hyperlink{classMATRIX3}{MATRIX3} \&m0, const \hyperlink{classMATRIX3}{MATRIX3} \&m1)
+\item 
+\hyperlink{classMATRIX3}{MATRIX3} \hyperlink{ITL__vectormatrix_8cpp_aa47958bed66c1d7a3c100b967c95f33e}{operator$\ast$} (const \hyperlink{classMATRIX3}{MATRIX3} \&m0, const \hyperlink{classMATRIX3}{MATRIX3} \&m1)
+\item 
+\hyperlink{classMATRIX3}{MATRIX3} \hyperlink{ITL__vectormatrix_8cpp_aff96728c1455ee4fbcf7a9c0c3980232}{operator$\ast$} (const float x0, const \hyperlink{classMATRIX3}{MATRIX3} \&m0)
+\item 
+\hyperlink{classMATRIX3}{MATRIX3} \hyperlink{ITL__vectormatrix_8cpp_a3edaf0f70cfa2a4488838eaada2488bb}{operator$\ast$} (const \hyperlink{classMATRIX3}{MATRIX3} \&m0, const float x0)
+\item 
+\hyperlink{classVECTOR3}{VECTOR3} \hyperlink{ITL__vectormatrix_8cpp_a4664cc35a0326da5c536a8212b29303a}{operator$\ast$} (const \hyperlink{classMATRIX3}{MATRIX3} \&m0, const \hyperlink{classVECTOR3}{VECTOR3} \&v0)
+\item 
+\hyperlink{classVECTOR3}{VECTOR3} \hyperlink{ITL__vectormatrix_8cpp_a75825f6e6fea11339ebf0b1608a6e3c7}{operator$\ast$} (const \hyperlink{classVECTOR3}{VECTOR3} \&v0, const \hyperlink{classMATRIX3}{MATRIX3} \&m0)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_a260af79028b3ba1df11df1db7e181dca}{rotate\_\-matrix} (int type, float angle)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_a499092edd7bb59bb6cd19f3720dc4df5}{translate\_\-matrix} (float tx, float ty, float tz)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_a90a0aa204961e5f32c0e361a6a1e5bb8}{scale\_\-matrix} (float sx, float sy, float sz)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_ab7646a52f5cc6f449c277b77c19553ab}{operator+} (const \hyperlink{classMATRIX4}{MATRIX4} \&m0, const \hyperlink{classMATRIX4}{MATRIX4} \&m1)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_a2fa746249f8622c6939be84eb3f63e9e}{operator-\/} (const \hyperlink{classMATRIX4}{MATRIX4} \&m0, const \hyperlink{classMATRIX4}{MATRIX4} \&m1)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_a7572a35c9d6763e817f8673084b36fd7}{operator$\ast$} (const \hyperlink{classMATRIX4}{MATRIX4} \&m0, const \hyperlink{classMATRIX4}{MATRIX4} \&m1)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_ae9909ea846e72e348dec39db63c0d1c4}{operator$\ast$} (const float x0, const \hyperlink{classMATRIX4}{MATRIX4} \&m0)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_aa69cb08f04e5a3bbb072c88faf67e64d}{operator$\ast$} (const \hyperlink{classMATRIX4}{MATRIX4} \&m0, const float x0)
+\item 
+\hyperlink{classVECTOR4}{VECTOR4} \hyperlink{ITL__vectormatrix_8cpp_a9b161da78cf4ff88c1e59b1e78eedde2}{operator$\ast$} (const \hyperlink{classMATRIX4}{MATRIX4} \&m0, const \hyperlink{classVECTOR4}{VECTOR4} \&v0)
+\item 
+\hyperlink{classVECTOR3}{VECTOR3} \hyperlink{ITL__vectormatrix_8cpp_a6712648a416b57b399fe1836e6e185c1}{operator$\ast$} (const \hyperlink{classMATRIX4}{MATRIX4} \&m0, const \hyperlink{classVECTOR3}{VECTOR3} \&v0)
+\item 
+\hyperlink{classVECTOR4}{VECTOR4} \hyperlink{ITL__vectormatrix_8cpp_af38bad3f94b48a3eb3ef9802cc730601}{operator$\ast$} (const \hyperlink{classVECTOR4}{VECTOR4} \&v0, const \hyperlink{classMATRIX4}{MATRIX4} \&m0)
+\item 
+\hyperlink{classVECTOR3}{VECTOR3} \hyperlink{ITL__vectormatrix_8cpp_a41d5778bb6cdbec980b44f0fcce14fd1}{operator$\ast$} (const \hyperlink{classVECTOR3}{VECTOR3} \&v0, const \hyperlink{classMATRIX4}{MATRIX4} \&m0)
+\item 
+\hyperlink{classMATRIX4}{MATRIX4} \hyperlink{ITL__vectormatrix_8cpp_a94b71dee5eb6a612886b60d238fa202b}{inverse} (const \hyperlink{classMATRIX4}{MATRIX4} \&m)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Source file for vector and matrix classes adopted from OSUFlow. 
+
+Definition in file \hyperlink{ITL__vectormatrix_8cpp_source}{ITL\_\-vectormatrix.cpp}.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{ITL__vectormatrix_8cpp_a94b71dee5eb6a612886b60d238fa202b}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!inverse@{inverse}}
+\index{inverse@{inverse}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{inverse}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} inverse (const {\bf MATRIX4} \& {\em m})}}
+\label{ITL__vectormatrix_8cpp_a94b71dee5eb6a612886b60d238fa202b}
+
+
+Definition at line 359 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a41d5778bb6cdbec980b44f0fcce14fd1}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf VECTOR3} operator$\ast$ (const {\bf VECTOR3} \& {\em v0}, \/  const {\bf MATRIX4} \& {\em m0})}}
+\label{ITL__vectormatrix_8cpp_a41d5778bb6cdbec980b44f0fcce14fd1}
+
+
+Definition at line 345 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_af38bad3f94b48a3eb3ef9802cc730601}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf VECTOR4} operator$\ast$ (const {\bf VECTOR4} \& {\em v0}, \/  const {\bf MATRIX4} \& {\em m0})}}
+\label{ITL__vectormatrix_8cpp_af38bad3f94b48a3eb3ef9802cc730601}
+
+
+Definition at line 332 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a6712648a416b57b399fe1836e6e185c1}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf VECTOR3} operator$\ast$ (const {\bf MATRIX4} \& {\em m0}, \/  const {\bf VECTOR3} \& {\em v0})}}
+\label{ITL__vectormatrix_8cpp_a6712648a416b57b399fe1836e6e185c1}
+
+
+Definition at line 319 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a9b161da78cf4ff88c1e59b1e78eedde2}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf VECTOR4} operator$\ast$ (const {\bf MATRIX4} \& {\em m0}, \/  const {\bf VECTOR4} \& {\em v0})}}
+\label{ITL__vectormatrix_8cpp_a9b161da78cf4ff88c1e59b1e78eedde2}
+
+
+Definition at line 305 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_aa69cb08f04e5a3bbb072c88faf67e64d}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} operator$\ast$ (const {\bf MATRIX4} \& {\em m0}, \/  const float {\em x0})}}
+\label{ITL__vectormatrix_8cpp_aa69cb08f04e5a3bbb072c88faf67e64d}
+
+
+Definition at line 301 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_ae9909ea846e72e348dec39db63c0d1c4}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} operator$\ast$ (const float {\em x0}, \/  const {\bf MATRIX4} \& {\em m0})}}
+\label{ITL__vectormatrix_8cpp_ae9909ea846e72e348dec39db63c0d1c4}
+
+
+Definition at line 288 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a7572a35c9d6763e817f8673084b36fd7}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} operator$\ast$ (const {\bf MATRIX4} \& {\em m0}, \/  const {\bf MATRIX4} \& {\em m1})}}
+\label{ITL__vectormatrix_8cpp_a7572a35c9d6763e817f8673084b36fd7}
+
+
+Definition at line 273 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a75825f6e6fea11339ebf0b1608a6e3c7}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf VECTOR3} operator$\ast$ (const {\bf VECTOR3} \& {\em v0}, \/  const {\bf MATRIX3} \& {\em m0})}}
+\label{ITL__vectormatrix_8cpp_a75825f6e6fea11339ebf0b1608a6e3c7}
+
+
+Definition at line 174 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a4664cc35a0326da5c536a8212b29303a}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf VECTOR3} operator$\ast$ (const {\bf MATRIX3} \& {\em m0}, \/  const {\bf VECTOR3} \& {\em v0})}}
+\label{ITL__vectormatrix_8cpp_a4664cc35a0326da5c536a8212b29303a}
+
+
+Definition at line 162 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a3edaf0f70cfa2a4488838eaada2488bb}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX3} operator$\ast$ (const {\bf MATRIX3} \& {\em m0}, \/  const float {\em x0})}}
+\label{ITL__vectormatrix_8cpp_a3edaf0f70cfa2a4488838eaada2488bb}
+
+
+Definition at line 156 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_aff96728c1455ee4fbcf7a9c0c3980232}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX3} operator$\ast$ (const float {\em x0}, \/  const {\bf MATRIX3} \& {\em m0})}}
+\label{ITL__vectormatrix_8cpp_aff96728c1455ee4fbcf7a9c0c3980232}
+
+
+Definition at line 144 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_aa47958bed66c1d7a3c100b967c95f33e}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator$\ast$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX3} operator$\ast$ (const {\bf MATRIX3} \& {\em m0}, \/  const {\bf MATRIX3} \& {\em m1})}}
+\label{ITL__vectormatrix_8cpp_aa47958bed66c1d7a3c100b967c95f33e}
+
+
+Definition at line 129 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_ab7646a52f5cc6f449c277b77c19553ab}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator+@{operator+}}
+\index{operator+@{operator+}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator+}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} operator+ (const {\bf MATRIX4} \& {\em m0}, \/  const {\bf MATRIX4} \& {\em m1})}}
+\label{ITL__vectormatrix_8cpp_ab7646a52f5cc6f449c277b77c19553ab}
+
+
+Definition at line 247 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a818ea610798e528eb27cbd9ee0bd92ad}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator+@{operator+}}
+\index{operator+@{operator+}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator+}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX3} operator+ (const {\bf MATRIX3} \& {\em m0}, \/  const {\bf MATRIX3} \& {\em m1})}}
+\label{ITL__vectormatrix_8cpp_a818ea610798e528eb27cbd9ee0bd92ad}
+
+
+Definition at line 105 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a2fa746249f8622c6939be84eb3f63e9e}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator-\/}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} operator-\/ (const {\bf MATRIX4} \& {\em m0}, \/  const {\bf MATRIX4} \& {\em m1})}}
+\label{ITL__vectormatrix_8cpp_a2fa746249f8622c6939be84eb3f63e9e}
+
+
+Definition at line 260 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_ab69791996250b1ce888a8622fdbcafe2}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{operator-\/}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX3} operator-\/ (const {\bf MATRIX3} \& {\em m0}, \/  const {\bf MATRIX3} \& {\em m1})}}
+\label{ITL__vectormatrix_8cpp_ab69791996250b1ce888a8622fdbcafe2}
+
+
+Definition at line 117 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a260af79028b3ba1df11df1db7e181dca}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!rotate\_\-matrix@{rotate\_\-matrix}}
+\index{rotate\_\-matrix@{rotate\_\-matrix}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{rotate\_\-matrix}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} rotate\_\-matrix (int {\em type}, \/  float {\em angle})}}
+\label{ITL__vectormatrix_8cpp_a260af79028b3ba1df11df1db7e181dca}
+
+
+Definition at line 191 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a90a0aa204961e5f32c0e361a6a1e5bb8}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!scale\_\-matrix@{scale\_\-matrix}}
+\index{scale\_\-matrix@{scale\_\-matrix}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{scale\_\-matrix}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} scale\_\-matrix (float {\em sx}, \/  float {\em sy}, \/  float {\em sz})}}
+\label{ITL__vectormatrix_8cpp_a90a0aa204961e5f32c0e361a6a1e5bb8}
+
+
+Definition at line 238 of file ITL\_\-vectormatrix.cpp.
+
+\hypertarget{ITL__vectormatrix_8cpp_a499092edd7bb59bb6cd19f3720dc4df5}{
+\index{ITL\_\-vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}!translate\_\-matrix@{translate\_\-matrix}}
+\index{translate\_\-matrix@{translate\_\-matrix}!ITL_vectormatrix.cpp@{ITL\_\-vectormatrix.cpp}}
+\subsubsection[{translate\_\-matrix}]{\setlength{\rightskip}{0pt plus 5cm}{\bf MATRIX4} translate\_\-matrix (float {\em tx}, \/  float {\em ty}, \/  float {\em tz})}}
+\label{ITL__vectormatrix_8cpp_a499092edd7bb59bb6cd19f3720dc4df5}
+
+
+Definition at line 229 of file ITL\_\-vectormatrix.cpp.
+

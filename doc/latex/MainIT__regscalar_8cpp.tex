@@ -1,0 +1,466 @@
+\hypertarget{MainIT__regscalar_8cpp}{
+\section{/home/abon/Code/workspace\_\-unix/ITL\_\-repo/examples/ApplicationIT\_\-regularscalar/src/MainIT\_\-regscalar.cpp File Reference}
+\label{MainIT__regscalar_8cpp}\index{/home/abon/Code/workspace\_\-unix/ITL\_\-repo/examples/ApplicationIT\_\-regularscalar/src/MainIT\_\-regscalar.cpp@{/home/abon/Code/workspace\_\-unix/ITL\_\-repo/examples/ApplicationIT\_\-regularscalar/src/MainIT\_\-regscalar.cpp}}
+}
+
+
+Application program for entropy computation of regular scalar field.  
+
+
+{\ttfamily \#include $<$mpi.h$>$}\par
+{\ttfamily \#include \char`\"{}ITL\_\-header.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}ITL\_\-base.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}ITL\_\-ioutil.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}ITL\_\-vectormatrix.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}ITL\_\-histogramconstants.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}ITL\_\-localentropy.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}ITL\_\-globalentropy.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}ITL\_\-localjointentropy.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}ITL\_\-field\_\-regular.h\char`\"{}}\par
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{MainIT__regscalar_8cpp_af5f43a3da1dff9dcc86f4bd52e5c2dbd}{getArgs} (const char $\ast$argsFileName)
+\item 
+const char $\ast$ \hyperlink{MainIT__regscalar_8cpp_a69b2a874a704c269c7d78a02637e343a}{getArgWithName} (const char $\ast$name)
+\item 
+void \hyperlink{MainIT__regscalar_8cpp_a4f7b784b75ee872420f8c17e6dbc2b2b}{compute\_\-localentropy\_\-regularfield\_\-serial} ()
+\begin{DoxyCompactList}\small\item\em Serial local entropy computation function for regular scalar field. \item\end{DoxyCompactList}\item 
+void \hyperlink{MainIT__regscalar_8cpp_a2de1b3a6345178eb44a06b03acf76687}{compute\_\-localentropy\_\-regularfield\_\-parallel} ()
+\begin{DoxyCompactList}\small\item\em Parallel local entropy computation function for regular scalar field. \item\end{DoxyCompactList}\item 
+void \hyperlink{MainIT__regscalar_8cpp_a39e48da5d6d02a09cc46476817c18ed6}{compute\_\-globalentropy\_\-regularfield\_\-serial} ()
+\begin{DoxyCompactList}\small\item\em Serial global entropy computation function for regular scalar field. \item\end{DoxyCompactList}\item 
+int \hyperlink{MainIT__regscalar_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{main} (int argc, char $\ast$$\ast$argv)
+\begin{DoxyCompactList}\small\item\em Main function. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+list$<$ string $>$ \hyperlink{MainIT__regscalar_8cpp_a75d903bfc5bd7ebd10f9bba8cda14afd}{argNames}
+\item 
+list$<$ string $>$ \hyperlink{MainIT__regscalar_8cpp_ae9ee3787d1caa09ef95616faa085b27b}{argValues}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_ae3469ddc4630c30ca67c5d03e75c5e8e}{numProcs}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a556290f6728d2e8721669d530981a077}{myId}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a9f82778bec6f63360cdd801572253c67}{functionType} = 0
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a49f80c85e94dab34e43eefa8569b847a}{nDim} = 3
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin} = 1000
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a1b6b235a26917090521e783da84ef326}{dataDim} \mbox{[}3\mbox{]}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_abb1e2dad97264e859f3ee8af1341d68c}{low} \mbox{[}3\mbox{]}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a2012a18ba7a98e566c072356d03c4240}{high} \mbox{[}3\mbox{]}
+\item 
+float \hyperlink{MainIT__regscalar_8cpp_a293334c3a113498bf52c2293f560aa71}{lowF} \mbox{[}$\,$\mbox{]} = \{0, 0, 0\}
+\item 
+float \hyperlink{MainIT__regscalar_8cpp_ad22b8715cf6c2a8303495979fad74769}{highF} \mbox{[}$\,$\mbox{]} = \{0, 0, 0\}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a4f25631e4cedb3a6318d8a9166ab454d}{lowPad} \mbox{[}$\,$\mbox{]} = \{0, 0, 0\}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a41c49039cbd24b06ac2adf735b8e8bdf}{highPad} \mbox{[}$\,$\mbox{]} = \{0, 0, 0\}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_ab2e4087dd04747bb55af2c201e36e712}{sizeNeighborhood} = 6
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_ace247659cd3bf0cd4a97d4792a02f4da}{sizeNeighborhoodArray} \mbox{[}$\,$\mbox{]} = \{0, 0, 0\}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a3d5a7fab820f74511d7978e3611ae905}{blockDim} \mbox{[}3\mbox{]}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_abd75c7037a66618dff45d6210fc84956}{nBlock} \mbox{[}3\mbox{]}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_a3b0be19f729a7cb8162d1f92e1f650fb}{blockId} \mbox{[}3\mbox{]}
+\item 
+int \hyperlink{MainIT__regscalar_8cpp_adcc9a19ad3119f823a658f6a49a24e64}{method} = 0
+\item 
+\hyperlink{ITL__vectormatrix_8h_ac78944183bdabdd5ba8374baabe2ef85}{SCALAR} $\ast$ \hyperlink{MainIT__regscalar_8cpp_a37798832e2b2a76dbafc1cc357db04e8}{scalarFieldData} = NULL
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ \hyperlink{ITL__vectormatrix_8h_ac78944183bdabdd5ba8374baabe2ef85}{SCALAR} $>$ $\ast$ \hyperlink{MainIT__regscalar_8cpp_ab4fb3702bf3d0ab8ffdce27b9f713d8a}{scalarField} = NULL
+\item 
+\hyperlink{classITL__localentropy}{ITL\_\-localentropy}$<$ \hyperlink{ITL__vectormatrix_8h_ac78944183bdabdd5ba8374baabe2ef85}{SCALAR} $>$ $\ast$ \hyperlink{MainIT__regscalar_8cpp_ab7e40ffabd044e28f8062d0f7742372a}{localEntropyComputer} = NULL
+\item 
+\hyperlink{classITL__globalentropy}{ITL\_\-globalentropy}$<$ \hyperlink{ITL__vectormatrix_8h_ac78944183bdabdd5ba8374baabe2ef85}{SCALAR} $>$ $\ast$ \hyperlink{MainIT__regscalar_8cpp_a75c515f4a51e7296cf4a337890a68467}{globalEntropyComputer} = NULL
+\item 
+const char $\ast$ \hyperlink{MainIT__regscalar_8cpp_a7086ba0e95e91cf94576dfad896fe949}{scalarFieldFile} = NULL
+\item 
+const char $\ast$ \hyperlink{MainIT__regscalar_8cpp_a614430930e1ed8375f959f3aa74fb49c}{heightFieldFile} = NULL
+\item 
+const char $\ast$ \hyperlink{MainIT__regscalar_8cpp_a579edad04889e70a7ff8cdc651a8d1fc}{tetMeshFile} = NULL
+\item 
+const char $\ast$ \hyperlink{MainIT__regscalar_8cpp_aea910b8829065f8658538b644b008ca3}{outFieldFile} = NULL
+\item 
+double \hyperlink{MainIT__regscalar_8cpp_a9c820b97a2f3acef24d2383bc8c77467}{execTime} \mbox{[}5\mbox{]}
+\item 
+clock\_\-t \hyperlink{MainIT__regscalar_8cpp_ae004b8891e7a981b4a186fdcff042e32}{starttime}
+\item 
+clock\_\-t \hyperlink{MainIT__regscalar_8cpp_a74e0e7b1dce56fb412a2f7dc750fed8c}{endtime}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Application program for entropy computation of regular scalar field. Created on: April 28, 2011 \begin{DoxyAuthor}{Author}
+Abon 
+
+Teng-\/Yok 
+\end{DoxyAuthor}
+
+
+Definition in file \hyperlink{MainIT__regscalar_8cpp_source}{MainIT\_\-regscalar.cpp}.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{MainIT__regscalar_8cpp_a39e48da5d6d02a09cc46476817c18ed6}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!compute\_\-globalentropy\_\-regularfield\_\-serial@{compute\_\-globalentropy\_\-regularfield\_\-serial}}
+\index{compute\_\-globalentropy\_\-regularfield\_\-serial@{compute\_\-globalentropy\_\-regularfield\_\-serial}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{compute\_\-globalentropy\_\-regularfield\_\-serial}]{\setlength{\rightskip}{0pt plus 5cm}void compute\_\-globalentropy\_\-regularfield\_\-serial ()}}
+\label{MainIT__regscalar_8cpp_a39e48da5d6d02a09cc46476817c18ed6}
+
+
+Serial global entropy computation function for regular scalar field. 
+
+
+
+Definition at line 246 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a2de1b3a6345178eb44a06b03acf76687}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!compute\_\-localentropy\_\-regularfield\_\-parallel@{compute\_\-localentropy\_\-regularfield\_\-parallel}}
+\index{compute\_\-localentropy\_\-regularfield\_\-parallel@{compute\_\-localentropy\_\-regularfield\_\-parallel}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{compute\_\-localentropy\_\-regularfield\_\-parallel}]{\setlength{\rightskip}{0pt plus 5cm}void compute\_\-localentropy\_\-regularfield\_\-parallel ()}}
+\label{MainIT__regscalar_8cpp_a2de1b3a6345178eb44a06b03acf76687}
+
+
+Parallel local entropy computation function for regular scalar field. 
+
+
+
+Definition at line 190 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a4f7b784b75ee872420f8c17e6dbc2b2b}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!compute\_\-localentropy\_\-regularfield\_\-serial@{compute\_\-localentropy\_\-regularfield\_\-serial}}
+\index{compute\_\-localentropy\_\-regularfield\_\-serial@{compute\_\-localentropy\_\-regularfield\_\-serial}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{compute\_\-localentropy\_\-regularfield\_\-serial}]{\setlength{\rightskip}{0pt plus 5cm}void compute\_\-localentropy\_\-regularfield\_\-serial ()}}
+\label{MainIT__regscalar_8cpp_a4f7b784b75ee872420f8c17e6dbc2b2b}
+
+
+Serial local entropy computation function for regular scalar field. 
+
+
+
+Definition at line 131 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_af5f43a3da1dff9dcc86f4bd52e5c2dbd}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!getArgs@{getArgs}}
+\index{getArgs@{getArgs}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{getArgs}]{\setlength{\rightskip}{0pt plus 5cm}void getArgs (const char $\ast$ {\em argsFileName})}}
+\label{MainIT__regscalar_8cpp_af5f43a3da1dff9dcc86f4bd52e5c2dbd}
+
+
+Definition at line 303 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a69b2a874a704c269c7d78a02637e343a}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!getArgWithName@{getArgWithName}}
+\index{getArgWithName@{getArgWithName}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{getArgWithName}]{\setlength{\rightskip}{0pt plus 5cm}const char $\ast$ getArgWithName (const char $\ast$ {\em name})}}
+\label{MainIT__regscalar_8cpp_a69b2a874a704c269c7d78a02637e343a}
+
+
+Definition at line 337 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!main@{main}}
+\index{main@{main}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{main}]{\setlength{\rightskip}{0pt plus 5cm}int main (int {\em argc}, \/  char $\ast$$\ast$ {\em argv})}}
+\label{MainIT__regscalar_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}
+
+
+Main function. 
+
+Program starts from here. 
+
+Definition at line 80 of file MainIT\_\-regscalar.cpp.
+
+
+
+\subsection{Variable Documentation}
+\hypertarget{MainIT__regscalar_8cpp_a75d903bfc5bd7ebd10f9bba8cda14afd}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!argNames@{argNames}}
+\index{argNames@{argNames}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{argNames}]{\setlength{\rightskip}{0pt plus 5cm}list$<$string$>$ {\bf argNames}}}
+\label{MainIT__regscalar_8cpp_a75d903bfc5bd7ebd10f9bba8cda14afd}
+
+
+Definition at line 23 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_ae9ee3787d1caa09ef95616faa085b27b}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!argValues@{argValues}}
+\index{argValues@{argValues}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{argValues}]{\setlength{\rightskip}{0pt plus 5cm}list$<$string$>$ {\bf argValues}}}
+\label{MainIT__regscalar_8cpp_ae9ee3787d1caa09ef95616faa085b27b}
+
+
+Definition at line 24 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a3d5a7fab820f74511d7978e3611ae905}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!blockDim@{blockDim}}
+\index{blockDim@{blockDim}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{blockDim}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf blockDim}\mbox{[}3\mbox{]}}}
+\label{MainIT__regscalar_8cpp_a3d5a7fab820f74511d7978e3611ae905}
+
+
+Definition at line 41 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a3b0be19f729a7cb8162d1f92e1f650fb}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!blockId@{blockId}}
+\index{blockId@{blockId}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{blockId}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf blockId}\mbox{[}3\mbox{]}}}
+\label{MainIT__regscalar_8cpp_a3b0be19f729a7cb8162d1f92e1f650fb}
+
+
+Definition at line 43 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a1b6b235a26917090521e783da84ef326}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!dataDim@{dataDim}}
+\index{dataDim@{dataDim}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{dataDim}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf dataDim}\mbox{[}3\mbox{]}}}
+\label{MainIT__regscalar_8cpp_a1b6b235a26917090521e783da84ef326}
+
+
+Definition at line 32 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a74e0e7b1dce56fb412a2f7dc750fed8c}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!endtime@{endtime}}
+\index{endtime@{endtime}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{endtime}]{\setlength{\rightskip}{0pt plus 5cm}clock\_\-t {\bf endtime}}}
+\label{MainIT__regscalar_8cpp_a74e0e7b1dce56fb412a2f7dc750fed8c}
+
+
+Definition at line 58 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a9c820b97a2f3acef24d2383bc8c77467}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!execTime@{execTime}}
+\index{execTime@{execTime}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{execTime}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf execTime}\mbox{[}5\mbox{]}}}
+\label{MainIT__regscalar_8cpp_a9c820b97a2f3acef24d2383bc8c77467}
+
+
+Definition at line 57 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a9f82778bec6f63360cdd801572253c67}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!functionType@{functionType}}
+\index{functionType@{functionType}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{functionType}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf functionType} = 0}}
+\label{MainIT__regscalar_8cpp_a9f82778bec6f63360cdd801572253c67}
+
+
+Definition at line 29 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a75c515f4a51e7296cf4a337890a68467}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!globalEntropyComputer@{globalEntropyComputer}}
+\index{globalEntropyComputer@{globalEntropyComputer}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{globalEntropyComputer}]{\setlength{\rightskip}{0pt plus 5cm}{\bf ITL\_\-globalentropy}$<${\bf SCALAR}$>$$\ast$ {\bf globalEntropyComputer} = NULL}}
+\label{MainIT__regscalar_8cpp_a75c515f4a51e7296cf4a337890a68467}
+
+
+Definition at line 50 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a614430930e1ed8375f959f3aa74fb49c}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!heightFieldFile@{heightFieldFile}}
+\index{heightFieldFile@{heightFieldFile}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{heightFieldFile}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ {\bf heightFieldFile} = NULL}}
+\label{MainIT__regscalar_8cpp_a614430930e1ed8375f959f3aa74fb49c}
+
+
+Definition at line 53 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a2012a18ba7a98e566c072356d03c4240}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!high@{high}}
+\index{high@{high}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{high}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf high}\mbox{[}3\mbox{]}}}
+\label{MainIT__regscalar_8cpp_a2012a18ba7a98e566c072356d03c4240}
+
+
+Definition at line 34 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_ad22b8715cf6c2a8303495979fad74769}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!highF@{highF}}
+\index{highF@{highF}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{highF}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf highF}\mbox{[}$\,$\mbox{]} = \{0, 0, 0\}}}
+\label{MainIT__regscalar_8cpp_ad22b8715cf6c2a8303495979fad74769}
+
+
+Definition at line 36 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a41c49039cbd24b06ac2adf735b8e8bdf}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!highPad@{highPad}}
+\index{highPad@{highPad}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{highPad}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf highPad}\mbox{[}$\,$\mbox{]} = \{0, 0, 0\}}}
+\label{MainIT__regscalar_8cpp_a41c49039cbd24b06ac2adf735b8e8bdf}
+
+
+Definition at line 38 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_ab7e40ffabd044e28f8062d0f7742372a}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!localEntropyComputer@{localEntropyComputer}}
+\index{localEntropyComputer@{localEntropyComputer}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{localEntropyComputer}]{\setlength{\rightskip}{0pt plus 5cm}{\bf ITL\_\-localentropy}$<${\bf SCALAR}$>$$\ast$ {\bf localEntropyComputer} = NULL}}
+\label{MainIT__regscalar_8cpp_ab7e40ffabd044e28f8062d0f7742372a}
+
+
+Definition at line 49 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_abb1e2dad97264e859f3ee8af1341d68c}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!low@{low}}
+\index{low@{low}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{low}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf low}\mbox{[}3\mbox{]}}}
+\label{MainIT__regscalar_8cpp_abb1e2dad97264e859f3ee8af1341d68c}
+
+
+Definition at line 33 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a293334c3a113498bf52c2293f560aa71}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!lowF@{lowF}}
+\index{lowF@{lowF}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{lowF}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf lowF}\mbox{[}$\,$\mbox{]} = \{0, 0, 0\}}}
+\label{MainIT__regscalar_8cpp_a293334c3a113498bf52c2293f560aa71}
+
+
+Definition at line 35 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a4f25631e4cedb3a6318d8a9166ab454d}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!lowPad@{lowPad}}
+\index{lowPad@{lowPad}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{lowPad}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf lowPad}\mbox{[}$\,$\mbox{]} = \{0, 0, 0\}}}
+\label{MainIT__regscalar_8cpp_a4f25631e4cedb3a6318d8a9166ab454d}
+
+
+Definition at line 37 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_adcc9a19ad3119f823a658f6a49a24e64}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!method@{method}}
+\index{method@{method}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{method}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf method} = 0}}
+\label{MainIT__regscalar_8cpp_adcc9a19ad3119f823a658f6a49a24e64}
+
+
+Definition at line 44 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a556290f6728d2e8721669d530981a077}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!myId@{myId}}
+\index{myId@{myId}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{myId}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf myId}}}
+\label{MainIT__regscalar_8cpp_a556290f6728d2e8721669d530981a077}
+
+
+Definition at line 27 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!nBin@{nBin}}
+\index{nBin@{nBin}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{nBin}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf nBin} = 1000}}
+\label{MainIT__regscalar_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}
+
+
+Definition at line 31 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_abd75c7037a66618dff45d6210fc84956}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!nBlock@{nBlock}}
+\index{nBlock@{nBlock}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{nBlock}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf nBlock}\mbox{[}3\mbox{]}}}
+\label{MainIT__regscalar_8cpp_abd75c7037a66618dff45d6210fc84956}
+
+
+Definition at line 42 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a49f80c85e94dab34e43eefa8569b847a}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!nDim@{nDim}}
+\index{nDim@{nDim}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{nDim}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf nDim} = 3}}
+\label{MainIT__regscalar_8cpp_a49f80c85e94dab34e43eefa8569b847a}
+
+
+Definition at line 30 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_ae3469ddc4630c30ca67c5d03e75c5e8e}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!numProcs@{numProcs}}
+\index{numProcs@{numProcs}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{numProcs}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf numProcs}}}
+\label{MainIT__regscalar_8cpp_ae3469ddc4630c30ca67c5d03e75c5e8e}
+
+
+Definition at line 26 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_aea910b8829065f8658538b644b008ca3}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!outFieldFile@{outFieldFile}}
+\index{outFieldFile@{outFieldFile}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{outFieldFile}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ {\bf outFieldFile} = NULL}}
+\label{MainIT__regscalar_8cpp_aea910b8829065f8658538b644b008ca3}
+
+
+Definition at line 55 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_ab4fb3702bf3d0ab8ffdce27b9f713d8a}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!scalarField@{scalarField}}
+\index{scalarField@{scalarField}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{scalarField}]{\setlength{\rightskip}{0pt plus 5cm}{\bf ITL\_\-field\_\-regular}$<${\bf SCALAR}$>$$\ast$ {\bf scalarField} = NULL}}
+\label{MainIT__regscalar_8cpp_ab4fb3702bf3d0ab8ffdce27b9f713d8a}
+
+
+Definition at line 48 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a37798832e2b2a76dbafc1cc357db04e8}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!scalarFieldData@{scalarFieldData}}
+\index{scalarFieldData@{scalarFieldData}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{scalarFieldData}]{\setlength{\rightskip}{0pt plus 5cm}{\bf SCALAR}$\ast$ {\bf scalarFieldData} = NULL}}
+\label{MainIT__regscalar_8cpp_a37798832e2b2a76dbafc1cc357db04e8}
+
+
+Definition at line 46 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a7086ba0e95e91cf94576dfad896fe949}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!scalarFieldFile@{scalarFieldFile}}
+\index{scalarFieldFile@{scalarFieldFile}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{scalarFieldFile}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ {\bf scalarFieldFile} = NULL}}
+\label{MainIT__regscalar_8cpp_a7086ba0e95e91cf94576dfad896fe949}
+
+
+Definition at line 52 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_ab2e4087dd04747bb55af2c201e36e712}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!sizeNeighborhood@{sizeNeighborhood}}
+\index{sizeNeighborhood@{sizeNeighborhood}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{sizeNeighborhood}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf sizeNeighborhood} = 6}}
+\label{MainIT__regscalar_8cpp_ab2e4087dd04747bb55af2c201e36e712}
+
+
+Definition at line 39 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_ace247659cd3bf0cd4a97d4792a02f4da}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!sizeNeighborhoodArray@{sizeNeighborhoodArray}}
+\index{sizeNeighborhoodArray@{sizeNeighborhoodArray}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{sizeNeighborhoodArray}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf sizeNeighborhoodArray}\mbox{[}$\,$\mbox{]} = \{0, 0, 0\}}}
+\label{MainIT__regscalar_8cpp_ace247659cd3bf0cd4a97d4792a02f4da}
+
+
+Definition at line 40 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_ae004b8891e7a981b4a186fdcff042e32}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!starttime@{starttime}}
+\index{starttime@{starttime}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{starttime}]{\setlength{\rightskip}{0pt plus 5cm}clock\_\-t {\bf starttime}}}
+\label{MainIT__regscalar_8cpp_ae004b8891e7a981b4a186fdcff042e32}
+
+
+Definition at line 58 of file MainIT\_\-regscalar.cpp.
+
+\hypertarget{MainIT__regscalar_8cpp_a579edad04889e70a7ff8cdc651a8d1fc}{
+\index{MainIT\_\-regscalar.cpp@{MainIT\_\-regscalar.cpp}!tetMeshFile@{tetMeshFile}}
+\index{tetMeshFile@{tetMeshFile}!MainIT_regscalar.cpp@{MainIT\_\-regscalar.cpp}}
+\subsubsection[{tetMeshFile}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ {\bf tetMeshFile} = NULL}}
+\label{MainIT__regscalar_8cpp_a579edad04889e70a7ff8cdc651a8d1fc}
+
+
+Definition at line 54 of file MainIT\_\-regscalar.cpp.
+

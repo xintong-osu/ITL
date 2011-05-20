@@ -1,0 +1,251 @@
+\hypertarget{classITL__localentropy}{
+\section{ITL\_\-localentropy$<$ T $>$ Class Template Reference}
+\label{classITL__localentropy}\index{ITL\_\-localentropy@{ITL\_\-localentropy}}
+}
+
+
+Local entropy field computation class.  
+
+
+
+
+{\ttfamily \#include $<$ITL\_\-localentropy.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classITL__localentropy_adbb3a1033c4db7b0bafffb0935a05d1c}{ITL\_\-localentropy} (\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ T $>$ $\ast$f)
+\begin{DoxyCompactList}\small\item\em Default Constructor. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localentropy_af9f9dd7793d4435af57bd6a56a91e2db}{computeHistogramBinField} (char $\ast$fieldType, int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin}=0)
+\begin{DoxyCompactList}\small\item\em Histogram bin assignment function. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localentropy_a6bc03e6046e17fd950d35c30082bb2b3}{computeHistogramBinField\_\-Scalar} (int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin})
+\begin{DoxyCompactList}\small\item\em Histogram bin assignment function for scalar fields. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localentropy_aca2e2602a26960d75be5edb64df37db2}{computeHistogramBinField\_\-Vector} (int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin})
+\begin{DoxyCompactList}\small\item\em Histogram bin assignment function for vector fields. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localentropy_a3ecdb23e82f2585f7e616ddcfb76f285}{computeEntropyOfField} (int nBins, bool toNormalize)
+\begin{DoxyCompactList}\small\item\em Entropy computation function. \item\end{DoxyCompactList}\item 
+void \hyperlink{classITL__localentropy_a84ee26cee7651544ed49dfb4b465206d}{computeEntropySinglePoint} (int x, int y, int z, int nNeighbors, int nBins, int entropyFieldIndex, bool toNormalize)
+\begin{DoxyCompactList}\small\item\em Entropy computation function. \item\end{DoxyCompactList}\item 
+float \hyperlink{classITL__localentropy_a9605667a7f4428865d49c00237fffe53}{getEntropy} ()
+\begin{DoxyCompactList}\small\item\em Entropy accessor function. \item\end{DoxyCompactList}\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ float $>$ $\ast$ \hyperlink{classITL__localentropy_aaf4dbe3576fe662d3823d6e379618804}{getEntropyField} ()
+\begin{DoxyCompactList}\small\item\em Entropy field accessor function. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ T $>$ $\ast$ \hyperlink{classITL__localentropy_aac95adfde1b819d6ef14426515ec4183}{dataField}
+\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ int $>$ $\ast$ \hyperlink{classITL__localentropy_a89630418121dbe6869cdea704e7d33f3}{binData}
+\begin{DoxyCompactList}\small\item\em A scalar field containing histogram bins corresponding to field points. \item\end{DoxyCompactList}\item 
+\hyperlink{classITL__field__regular}{ITL\_\-field\_\-regular}$<$ float $>$ $\ast$ \hyperlink{classITL__localentropy_aab1116212e70c828f868d5d916e710fd}{entropyField}
+\item 
+float \hyperlink{classITL__localentropy_a348b84e62aeb0982501bd586798432e3}{globalEntropy}
+\begin{DoxyCompactList}\small\item\em Value of computed entropy at a specified point in the field. \item\end{DoxyCompactList}\item 
+float $\ast$ \hyperlink{classITL__localentropy_ad5bf31b2310bf48330ac4b43f2f3c76b}{probarray}
+\begin{DoxyCompactList}\small\item\em Probability array used in emtropy computation. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class T$>$ class ITL\_\-localentropy$<$ T $>$}
+
+Local entropy field computation class. Created on: Nov 19, 2010. \begin{DoxyAuthor}{Author}
+Abon 
+
+Teng-\/Yok 
+\end{DoxyAuthor}
+
+
+Definition at line 16 of file ITL\_\-localentropy.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classITL__localentropy_adbb3a1033c4db7b0bafffb0935a05d1c}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!ITL\_\-localentropy@{ITL\_\-localentropy}}
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{ITL\_\-localentropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-localentropy}$<$ T $>$::{\bf ITL\_\-localentropy} ({\bf ITL\_\-field\_\-regular}$<$ T $>$ $\ast$ {\em f})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localentropy_adbb3a1033c4db7b0bafffb0935a05d1c}
+
+
+Default Constructor. 
+
+
+
+Definition at line 31 of file ITL\_\-localentropy.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classITL__localentropy_a3ecdb23e82f2585f7e616ddcfb76f285}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!computeEntropyOfField@{computeEntropyOfField}}
+\index{computeEntropyOfField@{computeEntropyOfField}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{computeEntropyOfField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localentropy}$<$ T $>$::computeEntropyOfField (int {\em nBins}, \/  bool {\em toNormalize})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localentropy_a3ecdb23e82f2585f7e616ddcfb76f285}
+
+
+Entropy computation function. 
+
+Creates a scalar field that contains entropy at each grid vertex. 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins used in histogram computation. \end{DoxyParams}
+
+
+Definition at line 191 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_a84ee26cee7651544ed49dfb4b465206d}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!computeEntropySinglePoint@{computeEntropySinglePoint}}
+\index{computeEntropySinglePoint@{computeEntropySinglePoint}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{computeEntropySinglePoint}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localentropy}$<$ T $>$::computeEntropySinglePoint (int {\em x}, \/  int {\em y}, \/  int {\em z}, \/  int {\em nNeighbors}, \/  int {\em nBins}, \/  int {\em entropyFieldIndex}, \/  bool {\em toNormalize})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localentropy_a84ee26cee7651544ed49dfb4b465206d}
+
+
+Entropy computation function. 
+
+Computes entropy at a spatial point in the field. 
+\begin{DoxyParams}{Parameters}
+\item[{\em x}]x-\/coordinate of the spatial point. \item[{\em y}]y-\/coordinate of the spatial point. \item[{\em z}]z-\/coordinate of the spatial point. \item[{\em nNeighbors}]total number of neighbors in the neighborhood (including self). \item[{\em nBins}]Number of bins to use in histogram computation. \item[{\em entropyFieldIndex}]1D index to the entopy field. \end{DoxyParams}
+
+
+Definition at line 235 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_af9f9dd7793d4435af57bd6a56a91e2db}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!computeHistogramBinField@{computeHistogramBinField}}
+\index{computeHistogramBinField@{computeHistogramBinField}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{computeHistogramBinField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localentropy}$<$ T $>$::computeHistogramBinField (char $\ast$ {\em fieldType}, \/  int {\em nBin} = {\ttfamily 0})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localentropy_af9f9dd7793d4435af57bd6a56a91e2db}
+
+
+Histogram bin assignment function. 
+
+Calls the appropriate function based on field type 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins to use in histogram computation. \end{DoxyParams}
+
+
+Definition at line 43 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_a6bc03e6046e17fd950d35c30082bb2b3}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!computeHistogramBinField\_\-Scalar@{computeHistogramBinField\_\-Scalar}}
+\index{computeHistogramBinField\_\-Scalar@{computeHistogramBinField\_\-Scalar}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{computeHistogramBinField\_\-Scalar}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localentropy}$<$ T $>$::computeHistogramBinField\_\-Scalar (int {\em nBin})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localentropy_a6bc03e6046e17fd950d35c30082bb2b3}
+
+
+Histogram bin assignment function for scalar fields. 
+
+Creates a scalar field of histogram at each grid vertex. 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins to use in histogram computation. \end{DoxyParams}
+
+
+Definition at line 66 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_aca2e2602a26960d75be5edb64df37db2}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!computeHistogramBinField\_\-Vector@{computeHistogramBinField\_\-Vector}}
+\index{computeHistogramBinField\_\-Vector@{computeHistogramBinField\_\-Vector}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{computeHistogramBinField\_\-Vector}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf ITL\_\-localentropy}$<$ T $>$::computeHistogramBinField\_\-Vector (int {\em nBin})\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localentropy_aca2e2602a26960d75be5edb64df37db2}
+
+
+Histogram bin assignment function for vector fields. 
+
+Creates a scalar field of histogram at each grid vertex. 
+\begin{DoxyParams}{Parameters}
+\item[{\em nBins}]Number of bins to use in histogram computation. \end{DoxyParams}
+
+
+Definition at line 131 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_a9605667a7f4428865d49c00237fffe53}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!getEntropy@{getEntropy}}
+\index{getEntropy@{getEntropy}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{getEntropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ float {\bf ITL\_\-localentropy}$<$ T $>$::getEntropy ()}}
+\label{classITL__localentropy_a9605667a7f4428865d49c00237fffe53}
+
+
+Entropy accessor function. 
+
+\begin{DoxyReturn}{Returns}
+computed entropy. 
+\end{DoxyReturn}
+\hypertarget{classITL__localentropy_aaf4dbe3576fe662d3823d6e379618804}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!getEntropyField@{getEntropyField}}
+\index{getEntropyField@{getEntropyField}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{getEntropyField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$float$>$$\ast$ {\bf ITL\_\-localentropy}$<$ T $>$::getEntropyField ()\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classITL__localentropy_aaf4dbe3576fe662d3823d6e379618804}
+
+
+Entropy field accessor function. 
+
+Returns computed entropy field. \begin{DoxyReturn}{Returns}
+pointer to entropy field. 
+\end{DoxyReturn}
+
+
+Definition at line 297 of file ITL\_\-localentropy.h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classITL__localentropy_a89630418121dbe6869cdea704e7d33f3}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!binData@{binData}}
+\index{binData@{binData}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{binData}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$int$>$$\ast$ {\bf ITL\_\-localentropy}$<$ T $>$::{\bf binData}}}
+\label{classITL__localentropy_a89630418121dbe6869cdea704e7d33f3}
+
+
+A scalar field containing histogram bins corresponding to field points. 
+
+
+
+Definition at line 21 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_aac95adfde1b819d6ef14426515ec4183}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!dataField@{dataField}}
+\index{dataField@{dataField}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{dataField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$T$>$$\ast$ {\bf ITL\_\-localentropy}$<$ T $>$::{\bf dataField}}}
+\label{classITL__localentropy_aac95adfde1b819d6ef14426515ec4183}
+
+
+Definition at line 20 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_aab1116212e70c828f868d5d916e710fd}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!entropyField@{entropyField}}
+\index{entropyField@{entropyField}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{entropyField}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf ITL\_\-field\_\-regular}$<$float$>$$\ast$ {\bf ITL\_\-localentropy}$<$ T $>$::{\bf entropyField}}}
+\label{classITL__localentropy_aab1116212e70c828f868d5d916e710fd}
+
+
+Definition at line 22 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_a348b84e62aeb0982501bd586798432e3}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!globalEntropy@{globalEntropy}}
+\index{globalEntropy@{globalEntropy}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{globalEntropy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ float {\bf ITL\_\-localentropy}$<$ T $>$::{\bf globalEntropy}}}
+\label{classITL__localentropy_a348b84e62aeb0982501bd586798432e3}
+
+
+Value of computed entropy at a specified point in the field. 
+
+
+
+Definition at line 24 of file ITL\_\-localentropy.h.
+
+\hypertarget{classITL__localentropy_ad5bf31b2310bf48330ac4b43f2f3c76b}{
+\index{ITL\_\-localentropy@{ITL\_\-localentropy}!probarray@{probarray}}
+\index{probarray@{probarray}!ITL_localentropy@{ITL\_\-localentropy}}
+\subsubsection[{probarray}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ float$\ast$ {\bf ITL\_\-localentropy}$<$ T $>$::{\bf probarray}}}
+\label{classITL__localentropy_ad5bf31b2310bf48330ac4b43f2f3c76b}
+
+
+Probability array used in emtropy computation. 
+
+
+
+Definition at line 25 of file ITL\_\-localentropy.h.
+
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__localentropy_8h}{ITL\_\-localentropy.h}\end{DoxyCompactItemize}

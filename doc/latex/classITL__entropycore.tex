@@ -1,0 +1,91 @@
+\hypertarget{classITL__entropycore}{
+\section{ITL\_\-entropycore Class Reference}
+\label{classITL__entropycore}\index{ITL\_\-entropycore@{ITL\_\-entropycore}}
+}
+
+
+Entropy computation core class.  
+
+
+
+
+{\ttfamily \#include $<$ITL\_\-entropycore.h$>$}
+
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static float \hyperlink{classITL__entropycore_afd605a02922df607f43d0b1ec3248e7d}{computeEntropy\_\-HistogramBased} (int $\ast$binIds, int nPoint, int \hyperlink{MainIT__regvector_8cpp_a7f13753d4707f6bc8f71d8bdacedefb3}{nBin}, bool toNormalize)
+\begin{DoxyCompactList}\small\item\em Histogram based entropy computation function. \item\end{DoxyCompactList}\item 
+static float \hyperlink{classITL__entropycore_a44a6bc62c22f739825a4b7dcf10ab43a}{computeEntropy\_\-KDEBased} (float $\ast$\hyperlink{MainIT__regvector_8cpp_a783b2b1c03f80ec0d3ed965238d6bd65}{data}, int nPoint, float h, bool toNormalize)
+\begin{DoxyCompactList}\small\item\em KDE based entropy computation function. \item\end{DoxyCompactList}\item 
+static float \hyperlink{classITL__entropycore_a5802a6a76dba25a5afa2b232eb69b9c2}{evaluateKernel} (float x, float mu, float var)
+\begin{DoxyCompactList}\small\item\em Gaussian kernel evaluation function. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Entropy computation core class. Created on: May 03, 2011. \begin{DoxyAuthor}{Author}
+Abon 
+
+Teng-\/Yok 
+\end{DoxyAuthor}
+
+
+Definition at line 14 of file ITL\_\-entropycore.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classITL__entropycore_afd605a02922df607f43d0b1ec3248e7d}{
+\index{ITL\_\-entropycore@{ITL\_\-entropycore}!computeEntropy\_\-HistogramBased@{computeEntropy\_\-HistogramBased}}
+\index{computeEntropy\_\-HistogramBased@{computeEntropy\_\-HistogramBased}!ITL_entropycore@{ITL\_\-entropycore}}
+\subsubsection[{computeEntropy\_\-HistogramBased}]{\setlength{\rightskip}{0pt plus 5cm}float ITL\_\-entropycore::computeEntropy\_\-HistogramBased (int $\ast$ {\em binIds}, \/  int {\em nPoint}, \/  int {\em nBin}, \/  bool {\em toNormalize})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__entropycore_afd605a02922df607f43d0b1ec3248e7d}
+
+
+Histogram based entropy computation function. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em binIds}]Pointer to array containing histogram bin assignments of the points. \item[{\em nPoint}]Number of points. Same as the length of bin array. \item[{\em nBin}]Number of bins used in histogram computation. \end{DoxyParams}
+
+
+Definition at line 3 of file ITL\_\-entropycore.cpp.
+
+\hypertarget{classITL__entropycore_a44a6bc62c22f739825a4b7dcf10ab43a}{
+\index{ITL\_\-entropycore@{ITL\_\-entropycore}!computeEntropy\_\-KDEBased@{computeEntropy\_\-KDEBased}}
+\index{computeEntropy\_\-KDEBased@{computeEntropy\_\-KDEBased}!ITL_entropycore@{ITL\_\-entropycore}}
+\subsubsection[{computeEntropy\_\-KDEBased}]{\setlength{\rightskip}{0pt plus 5cm}float ITL\_\-entropycore::computeEntropy\_\-KDEBased (float $\ast$ {\em data}, \/  int {\em nPoint}, \/  float {\em h}, \/  bool {\em toNormalize})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__entropycore_a44a6bc62c22f739825a4b7dcf10ab43a}
+
+
+KDE based entropy computation function. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em data}]Pointer to data array. \item[{\em nPoint}]Number of points to be sampled. Equivalent to nBin. \item[{\em h}]Kernel Bandwidth (Put 0 to allow the software decide the bandwidth) \item[{\em toNormalize}]TRUE indicates the computed entropy will be normalized. \end{DoxyParams}
+
+
+Definition at line 39 of file ITL\_\-entropycore.cpp.
+
+\hypertarget{classITL__entropycore_a5802a6a76dba25a5afa2b232eb69b9c2}{
+\index{ITL\_\-entropycore@{ITL\_\-entropycore}!evaluateKernel@{evaluateKernel}}
+\index{evaluateKernel@{evaluateKernel}!ITL_entropycore@{ITL\_\-entropycore}}
+\subsubsection[{evaluateKernel}]{\setlength{\rightskip}{0pt plus 5cm}float ITL\_\-entropycore::evaluateKernel (float {\em x}, \/  float {\em mu}, \/  float {\em var})\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classITL__entropycore_a5802a6a76dba25a5afa2b232eb69b9c2}
+
+
+Gaussian kernel evaluation function. 
+
+Returns N( (x-\/mu)/sigma $|$0, 1 ) for some sample x.. 
+\begin{DoxyParams}{Parameters}
+\item[{\em mu}]Mean of the point set  var Variance of the point set \end{DoxyParams}
+
+
+Definition at line 88 of file ITL\_\-entropycore.cpp.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__entropycore_8h}{ITL\_\-entropycore.h}\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/src/\hyperlink{ITL__entropycore_8cpp}{ITL\_\-entropycore.cpp}\end{DoxyCompactItemize}

@@ -1,0 +1,187 @@
+\hypertarget{classITL__ioutil}{
+\section{ITL\_\-ioutil$<$ T $>$ Class Template Reference}
+\label{classITL__ioutil}\index{ITL\_\-ioutil@{ITL\_\-ioutil}}
+}
+
+
+Template-\/based Utility class for File I/O.  
+
+
+
+
+{\ttfamily \#include $<$ITL\_\-ioutil.h$>$}
+
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static T $\ast$ \hyperlink{classITL__ioutil_a07684c0af4216162b822f5f66554226f}{readFieldBinarySerial} (const char $\ast$fileName, int \hyperlink{MainIT__regvector_8cpp_a49f80c85e94dab34e43eefa8569b847a}{nDim}, int $\ast$dim)
+\begin{DoxyCompactList}\small\item\em Serial file reader. \item\end{DoxyCompactList}\item 
+static void \hyperlink{classITL__ioutil_aa5b0c964006ea184dbc7303bdf4a3424}{writeFieldBinarySerial} (T $\ast$\hyperlink{MainIT__regvector_8cpp_a783b2b1c03f80ec0d3ed965238d6bd65}{data}, const char $\ast$fileName, int $\ast$dim, int nFieldDim)
+\begin{DoxyCompactList}\small\item\em Serial file writer. \item\end{DoxyCompactList}\item 
+static T $\ast$ \hyperlink{classITL__ioutil_a64c092f58c5d77ab115ddb140f9744cd}{readFieldBinaryParallel} (char $\ast$fileName, int \hyperlink{MainIT__regvector_8cpp_a49f80c85e94dab34e43eefa8569b847a}{nDim}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a1b6b235a26917090521e783da84ef326}{dataDim}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3d5a7fab820f74511d7978e3611ae905}{blockDim}, int $\ast$nBlocks, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3b0be19f729a7cb8162d1f92e1f650fb}{blockId}, int $\ast$\hyperlink{MainIT__regvector_8cpp_abb1e2dad97264e859f3ee8af1341d68c}{low}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a2012a18ba7a98e566c072356d03c4240}{high}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a4f25631e4cedb3a6318d8a9166ab454d}{lowPad}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a41c49039cbd24b06ac2adf735b8e8bdf}{highPad}, int neighborhoodSize, int \hyperlink{MainIT__regvector_8cpp_a556290f6728d2e8721669d530981a077}{myId}, int nProcs)
+\begin{DoxyCompactList}\small\item\em Parallel file reader. \item\end{DoxyCompactList}\item 
+static void \hyperlink{classITL__ioutil_afec3a839fe31a416641c5e0ad2dc4669}{writeFieldBinaryParallel} (T $\ast$\hyperlink{MainIT__regvector_8cpp_a783b2b1c03f80ec0d3ed965238d6bd65}{data}, char $\ast$fileName, int $\ast$\hyperlink{MainIT__regvector_8cpp_a1b6b235a26917090521e783da84ef326}{dataDim}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3d5a7fab820f74511d7978e3611ae905}{blockDim}, float $\ast$\hyperlink{MainIT__regvector_8cpp_abb1e2dad97264e859f3ee8af1341d68c}{low}, int nFieldDim, int \hyperlink{MainIT__regvector_8cpp_a556290f6728d2e8721669d530981a077}{myId}, int nProcs)
+\begin{DoxyCompactList}\small\item\em Parallel file writer. \item\end{DoxyCompactList}\item 
+static T $\ast$ \hyperlink{classITL__ioutil_a30703d23067b4ded11a11533d204d185}{readFieldBinaryParallel2} (const char $\ast$fileName, int \hyperlink{MainIT__regvector_8cpp_a49f80c85e94dab34e43eefa8569b847a}{nDim}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a1b6b235a26917090521e783da84ef326}{dataDim}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3d5a7fab820f74511d7978e3611ae905}{blockDim}, int $\ast$nBlocks, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3b0be19f729a7cb8162d1f92e1f650fb}{blockId}, int $\ast$\hyperlink{MainIT__regvector_8cpp_abb1e2dad97264e859f3ee8af1341d68c}{low}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a2012a18ba7a98e566c072356d03c4240}{high}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a4f25631e4cedb3a6318d8a9166ab454d}{lowPad}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a41c49039cbd24b06ac2adf735b8e8bdf}{highPad}, int neighborhoodSize, int \hyperlink{MainIT__regvector_8cpp_a556290f6728d2e8721669d530981a077}{myId}, int nProcs)
+\begin{DoxyCompactList}\small\item\em Modified version of parallel file reader. \item\end{DoxyCompactList}\item 
+static void \hyperlink{classITL__ioutil_acb4e02d17a9e6df557788862498a3f6a}{writeFieldBinaryParallel2} (T $\ast$\hyperlink{MainIT__regvector_8cpp_a783b2b1c03f80ec0d3ed965238d6bd65}{data}, const char $\ast$fileName, int $\ast$\hyperlink{MainIT__regvector_8cpp_a1b6b235a26917090521e783da84ef326}{dataDim}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3d5a7fab820f74511d7978e3611ae905}{blockDim}, int $\ast$nBlocks, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3b0be19f729a7cb8162d1f92e1f650fb}{blockId}, float $\ast$\hyperlink{MainIT__regvector_8cpp_abb1e2dad97264e859f3ee8af1341d68c}{low}, int \hyperlink{MainIT__regvector_8cpp_a49f80c85e94dab34e43eefa8569b847a}{nDim}, int \hyperlink{MainIT__regvector_8cpp_a556290f6728d2e8721669d530981a077}{myId}, int nProcs)
+\begin{DoxyCompactList}\small\item\em Modified version of parallel file writer. \item\end{DoxyCompactList}\item 
+static T $\ast$ \hyperlink{classITL__ioutil_a5d591988598d12ecaa2d35bbb60134f4}{readFieldBinaryParallel3} (const char $\ast$fileName, int \hyperlink{MainIT__regvector_8cpp_a49f80c85e94dab34e43eefa8569b847a}{nDim}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a1b6b235a26917090521e783da84ef326}{dataDim}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3d5a7fab820f74511d7978e3611ae905}{blockDim}, int $\ast$nBlocks, int $\ast$\hyperlink{MainIT__regvector_8cpp_a3b0be19f729a7cb8162d1f92e1f650fb}{blockId}, int $\ast$\hyperlink{MainIT__regvector_8cpp_abb1e2dad97264e859f3ee8af1341d68c}{low}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a2012a18ba7a98e566c072356d03c4240}{high}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a4f25631e4cedb3a6318d8a9166ab454d}{lowPad}, int $\ast$\hyperlink{MainIT__regvector_8cpp_a41c49039cbd24b06ac2adf735b8e8bdf}{highPad}, int $\ast$neighborhoodSize, int \hyperlink{MainIT__regvector_8cpp_a556290f6728d2e8721669d530981a077}{myId}, int nProcs)
+\begin{DoxyCompactList}\small\item\em Modified version of parallel file reader (allows different neighborhood size along different dimension). \item\end{DoxyCompactList}\item 
+static void \hyperlink{classITL__ioutil_a26e23f265abc129fc517b80197f07893}{truncateFileHeader} (char $\ast$inFileName, char $\ast$outFileName, int \hyperlink{MainIT__regvector_8cpp_a49f80c85e94dab34e43eefa8569b847a}{nDim})
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class T$>$ class ITL\_\-ioutil$<$ T $>$}
+
+Template-\/based Utility class for File I/O. Implements static functions for serial and parallel file I/O. Created on: Nov 23, 2010 \begin{DoxyAuthor}{Author}
+Abon 
+
+Teng-\/Yok 
+\end{DoxyAuthor}
+
+
+Definition at line 17 of file ITL\_\-ioutil.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classITL__ioutil_a64c092f58c5d77ab115ddb140f9744cd}{
+\index{ITL\_\-ioutil@{ITL\_\-ioutil}!readFieldBinaryParallel@{readFieldBinaryParallel}}
+\index{readFieldBinaryParallel@{readFieldBinaryParallel}!ITL_ioutil@{ITL\_\-ioutil}}
+\subsubsection[{readFieldBinaryParallel}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static T$\ast$ {\bf ITL\_\-ioutil}$<$ T $>$::readFieldBinaryParallel (char $\ast$ {\em fileName}, \/  int {\em nDim}, \/  int $\ast$ {\em dataDim}, \/  int $\ast$ {\em blockDim}, \/  int $\ast$ {\em nBlocks}, \/  int $\ast$ {\em blockId}, \/  int $\ast$ {\em low}, \/  int $\ast$ {\em high}, \/  int $\ast$ {\em lowPad}, \/  int $\ast$ {\em highPad}, \/  int {\em neighborhoodSize}, \/  int {\em myId}, \/  int {\em nProcs})\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}
+\label{classITL__ioutil_a64c092f58c5d77ab115ddb140f9744cd}
+
+
+Parallel file reader. 
+
+Reads field stored as binary file in vec format. 
+\begin{DoxyParams}{Parameters}
+\item[{\em fileName}]File name. \item[{\em nDim}]Dimensionality of the field. \item[{\em dataDim}]Length of field along each dimension (can be a zero filled array). \item[{\em blockDim}]Length of the block along each dimension to be read by this instance \item[{\em nBlocks}]Number ob blocks along each dimension into which the entire field has been subdivided (can be a zero filled array). of the program (can be a zero filled array). \item[{\em low}]Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension (can be a zero filled array). \item[{\em high}]Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension (can be a zero filled array). \item[{\em lowPad}]Pointer to array containing ghost layer span along each dimension on the lower end (can be a zero filled array). \item[{\em highPad}]Pointer to array containing ghost layer span along each dimension on the upper end (can be a zero filled array). \item[{\em neighborhoodSize}]Neighborhood length for each point. \item[{\em myId}]Rank of this processor \item[{\em nProcs}]Total number of processes \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to portion of data 
+\end{DoxyReturn}
+
+
+Definition at line 116 of file ITL\_\-ioutil.h.
+
+\hypertarget{classITL__ioutil_a30703d23067b4ded11a11533d204d185}{
+\index{ITL\_\-ioutil@{ITL\_\-ioutil}!readFieldBinaryParallel2@{readFieldBinaryParallel2}}
+\index{readFieldBinaryParallel2@{readFieldBinaryParallel2}!ITL_ioutil@{ITL\_\-ioutil}}
+\subsubsection[{readFieldBinaryParallel2}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static T$\ast$ {\bf ITL\_\-ioutil}$<$ T $>$::readFieldBinaryParallel2 (const char $\ast$ {\em fileName}, \/  int {\em nDim}, \/  int $\ast$ {\em dataDim}, \/  int $\ast$ {\em blockDim}, \/  int $\ast$ {\em nBlocks}, \/  int $\ast$ {\em blockId}, \/  int $\ast$ {\em low}, \/  int $\ast$ {\em high}, \/  int $\ast$ {\em lowPad}, \/  int $\ast$ {\em highPad}, \/  int {\em neighborhoodSize}, \/  int {\em myId}, \/  int {\em nProcs})\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}
+\label{classITL__ioutil_a30703d23067b4ded11a11533d204d185}
+
+
+Modified version of parallel file reader. 
+
+Stores field as binary file in vec format. Uses advanced MPI-\/2 features like subarray, file view etc. 
+\begin{DoxyParams}{Parameters}
+\item[{\em fileName}]File name. \item[{\em nDim}]Number of dimensions of data. \item[{\em dataDim}]Length of field along each dimension (can be a zero filled array). \item[{\em blockDim}]Length of the block along each dimension to be read by this instance of the program (can be a zero filled array). \item[{\em nBlocks}]Pointer to array containing number of blocks along each dimension. \item[{\em blockId}]Pointer to array containing serial number of block along each dimension. \item[{\em low}]Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension (can be a zero filled array). \item[{\em high}]Pointer to array containing higher grid (associated to the field) bounds in continuous space along each dimension (can be a zero filled array). \item[{\em lowPad}]Pointer to array containing ghost layer span along each dimension on the lower end (can be a zero filled array). \item[{\em highPad}]Pointer to array containing ghost layer span along each dimension on the upper end (can be a zero filled array). \item[{\em neighborhoodSize}]Neighborhood length for each point. \item[{\em myId}]Rank of this processor \item[{\em nProcs}]Total number of processes \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to portion of data 
+\end{DoxyReturn}
+
+
+Definition at line 353 of file ITL\_\-ioutil.h.
+
+\hypertarget{classITL__ioutil_a5d591988598d12ecaa2d35bbb60134f4}{
+\index{ITL\_\-ioutil@{ITL\_\-ioutil}!readFieldBinaryParallel3@{readFieldBinaryParallel3}}
+\index{readFieldBinaryParallel3@{readFieldBinaryParallel3}!ITL_ioutil@{ITL\_\-ioutil}}
+\subsubsection[{readFieldBinaryParallel3}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static T$\ast$ {\bf ITL\_\-ioutil}$<$ T $>$::readFieldBinaryParallel3 (const char $\ast$ {\em fileName}, \/  int {\em nDim}, \/  int $\ast$ {\em dataDim}, \/  int $\ast$ {\em blockDim}, \/  int $\ast$ {\em nBlocks}, \/  int $\ast$ {\em blockId}, \/  int $\ast$ {\em low}, \/  int $\ast$ {\em high}, \/  int $\ast$ {\em lowPad}, \/  int $\ast$ {\em highPad}, \/  int $\ast$ {\em neighborhoodSize}, \/  int {\em myId}, \/  int {\em nProcs})\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}
+\label{classITL__ioutil_a5d591988598d12ecaa2d35bbb60134f4}
+
+
+Modified version of parallel file reader (allows different neighborhood size along different dimension). 
+
+Stores field as binary file in vec format. Uses advanced MPI-\/2 features like subarray, file view etc. 
+\begin{DoxyParams}{Parameters}
+\item[{\em fileName}]File name. \item[{\em nDim}]Number of dimensions of data. \item[{\em dataDim}]Length of field along each dimension (can be a zero filled array). \item[{\em blockDim}]Length of the block along each dimension to be read by this instance of the program (can be a zero filled array). \item[{\em nBlocks}]Pointer to array containing number of blocks along each dimension. \item[{\em blockId}]Pointer to array containing serial number of block along each dimension. \item[{\em low}]Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension (can be a zero filled array). \item[{\em high}]Pointer to array containing higher grid (associated to the field) bounds in continuous space along each dimension (can be a zero filled array). \item[{\em lowPad}]Pointer to array containing ghost layer span along each dimension on the lower end (can be a zero filled array). \item[{\em highPad}]Pointer to array containing ghost layer span along each dimension on the upper end (can be a zero filled array). \item[{\em neighborhoodSize}]Pointer to neighborhood length along different directions for each point. \item[{\em myId}]Rank of this processor \item[{\em nProcs}]Total number of processes \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to portion of data 
+\end{DoxyReturn}
+
+
+Definition at line 629 of file ITL\_\-ioutil.h.
+
+\hypertarget{classITL__ioutil_a07684c0af4216162b822f5f66554226f}{
+\index{ITL\_\-ioutil@{ITL\_\-ioutil}!readFieldBinarySerial@{readFieldBinarySerial}}
+\index{readFieldBinarySerial@{readFieldBinarySerial}!ITL_ioutil@{ITL\_\-ioutil}}
+\subsubsection[{readFieldBinarySerial}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static T$\ast$ {\bf ITL\_\-ioutil}$<$ T $>$::readFieldBinarySerial (const char $\ast$ {\em fileName}, \/  int {\em nDim}, \/  int $\ast$ {\em dim})\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}
+\label{classITL__ioutil_a07684c0af4216162b822f5f66554226f}
+
+
+Serial file reader. 
+
+Reads field stored as binary file in vec format. 
+\begin{DoxyParams}{Parameters}
+\item[{\em fileName}]File name. \item[{\em nDim}]Dimensionality of the field. \item[{\em dim}]Length of field along each dimension (can be a zero filled array) \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to data 
+\end{DoxyReturn}
+
+
+Definition at line 29 of file ITL\_\-ioutil.h.
+
+\hypertarget{classITL__ioutil_a26e23f265abc129fc517b80197f07893}{
+\index{ITL\_\-ioutil@{ITL\_\-ioutil}!truncateFileHeader@{truncateFileHeader}}
+\index{truncateFileHeader@{truncateFileHeader}!ITL_ioutil@{ITL\_\-ioutil}}
+\subsubsection[{truncateFileHeader}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static void {\bf ITL\_\-ioutil}$<$ T $>$::truncateFileHeader (char $\ast$ {\em inFileName}, \/  char $\ast$ {\em outFileName}, \/  int {\em nDim})\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}
+\label{classITL__ioutil_a26e23f265abc129fc517b80197f07893}
+
+
+Definition at line 767 of file ITL\_\-ioutil.h.
+
+\hypertarget{classITL__ioutil_afec3a839fe31a416641c5e0ad2dc4669}{
+\index{ITL\_\-ioutil@{ITL\_\-ioutil}!writeFieldBinaryParallel@{writeFieldBinaryParallel}}
+\index{writeFieldBinaryParallel@{writeFieldBinaryParallel}!ITL_ioutil@{ITL\_\-ioutil}}
+\subsubsection[{writeFieldBinaryParallel}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static void {\bf ITL\_\-ioutil}$<$ T $>$::writeFieldBinaryParallel (T $\ast$ {\em data}, \/  char $\ast$ {\em fileName}, \/  int $\ast$ {\em dataDim}, \/  int $\ast$ {\em blockDim}, \/  float $\ast$ {\em low}, \/  int {\em nFieldDim}, \/  int {\em myId}, \/  int {\em nProcs})\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}
+\label{classITL__ioutil_afec3a839fe31a416641c5e0ad2dc4669}
+
+
+Parallel file writer. 
+
+Stores field as binary file in vec format. 
+\begin{DoxyParams}{Parameters}
+\item[{\em data}]pointer to portion of data \item[{\em fileName}]File name. \item[{\em dataDim}]Length of field along each dimension (can be a zero filled array). \item[{\em blockDim}]Length of the block along each dimension to be read by this instance of the program (can be a zero filled array). \item[{\em low}]Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension (can be a zero filled array). \item[{\em nFieldDim}]Dimensionality of the field. \item[{\em myId}]Rank of this processor \item[{\em nProcs}]Total number of processes \end{DoxyParams}
+
+
+Definition at line 266 of file ITL\_\-ioutil.h.
+
+\hypertarget{classITL__ioutil_acb4e02d17a9e6df557788862498a3f6a}{
+\index{ITL\_\-ioutil@{ITL\_\-ioutil}!writeFieldBinaryParallel2@{writeFieldBinaryParallel2}}
+\index{writeFieldBinaryParallel2@{writeFieldBinaryParallel2}!ITL_ioutil@{ITL\_\-ioutil}}
+\subsubsection[{writeFieldBinaryParallel2}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static void {\bf ITL\_\-ioutil}$<$ T $>$::writeFieldBinaryParallel2 (T $\ast$ {\em data}, \/  const char $\ast$ {\em fileName}, \/  int $\ast$ {\em dataDim}, \/  int $\ast$ {\em blockDim}, \/  int $\ast$ {\em nBlocks}, \/  int $\ast$ {\em blockId}, \/  float $\ast$ {\em low}, \/  int {\em nDim}, \/  int {\em myId}, \/  int {\em nProcs})\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}
+\label{classITL__ioutil_acb4e02d17a9e6df557788862498a3f6a}
+
+
+Modified version of parallel file writer. 
+
+Stores field as binary file in vec format. Uses advanced MPI-\/2 features like subarray, file view etc. 
+\begin{DoxyParams}{Parameters}
+\item[{\em data}]Pointer to portion of data \item[{\em fileName}]File name. \item[{\em dataDim}]Length of field along each dimension (can be a zero filled array). \item[{\em blockDim}]Length of the block along each dimension to be read by this instance of the program (can be a zero filled array). \item[{\em nBlocks}]Pointer to array containing number of blocks along each dimension. \item[{\em blockId}]Pointer to array containing serial number of block along each dimension. \item[{\em low}]Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension (can be a zero filled array). \item[{\em nDim}]Dimensionality of the field. \item[{\em myId}]Rank of this processor \item[{\em nProcs}]Total number of processes \end{DoxyParams}
+
+
+Definition at line 509 of file ITL\_\-ioutil.h.
+
+\hypertarget{classITL__ioutil_aa5b0c964006ea184dbc7303bdf4a3424}{
+\index{ITL\_\-ioutil@{ITL\_\-ioutil}!writeFieldBinarySerial@{writeFieldBinarySerial}}
+\index{writeFieldBinarySerial@{writeFieldBinarySerial}!ITL_ioutil@{ITL\_\-ioutil}}
+\subsubsection[{writeFieldBinarySerial}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static void {\bf ITL\_\-ioutil}$<$ T $>$::writeFieldBinarySerial (T $\ast$ {\em data}, \/  const char $\ast$ {\em fileName}, \/  int $\ast$ {\em dim}, \/  int {\em nFieldDim})\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}
+\label{classITL__ioutil_aa5b0c964006ea184dbc7303bdf4a3424}
+
+
+Serial file writer. 
+
+Stores field binary file in vec format. 
+\begin{DoxyParams}{Parameters}
+\item[{\em data}]pointer to data \item[{\em fileName}]File name. \item[{\em dim}]Length of field along each dimension (can be a zero filled array) \item[{\em nFieldDim}]Dimensionality of the field \end{DoxyParams}
+
+
+Definition at line 72 of file ITL\_\-ioutil.h.
+
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+/home/abon/Code/workspace\_\-unix/ITL\_\-repo/include/\hyperlink{ITL__ioutil_8h}{ITL\_\-ioutil.h}\end{DoxyCompactItemize}

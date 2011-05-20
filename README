@@ -25,3 +25,63 @@ cd itl/examples/Nek5000/examples/eddy
 makenek eddy_uv
 nekb_linux eddy_uv <num_procs>
 
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+README FOR THE OSU PART OF THE CODE:
+------------------------------------------------------------------
+------------------------------------------------------------------
+
+Questions / contact info:
+
+Han-Wei Shen	hwshen@cse.ohio-state.edu
+Tom Peterka	tpeterka@mcs.anl.gov
+Yi-Jen Chiang	yjc@poly.edu
+
+-------------------
+
+Building ITL:
+
+cd ITLib
+
+Configure ITL:
+
+We don't have a configure script yet. We'll develop one soon.
+
+Build ITL:
+
+1. Open user_defs.mk.
+2. Edit include and library directories. At present, ITL just need to recognize MPI.
+3. Run "make". A file called libITLib.a should be created in ITLib directory on success. 
+4. Go to each example directory. 
+5. Run "make". An executable should be created in the example directory.
+
+Install ITL:
+
+Currently there is separate install scrip. We'll write one soon.
+
+Run ITL:
+
+To run an example, type:
+<executable> <arguemnt file>
+
+Sample argument files are provided in the example directories. Arguments are more or less self-explanatory. 
+
+A few sample data files are proved in the ITLib/sampledata directory.
+.vol: 3D regular scalar field. 12 bytes of header storing 3 integers (NX,NY,NZ) followed by a sequence of floats. X changes first, then Y, then Z.
+.vec: 3D regular vector field. 12 bytes of header storing 3 integers (NX,NY,NZ) followed by a sequence of 3-tuples of floats (<vx, vy, vz>). X changes first, then Y, then Z.
+
+Computed entropy fields are stored as .vol file.
+
+Read documentation:
+
+Open ..ITL/doc/html/index.html file in a broswer.
+
+Update documentation:
+
+cd ..ITL/doc
+Make necessary changes to the Doxyfile. Add/remove directories to look for.
+Run the following command:
+doxygen Doxyfile
+
+-------------------
+
