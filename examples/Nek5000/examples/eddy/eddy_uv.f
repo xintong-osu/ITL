@@ -1,1 +1,0 @@
-/homes/tpeterka/itl/examples/Nek5000/examples/eddy/eddy_uv.usr

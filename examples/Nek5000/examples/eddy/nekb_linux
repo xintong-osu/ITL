@@ -1,6 +1,0 @@
-echo $1        >  SESSION.NAME
-echo `pwd`'/' >>  SESSION.NAME
-touch $1.rea
-rm -f logfile
-rm -f ioinfo
-mpiexec -np $2 ./nek5000 > logfile

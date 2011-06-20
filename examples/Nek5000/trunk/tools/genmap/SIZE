@@ -1,3 +1,0 @@
-       ! max number of elements
-       parameter(lelm=500 000) 
-c       parameter(lelm=3 000 000)
