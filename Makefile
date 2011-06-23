@@ -26,6 +26,6 @@ all: ./lib/libITLib.a
 # --- Remove binary and executable files ---
 
 clean:
-	rm -f ./Debug/*.a $(OBJECTS)
+	rm -f ./lib/*.a $(OBJECTS)
 	
 	

@@ -25,7 +25,12 @@
 #LIBDIRS += -L/usr/lib
 
 # Abon's Linux
+#CC = mpicxx
+#CCFLAGS = -O0 -g
+#INCLUDES += -I/home/abon/Install/mpich2-1.3.2p1/include
+#LIBDIRS += -L/home/abon/Install/mpich2-1.3.2p1/lib
+
+# Abon's Linux at ANL
 CC = mpicxx
 CCFLAGS = -O0 -g
-INCLUDES += -I/home/abon/Install/mpich2-1.3.2p1/include
-LIBDIRS += -L/home/abon/Install/mpich2-1.3.2p1/lib
+

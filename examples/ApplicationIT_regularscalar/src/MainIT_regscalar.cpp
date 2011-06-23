@@ -276,7 +276,7 @@ void compute_globalentropy_regularfield_serial()
 		// Entropy Computation
 		printf( "Computing global entropy of the scalar field ...\n" );
 		starttime = ITL_util<float>::startTimer();
-		globalEntropyComputer->computeGlobalEntropyOfField( nBin, true );
+		globalEntropyComputer->computeGlobalEntropyOfField( nBin, false );
 		float globalEntropy = globalEntropyComputer->getGlobalEntropy();
 		execTime[2] = ITL_util<float>::endTimer( starttime );
 		printf( "Done\nGlobal Entropy: %f\n", globalEntropy );

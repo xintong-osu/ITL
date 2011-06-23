@@ -88,8 +88,10 @@ public:
 		
 		
 		// Get min-max values of the scalar field
-		SCALAR minValue = ITL_util<SCALAR>::Min( this->dataField->datastore->array, this->dataField->grid->nVertices );
-		SCALAR maxValue = ITL_util<SCALAR>::Max( this->dataField->datastore->array, this->dataField->grid->nVertices );
+		// ******************* Need to resolve typecast issue begin *************************
+		SCALAR minValue = ITL_util<SCALAR>::Min( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
+		SCALAR maxValue = ITL_util<SCALAR>::Max( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
+		// ******************* Need to resolve typecast issue end *************************
 		SCALAR rangeValue = maxValue - minValue;
 		
 		// Compute bin width
@@ -111,6 +113,7 @@ public:
 				for( int x=0; x<this->dataField->grid->dimWithPad[0]; x++ )
 				{
 					// Get scalar value at location
+					// ******************* Need to resolve typecast issue *************************
 					nextV = this->dataField->datastore->array[index1d];
 
 					// Obtain the binID corresponding to the value at this location
@@ -171,9 +174,9 @@ public:
 				{
 					// Get vector at location
 					*nextV = this->dataField->datastore->array[index1d];
-
+					
 					// Obtain the binID corresponding to the value at this location
-					//this->binData->setDataAt( index1d, ITL_histogram::get_bin_number_3D( *nextV, nBin ) );
+					this->binData->setDataAt( index1d, ITL_histogram::get_bin_number_3D( *nextV, nBin ) );
 
 					// increment to the next grid vertex
 					index1d += 1;
@@ -198,7 +201,8 @@ public:
 		if( method == 0 )
 			globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( this->binData->datastore->array, this->binData->grid->nVertices, nBin, toNormalize );		
 		else
-			globalEntropy = ITL_entropycore::computeEntropy_KDEBased( this->dataField->datastore->array, this->dataField->grid->nVertices, 0, toNormalize );
+			//globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( this->binData->datastore->array, this->binData->grid->nVertices, nBin, toNormalize );		
+			globalEntropy = ITL_entropycore::computeEntropy_KDEBased( this->dataField->datastore->array, this->dataField->grid->nVertices, 0.0, toNormalize );
 	}
 
 	/**

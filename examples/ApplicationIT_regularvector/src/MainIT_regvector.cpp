@@ -92,6 +92,12 @@ void compute_jointlocalentropy_sequential();
  * @param argV argv
  */
 void compute_jointlocalentropy_parallel();
+/**
+ * Serial global entropy computation function with runtime computation.
+ * @param nArg narg
+ * @param argV argv
+ */
+void compute_globalentropy_sequential();
 
 /**
  * Main function.
@@ -151,6 +157,9 @@ int main( int argc, char** argv )
 		printf( "Entering parallel computation of local joint entropy fields from two regular vector fields ...\n" );	
 		compute_jointlocalentropy_parallel();
 		break;
+	case 5:
+		printf( "Entering serial computation of global entropy field from a regular vector field ...\n" );
+		compute_globalentropy_sequential();
 	default:
 		printf( "Error: Unknown Input parameter...\n" );
 		exit(0);
@@ -217,6 +226,47 @@ void compute_localentropy_sequential()
 
 	delete data;
 	delete entropyField;
+	delete vectorField;
+
+}// end function
+
+void compute_globalentropy_sequential()
+{
+	// Read chunk of data from file
+	starttime = ITL_util<float>::startTimer();
+	data = ITL_ioutil<VECTOR3>::readFieldBinarySerial( vectorFieldFile, nDim, dataDim );
+	execTime[0] = ITL_util<float>::endTimer( starttime );
+
+	// Create a vector field class from the file
+	highF[0] = dataDim[0]-1.0f;
+	highF[1] = dataDim[1]-1.0f;
+	highF[2] = dataDim[2]-1.0f;
+	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF, lowPad, highPad, sizeNeighborhoodArray );
+
+	// Initialize class that can compute entropy
+	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField );
+
+	// Histogram computation
+	printf( "Converting vectors into histogram bins at each point of the vector field ...\n" );
+	starttime = ITL_util<float>::startTimer();
+	globalEntropyComputer->computeHistogramBinField( "vector", nBin );
+	execTime[1] = ITL_util<float>::endTimer( starttime );
+	printf( "Done\n" );
+
+	// Global entropy Computation
+	printf( "Computing entropy at each point of the vector field ...\n" );
+	starttime = ITL_util<float>::startTimer();
+	globalEntropyComputer->computeGlobalEntropyOfField( nBin, false );
+	execTime[2] = ITL_util<float>::endTimer( starttime );
+	printf( "Done\n" );
+
+	// Print global entropy
+	printf( "Global entropy of vector field: %f\n", globalEntropyComputer->getGlobalEntropy() );
+
+	// Runtime
+	execTime[3] = execTime[1] + execTime[2];
+	printf( "%d: Read/Histogram/Entropy/Total Computation Time: %f %f %f %f seconds\n", myId, execTime[0], execTime[1], execTime[2], execTime[3] );
+	delete data;
 	delete vectorField;
 
 }// end function

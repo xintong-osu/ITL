@@ -85,6 +85,11 @@ float ITL_entropycore::computeEntropy_KDEBased( float* data, int nPoint, float h
 	
 }// End function
 
+float ITL_entropycore::computeEntropy_KDEBased( VECTOR3* data, int nPoint, float h, bool toNormalize )
+{
+	return 0.0f;
+}// End function
+
 float ITL_entropycore::evaluateKernel( float x, float mu, float var )
 {
 	float exponent = - ( x - mu )/ (2*var);

@@ -35,6 +35,15 @@ public:
 	static float computeEntropy_KDEBased( float* data, int nPoint, float h, bool toNormalize );
 
 	/**
+	 * KDE based ***Dummy*** entropy computation function.
+	 * @param data Pointer to data array.
+	 * @param nPoint Number of points to be sampled. Equivalent to nBin.
+	 * @param h Kernel Bandwidth (Put 0 to allow the software decide the bandwidth)
+	 * @param toNormalize TRUE indicates the computed entropy will be normalized.
+	 */
+	static float computeEntropy_KDEBased( VECTOR3* data, int nPoint, float h, bool toNormalize );
+
+	/**
 	 * Gaussian kernel evaluation function.
 	 * Returns N( (x-mu)/sigma |0, 1 ) for some sample x..
 	 * @param mu Mean of the point set
