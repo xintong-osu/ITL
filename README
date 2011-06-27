@@ -19,11 +19,24 @@ make install
 
 -------------------
 
-Building Nek5000 example:
+Building itl via CMake:
 
-cd itl/examples/Nek5000/examples/eddy
-makenek eddy_uv
-nekb_linux eddy_uv <num_procs>
+Also, cmake can be used to configure and to compile ITL. 
+
+For gcc users, once entering the folder of itl, type the command 'CMake -G "Unix Makefiles".
+
+For Eclipse users, once entering the folder of itl, type the command 'make -G "Eclipse CDT4 - Unix Makeifles". 
+Then, please follow the instruction in the following URL to add itl to Eclipse:
+
+http://www.cmake.org/Wiki/CMake:Eclipse_UNIX_Tutorial#Option_2:_UNIX_Makefile_Generator
+
+-------------------
+autofonf versus CMake:
+
+It will be up to the user to user either autoconf or CMake to build ITL. However, it is RECOMMENDED to use only one of them. 
+
+If both of them are used, the generate makefiles can mess with each other, which can cause issue to compile the programs.    
+
 
 -----------------------------------------------------------------
 -----------------------------------------------------------------
