@@ -7,8 +7,10 @@
  */
 
 #include <mpi.h>
+
 #include "ITL_header.h"
 #include "ITL_base.h"
+#include "ITL_util.h"
 #include "ITL_ioutil.h"
 #include "ITL_vectormatrix.h"
 #include "ITL_histogramconstants.h"
@@ -59,9 +61,6 @@ ITL_localentropy<VECTOR3> *localEntropyComputer = NULL;
 ITL_globalentropy<VECTOR3> *globalEntropyComputer = NULL;
 ITL_localjointentropy<VECTOR3> *jointEntropyComputer = NULL;
 
-void getArgs( const char *argsFileName );
-const char* getArgWithName( const char* name );
-
 /**
  * Serial converter from vec to raw format
  * @param nArg narg
@@ -111,23 +110,23 @@ int main( int argc, char** argv )
 	MPI_Comm_rank( MPI_COMM_WORLD, &myId );
 	
 	// Read file containing all command line arguments
-	getArgs( argv[1] );
+	ITL_util<float>::getArgs( argv[1], &argNames, &argValues );
 
 	// Parse command line arguments
-	functionType = atoi( getArgWithName( "functionType" ) );
-	vectorFieldFile = getArgWithName( "vectorField" );
-	vectorFieldFile2 = getArgWithName( "vectorField2" );
-	patchFile = getArgWithName( "patchFile" );
-	outFieldFile = getArgWithName( "outField" );
-	nDim = atoi( getArgWithName( "nDim" ) );
-	nBin = atoi( getArgWithName( "nBin" ) );
-	sizeNeighborhood = atoi( getArgWithName( "neighborhoodSize" ) );
-	sizeNeighborhoodArray[0] = atoi( getArgWithName( "neighborhoodSizeX" ) );
-	sizeNeighborhoodArray[1] = atoi( getArgWithName( "neighborhoodSizeY" ) );  
-	sizeNeighborhoodArray[2] = atoi( getArgWithName( "neighborhoodSizeZ" ) );  
-	nBlock[0] = atoi( getArgWithName( "nBlockX" ) );
-	nBlock[1] = atoi( getArgWithName( "nBlockY" ) );
-	nBlock[2] = atoi( getArgWithName( "nBlockZ" ) );
+	functionType = atoi( ITL_util<float>::getArgWithName( "functionType", &argNames, &argValues ) );
+	vectorFieldFile = ITL_util<float>::getArgWithName( "vectorField", &argNames, &argValues );
+	vectorFieldFile2 = ITL_util<float>::getArgWithName( "vectorField2", &argNames, &argValues );
+	patchFile = ITL_util<float>::getArgWithName( "patchFile", &argNames, &argValues );
+	outFieldFile = 	ITL_util<float>::getArgWithName( "outField", &argNames, &argValues );
+	nDim = atoi( ITL_util<float>::getArgWithName( "nDim", &argNames, &argValues  ) );
+	nBin = atoi( ITL_util<float>::getArgWithName( "nBin", &argNames, &argValues ) );
+	sizeNeighborhood = atoi( ITL_util<float>::getArgWithName( "neighborhoodSize", &argNames, &argValues ) );
+	sizeNeighborhoodArray[0] = atoi( ITL_util<float>::getArgWithName( "neighborhoodSizeX", &argNames, &argValues ) );
+	sizeNeighborhoodArray[1] = atoi( ITL_util<float>::getArgWithName( "neighborhoodSizeY", &argNames, &argValues ) );  
+	sizeNeighborhoodArray[2] = atoi( ITL_util<float>::getArgWithName( "neighborhoodSizeZ", &argNames, &argValues ) );  
+	nBlock[0] = atoi( ITL_util<float>::getArgWithName( "nBlockX", &argNames, &argValues ) );
+	nBlock[1] = atoi( ITL_util<float>::getArgWithName( "nBlockY", &argNames, &argValues ) );
+	nBlock[2] = atoi( ITL_util<float>::getArgWithName( "nBlockZ", &argNames, &argValues ) );
 	
 	// Initialize ITL
 	ITL_base::ITL_init();
@@ -140,7 +139,6 @@ int main( int argc, char** argv )
 	case 0:
 		create_raw_file( argc, argv );
 		break;
-
 	case 1:
 		printf( "Entering serial computation of local entropy field from the regular vector field ...\n" );	
 		compute_localentropy_sequential();
@@ -160,11 +158,18 @@ int main( int argc, char** argv )
 	case 5:
 		printf( "Entering serial computation of global entropy field from a regular vector field ...\n" );
 		compute_globalentropy_sequential();
+		break;
 	default:
 		printf( "Error: Unknown Input parameter...\n" );
-		exit(0);
 		break;
 	}// end switch
+
+	// Clean up
+	if( localEntropyComputer != NULL ) delete localEntropyComputer;
+	if( globalEntropyComputer != NULL ) delete globalEntropyComputer;
+	if( jointEntropyComputer != NULL ) delete jointEntropyComputer;
+	if( vectorField != NULL ) delete vectorField;
+	if( vectorField2 != NULL ) delete vectorField2;
 
 	// Finalize MPI
 	MPI_Finalize();
@@ -223,11 +228,6 @@ void compute_localentropy_sequential()
 	execTime[4] = execTime[1] + execTime[2];
 	printf( "%d: Read/Histogram/Entropy/Write/Total Computation Time: %f %f %f %f %f seconds\n", myId, execTime[0], execTime[1],
 																			execTime[2], execTime[3], execTime[4]  );
-
-	delete data;
-	delete entropyField;
-	delete vectorField;
-
 }// end function
 
 void compute_globalentropy_sequential()
@@ -266,9 +266,7 @@ void compute_globalentropy_sequential()
 	// Runtime
 	execTime[3] = execTime[1] + execTime[2];
 	printf( "%d: Read/Histogram/Entropy/Total Computation Time: %f %f %f %f seconds\n", myId, execTime[0], execTime[1], execTime[2], execTime[3] );
-	delete data;
-	delete vectorField;
-
+	
 }// end function
 
 void compute_localentropy_parallel()
@@ -332,11 +330,6 @@ void compute_localentropy_parallel()
 	if( myId == 0 ) printf( "%d: Read/Histogram/Entropy/Write/Total Computation Time: %f %f %f %f %f seconds\n",
 																myId, execTime[0], execTime[1],
 																execTime[2], execTime[3], execTime[4] );
-
-	delete data;
-	delete entropyField;
-	delete vectorField;
-
 }//end function
 
 void compute_jointlocalentropy_sequential()
@@ -389,12 +382,6 @@ void compute_jointlocalentropy_sequential()
 	execTime[4] = execTime[1] + execTime[2];
 	printf( "%d: Read/Histogram/Entropy/Write/Total Computation Time: %f %f %f %f %f seconds\n", myId, execTime[0], execTime[1],
 																			execTime[2], execTime[3], execTime[4]  );
-
-	delete [] data;
-	delete [] data2;
-	delete jointEntropyField;
-	delete vectorField;
-	delete vectorField2;
 
 }// end function
 
@@ -465,66 +452,5 @@ void compute_jointlocalentropy_parallel()
 	execTime[4] = execTime[1] + execTime[2];
 	printf( "%d: Read/Histogram/Entropy/Write/Total Computation Time: %f %f %f %f %f seconds\n", myId, execTime[0], execTime[1],
 																			execTime[2], execTime[3], execTime[4]  );
-
-	delete [] data;
-	delete [] data2;
-	delete jointEntropyField;
-	delete vectorField;
-	delete vectorField2;
-
 }//end function
-
-void getArgs( const char *argsFileName )
-{
-	char argName[100];
-	char argVal[200];
-
-	// Open file containing list of arguments
-	FILE* argsFile = fopen( argsFileName, "r" );
-
-	// Scan the file to create two lists of strings
-	// List of argument names and list of argument values
-	while( true )
-	{
-		// Read two strings in the current line
-		fscanf( argsFile, "%s %s", argName, argVal );
-
-		// Break if end of file reached
-		if( strcmp( argName, "EOF") == 0 )
-			break;
-
-		// Place strings into corresponding lists
-		string name( argName );
-		string val( argVal );
-
-		// Push strings in to lists
-		argNames.push_back( name );
-		argValues.push_back( val );
-
-	}
-
-	// Close file
-	fclose( argsFile );
-
-}// end function
-
-const char* getArgWithName( const char* name )
-{
-	list<string>::iterator iterName;
-	list<string>::iterator iterVal;
-
-	for( iterName = argNames.begin(), iterVal = argValues.begin();
-		 iterName != argNames.end();
-		 ++iterName, ++iterVal )
-	{
-		if( strcmp( (*iterName).c_str(), name ) == 0 )
-			return (*iterVal).c_str();
-
-	}// end for
-
-	return "";
-
-}// end function
-
-
 

@@ -10,6 +10,7 @@
 #ifndef ITL_FIELD_REGULAR_H_
 #define ITL_FIELD_REGULAR_H_
 
+#include "ITL_util.h"
 #include "ITL_field.h"
 #include "ITL_grid_regular.h"
 
@@ -23,6 +24,8 @@ public:
 	 */
 	ITL_field_regular()
 	{
+		this->grid = NULL;
+		this->datastore = NULL;
 	}
 
 	/**
@@ -182,53 +185,70 @@ public:
 	/**
 	 * Function for creating a partition or subfield
 	 * within the specified bounds.
-	 * @param nblocks Number of partitions along each dimension.
+	 * @param nblocks Number of blocks along each dimension.
+	 * @paam subfieldArray A null pointer or a pointer to sub-blocks to be created.  
+	 * @param isSharingNeighbor Flag that denotes if two adjacent blocks are sharing a common neighbor. Default value is false.
 	 */
-	virtual void partitionField ( int* nblocks )
-	{
-		this->nPartition = nblocks;
-		this->blockSize = new float[this->grid->nDim];
+	virtual void partitionField ( int* nBlock, ITL_field_regular<T> *subfieldArray, bool isSharingNeighbor = true )
+	{		
+		float *blockSize = new float[this->grid->nDim];
 		float* lowSub = new float[this->grid->nDim];
 		float* highSub = new float[this->grid->nDim];
 
 		// Compute the dimension of each block
-		this->blockSize[0] = (this->grid->dim[0]-1) / (float)this->nPartition[0];
-		this->blockSize[1] = (this->grid->dim[1]-1) / (float)this->nPartition[1];
-		this->blockSize[2] = (this->grid->dim[2]-1) / (float)this->nPartition[2];
+		blockSize[0] = ceil( (this->grid->dim[0]-1) / (float)nBlock[0] );
+		blockSize[1] = ceil( (this->grid->dim[1]-1) / (float)nBlock[1] );
+		blockSize[2] = ceil( (this->grid->dim[2]-1) / (float)nBlock[2] );
+		//blockSize[0] = floor( (this->grid->dim[0]-1) / (float)nBlock[0] );
+		//blockSize[1] = floor( (this->grid->dim[1]-1) / (float)nBlock[1] );
+		//blockSize[2] = floor( (this->grid->dim[2]-1) / (float)nBlock[2] );
+
 
 		#ifdef DEBUG_MODE
-		printf( "Number of partitions (ie, subfields) to be created: %d, %d, %d\n", this->nPartition[0], this->nPartition[1], this->nPartition[2] );
-		printf( "Dimension of a subfield: %f, %f, %f\n", this->blockSize[0], this->blockSize[1], this->blockSize[2] );
+		printf( "Dimension of field: %d, %d, %d\n", this->grid->dim[0], this->grid->dim[1], this->grid->dim[2] );
+		printf( "Number of blocks (ie, subfields) to be created: %d, %d, %d\n", nBlock[0], nBlock[1], nBlock[2] );
+		printf( "Dimension of a subfield: %f, %f, %f\n", blockSize[0], blockSize[1], blockSize[2] );
 		#endif
 
 		// Compute total number of blocks
-		int nTotalBlocks = ITL_util<int>::prod( this->nPartition, this->grid->nDim );
+		int nTotalBlocks = ITL_util<int>::prod( nBlock, this->grid->nDim );
 
 		// Allocate memory for array of subfields
-		this->subfieldArray = new ITL_field_regular<T>[nTotalBlocks];
+		if( subfieldArray == NULL )	subfieldArray = new ITL_field_regular<T>[nTotalBlocks];
 
+		// Partitioning loop
 		int blockIndex = 0;
-
-		for( int z=0; z<this->nPartition[2]; z++ )
+		for( int z=0; z<nBlock[2]; z++ )
 		{
-			lowSub[2] = z * this->blockSize[2];
-			highSub[2] = lowSub[2] + this->blockSize[2];
-			for(int y=0; y<this->nPartition[1]; y++ )
+			// Determine [zmin, zmax] for the next block
+			lowSub[2] = z * blockSize[2];			
+			if( isSharingNeighbor == true )		highSub[2] = std::min( (float)this->grid->highInt[2], lowSub[2] + blockSize[2] );
+						
+			for(int y=0; y<nBlock[1]; y++ )
 			{
-				lowSub[1] = y * this->blockSize[1];
-				highSub[1] = lowSub[1] + this->blockSize[1];
-				for( int x=0; x<this->nPartition[0]; x++)
+				// Determine [ymin, ymax] for the next block
+				lowSub[1] = y * blockSize[1];
+				if( isSharingNeighbor == true ) highSub[1] = std::min( (float)this->grid->highInt[1], lowSub[1] + blockSize[1] );
+				
+				for( int x=0; x<nBlock[0]; x++)
 				{
-					lowSub[0] = x * this->blockSize[0];
-					highSub[0] = lowSub[0] + this->blockSize[0];
+					// Determine [xmin, xmax] for the next block
+					lowSub[0] = x * blockSize[0];
+					if( isSharingNeighbor == true )	highSub[0] = std::min( (float)this->grid->highInt[0], lowSub[0] + blockSize[0] );
+					
+					// Initialize subfield 
+					if( subfieldArray[blockIndex].grid == NULL )  		subfieldArray[blockIndex].grid = new ITL_grid_regular<T>( this->grid->nDim );
+					if( subfieldArray[blockIndex].datastore == NULL )  	subfieldArray[blockIndex].datastore = new ITL_datastore<T>();
+					subfieldArray[blockIndex].setBounds( lowSub, highSub, this->grid->lowPad, this->grid->highPad, this->grid->neighborhoodSize );
+					#ifdef DEBUG_MODE
+					printf( "%d: %f %f %f %f %f %f\n", blockIndex, lowSub[0], lowSub[1], lowSub[2], highSub[0], highSub[1], highSub[2] );
+					#endif
 
-					// Initialize sub field
-					this->subfieldArray[blockIndex].setBounds( lowSub, highSub,
-															   this->grid->lowPad, this->grid->highPad,
-															   this->grid->neighborhoodSize );
-
-					// load Data to the subfield
-					this->subfieldArray[blockIndex].setDataFull( this->getDataBetween( lowSub, highSub ) );
+					// load (copy from datastore of full field) Data to the subfield
+					subfieldArray[blockIndex].setDataFull( this->getDataBetween( lowSub, highSub ) );
+					//float m = ITL_util<SCALAR>::Min( (SCALAR*)subfieldArray[blockIndex].datastore->array, subfieldArray[blockIndex].grid->nVertices );
+					//float M = ITL_util<SCALAR>::Max( (SCALAR*)subfieldArray[blockIndex].datastore->array, subfieldArray[blockIndex].grid->nVertices );
+					//cout << m << " " << M << endl;
 
 					// Increment to the next block
 					blockIndex ++;
@@ -248,15 +268,6 @@ public:
 	 */
 	ITL_field<T>* createSubField( float* low, float* high )
 	{
-		// Compute the dimension of each block
-		this->blockSize[0] = (high[0]-low[0]);
-		this->blockSize[1] = (high[1]-low[1]);
-		this->blockSize[2] = (high[2]-low[2]);
-
-		#ifdef DEBUG_MODE
-		printf( "Dimension of newly created subfield: %f, %f, %f\n", this->blockSize[0], this->blockSize[1], this->blockSize[2] );
-		#endif
-
 		// Allocate memory for 3D block
 		ITL_field_regular<T>* newField = new ITL_field_regular<T>( this->getDataBetween( low, high ), this->grid->nDim, this->grid->dim );
 
@@ -336,13 +347,13 @@ public:
 		{
 			for( int y=0; y<dimLength[1]; y++ )
 			{
-				globalOffset = this->grid->convert3DIndex( z+lowBoundary[2], y+lowBoundary[1], lowBoundary[0] );
+				globalOffset = this->grid->convert3DIndex( lowBoundary[0], lowBoundary[1]+y, lowBoundary[2]+z );
 
-				memcpy( (T*)(retData + localOffset) , (T*)(this->datastore->array + globalOffset) , dimLength[0] * sizeof( T ) );
+				memcpy( (T*)(retData + localOffset ) , (T*)(this->datastore->array + globalOffset ) , dimLength[0] * sizeof( T ) );
 				localOffset += dimLength[0];
 			}
 		}
-
+		
 		return retData;
 
 	}// end function
@@ -404,9 +415,9 @@ public:
 	 */
 	~ITL_field_regular()
 	{
+		if( this->grid != NULL )	delete this->grid;
+		if( this->datastore != NULL )	delete this->datastore;
 	}
-
-
 };
 
 #endif

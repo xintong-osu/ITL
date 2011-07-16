@@ -1,19 +1,23 @@
 #include "ITL_entropycore.h"
 
-float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int nPoint, int nBin, bool toNormalize )
+float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArray, int nPoint, int nBin, bool toNormalize )
 {
-	// Initialize probability array
+	// Initialize frequency and probability array
+	if( freqArray == NULL ) freqArray = new int[nBin];
 	float* probArray = new float[nBin];
 	for( int i=0; i<nBin; i++ )
+	{
+		freqArray[i] = 0;
 		probArray[i] = 0;
+	}
 
 	// Scan through bin Ids and keep count
 	for( int i=0; i<nPoint; i++ )
-		probArray[ binIds[i] ] ++;
+		freqArray[ binIds[i] ] ++;
 
 	// Turn count into probabilities
 	for( int i=0; i<nBin; i++ )
-		probArray[i] /= (float)nPoint;
+		probArray[i] = freqArray[i] / (float)nPoint;
 
 	// Compute negative entropy
 	float entropy = 0;

@@ -12,9 +12,7 @@ include ../../user_defs.mk
 # Davinci
 CC = mpicxx
 CCFLAGS = -O0 -g
-INCLUDES += -I../../include -I../../include/datastore -I../../include/field \
-	    -I../../include/grid -I../../include/metrics -I../../include/util \
-	    -I./include
+INCLUDES += -I../../include -I./include
 LIBDIRS += -L../../lib
 LIBS += -lITLib -lmpich -lmpichcxx
 
@@ -48,6 +46,6 @@ ApplicationIT_regularvector: $(OBJECTS)
 # --- Remove binary and executable files ---
 
 clean:
-	rm -f *.a $(OBJECTS)
+	rm -f ApplicationIT_regularvector $(OBJECTS)
 	
 	

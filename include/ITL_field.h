@@ -11,24 +11,18 @@
 #ifndef ITL_FIELD_H_
 #define ITL_FIELD_H_
 
-#include "ITL_header.h"
-#include "ITL_util.h"
-#include "ITL_ioutil.h"
 #include "ITL_datastore.h"
 #include "ITL_grid.h"
-#include "ITL_histogram.h"
 
 template <class T>
 class ITL_field
 {
 public:
 
-	ITL_grid<T>* grid;					/**< Grid associated to the field. */
+	ITL_grid<T>* grid;			/**< Grid associated to the field. */
 	ITL_datastore<T>* datastore;		/**< Data store associated to the field. */
-	ITL_field<T>* subfieldArray;		/**< An array of sub fields (also referred to as blocks).
-	 	 	 	 	 	 	 	 	 	 	 This can be potentially useful for recursive subdivision of field. */
-	float* blockSize;					/**< Length of subfield along each dimension. */
-	int* nPartition;					/**< Number of subfields along each dimension. */
+	//ITL_field<T>* subfieldArray;		/**< An array of sub fields (also referred to as blocks). This can be potentially useful for recursive subdivision of field. */
+	//int* nPartition;			/**< Number of subfields along each dimension. */
 
 public:
 

@@ -7,6 +7,6 @@ neighborhoodSizeX 6
 neighborhoodSizeY 6
 neighborhoodSizeZ 6
 nBlockX 2
-nBlockY 1
+nBlockY 2
 nBlockZ 1
-EOF
+

@@ -32,5 +32,5 @@
 
 # Abon's Linux at ANL
 CC = mpicxx
-CCFLAGS = -O0 -g
+CCFLAGS = -O0 -Wall -g
 

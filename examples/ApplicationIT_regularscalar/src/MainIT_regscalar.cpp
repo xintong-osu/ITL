@@ -9,12 +9,13 @@
 #include <mpi.h>
 #include "ITL_header.h"
 #include "ITL_base.h"
+#include "ITL_util.h"
 #include "ITL_ioutil.h"
 #include "ITL_vectormatrix.h"
 #include "ITL_histogramconstants.h"
 #include "ITL_localentropy.h"
 #include "ITL_globalentropy.h"
-#include "ITL_localjointentropy.h"
+//#include "ITL_localjointentropy.h"
 #include "ITL_field_regular.h"
 
 using namespace std;
@@ -57,9 +58,6 @@ const char *outFieldFile = NULL;
 double execTime[5];
 clock_t starttime, endtime;
 
-void getArgs( const char *argsFileName );
-const char* getArgWithName( const char* name );
-
 /**
  * Serial local entropy computation function for regular scalar field.
  */
@@ -85,22 +83,22 @@ int main( int argc, char** argv )
 	MPI_Comm_rank( MPI_COMM_WORLD, &myId );
 
 	// Read file containing all command line arguments
-	getArgs( argv[1] );
+	ITL_util<float>::getArgs( argv[1], &argNames, &argValues );
 
 	// Parse command line arguments
-	functionType = atoi( getArgWithName( "functionType" ) );
-	scalarFieldFile = getArgWithName( "scalarField" );
-	outFieldFile = getArgWithName( "outField" );
-	nDim = atoi( getArgWithName( "nDim" ) );
-	nBin = atoi( getArgWithName( "nBin" ) );
-	sizeNeighborhood = atoi( getArgWithName( "neighborhoodSize" ) );
-	sizeNeighborhoodArray[0] = atoi( getArgWithName( "neighborhoodSizeX" ) );
-	sizeNeighborhoodArray[1] = atoi( getArgWithName( "neighborhoodSizeY" ) );
-	sizeNeighborhoodArray[2] = atoi( getArgWithName( "neighborhoodSizeZ" ) );
-	nBlock[0] = atoi( getArgWithName( "nBlockX" ) );
-	nBlock[1] = atoi( getArgWithName( "nBlockY" ) );
-	nBlock[2] = atoi( getArgWithName( "nBlockZ" ) );
-	method = atoi( getArgWithName( "method" ) );
+	functionType = atoi( ITL_util<float>::getArgWithName( "functionType", &argNames, &argValues ) );
+	scalarFieldFile =  ITL_util<float>::getArgWithName( "scalarField", &argNames, &argValues );
+	outFieldFile =  ITL_util<float>::getArgWithName( "outField", &argNames, &argValues );
+	nDim = atoi(  ITL_util<float>::getArgWithName( "nDim", &argNames, &argValues ) );
+	nBin = atoi(  ITL_util<float>::getArgWithName( "nBin", &argNames, &argValues ) );
+	sizeNeighborhood = atoi( ITL_util<float>::getArgWithName( "neighborhoodSize", &argNames, &argValues ) );
+	sizeNeighborhoodArray[0] = atoi( ITL_util<float>::getArgWithName( "neighborhoodSizeX", &argNames, &argValues ) );
+	sizeNeighborhoodArray[1] = atoi(  ITL_util<float>::getArgWithName( "neighborhoodSizeY", &argNames, &argValues ) );
+	sizeNeighborhoodArray[2] = atoi(  ITL_util<float>::getArgWithName( "neighborhoodSizeZ", &argNames, &argValues ) );
+	nBlock[0] = atoi(  ITL_util<float>::getArgWithName( "nBlockX", &argNames, &argValues ) );
+	nBlock[1] = atoi(  ITL_util<float>::getArgWithName( "nBlockY", &argNames, &argValues ) );
+	nBlock[2] = atoi(  ITL_util<float>::getArgWithName( "nBlockZ", &argNames, &argValues ) );
+	method = atoi(  ITL_util<float>::getArgWithName( "method", &argNames, &argValues ) );
 
 	switch( functionType )
 	{
@@ -121,12 +119,15 @@ int main( int argc, char** argv )
 	}// end switch
 
 	// Clear up
-	if( scalarFieldData != NULL ) delete [] scalarFieldData;
+	if( localEntropyComputer != NULL ) delete localEntropyComputer;
+	if( globalEntropyComputer != NULL ) delete globalEntropyComputer;
+	//if( scalarField != NULL ) delete scalarField;
 		
 	// Finalize MPI
 	MPI_Finalize();
 
 }// end main
+
 
 void compute_localentropy_regularfield_serial()
 {
@@ -298,58 +299,6 @@ void compute_globalentropy_regularfield_serial()
 
 	delete scalarField;
 	
-}// end function
-
-void getArgs( const char *argsFileName )
-{
-	char argName[100];
-	char argVal[200];
-
-	// Open file containing list of arguments
-	FILE* argsFile = fopen( argsFileName, "r" );
-
-	// Scan the file to create two lists of strings
-	// List of argument names and list of argument values
-	while( true )
-	{
-		// Read two strings in the current line
-		fscanf( argsFile, "%s %s", argName, argVal );
-
-		// Break if end of file reached
-		if( strcmp( argName, "EOF") == 0 )
-			break;
-
-		// Place strings into corresponding lists
-		string name( argName );
-		string val( argVal );
-
-		// Push strings in to lists
-		argNames.push_back( name );
-		argValues.push_back( val );
-
-	}
-
-	// Close file
-	fclose( argsFile );
-
-}// end function
-
-const char* getArgWithName( const char* name )
-{
-	list<string>::iterator iterName;
-	list<string>::iterator iterVal;
-
-	for( iterName = argNames.begin(), iterVal = argValues.begin();
-		 iterName != argNames.end();
-		 ++iterName, ++iterVal )
-	{
-		if( strcmp( (*iterName).c_str(), name ) == 0 )
-			return (*iterVal).c_str();
-
-	}// end for
-
-	return "";
-
 }// end function
 
 

@@ -1,9 +1,19 @@
 functionType 3
+
+# Input vector fields. (currently handles only 2) 
 vectorField ../../sampledata/circle.vec
 vectorField2 ../../sampledata/source.vec
+
+# Output file which stores joint local entropy field in binary format.
 outField mixed_jen.vol
+
+# If patch file is empty (denoted by !), then the default mapping is used.
 patchFile patch.txt
+
+# Number of dimensions of input vector field.
 nDim 3
+
+# Number of bins of the histogram.
 nBin 360
 neighborhoodSize 6
 neighborhoodSizeX 6
@@ -12,4 +22,3 @@ neighborhoodSizeZ 6
 nBlockX 2
 nBlockY 1
 nBlockZ 1
-EOF

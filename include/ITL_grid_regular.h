@@ -110,6 +110,8 @@ public:
 
 		// Set the neighborhood size and vertices in the neighborhood
 		this->neighborhoodSize = neighborhoodsize;
+		this->neighborhoodSizeArray = new int[3];
+		this->neighborhoodSizeArray[0] = this->neighborhoodSizeArray[1] = this->neighborhoodSizeArray[2] = this->neighborhoodSize;   
 
 		// Set field size and bounding box in terms of grid vertex
 		this->dim = new int[this->nDim];
@@ -171,9 +173,10 @@ public:
 
 		// Set the neighborhood size and vertices in the neighborhood
 		this->neighborhoodSizeArray = new int[3];
-		this->neighborhoodSizeArray[0] = neighborhoodsizearray[0];
-		this->neighborhoodSizeArray[1] = neighborhoodsizearray[1];
-		this->neighborhoodSizeArray[2] = neighborhoodsizearray[2];
+		memcpy( this->neighborhoodSizeArray, neighborhoodsizearray, this->nDim * sizeof(int) );
+		//this->neighborhoodSizeArray[0] = neighborhoodsizearray[0];
+		//this->neighborhoodSizeArray[1] = neighborhoodsizearray[1];
+		//this->neighborhoodSizeArray[2] = neighborhoodsizearray[2];
 
 		// Set field size and bounding box in terms of grid vertex
 		this->dim = new int[this->nDim];
@@ -243,6 +246,7 @@ public:
 	 * @param z z-coordinate of the spatial point.
 	 * @param t t-coordinate of the spatial point.
 	 */
+
 	int convertTimeVarying3DIndex( int x, int y, int z, int t )
 	{
 		return -1;
@@ -253,7 +257,17 @@ public:
 	 */
 	~ITL_grid_regular()
 	{
-	}
+		if( this->dim != NULL )		delete this->dim;
+		if( this->dimWithPad != NULL ) 	delete this->dimWithPad;
+		if( this->low != NULL )		delete this->low;
+		if( this->high != NULL )	delete this->high;
+		if( this->lowInt != NULL )	delete this->lowInt;
+		if( this->highInt != NULL )	delete this->highInt;
+		if( this->lowIntWithPad != NULL )	delete  this->lowIntWithPad;
+		if( this->highIntWithPad != NULL )	delete  this->highIntWithPad;
+		if( this->lowPad != NULL )	delete  this->lowPad;
+		if( this->highPad != NULL )	delete  this->highPad;
+	}// end destructor
 };
 
 #endif

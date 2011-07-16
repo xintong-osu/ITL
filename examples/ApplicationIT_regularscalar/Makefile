@@ -46,6 +46,6 @@ ApplicationIT_regularscalar: $(OBJECTS)
 # --- Remove binary and executable files ---
 
 clean:
-	rm -f *.a $(OBJECTS)
+	rm -f AplicationIT_regularscalar $(OBJECTS)
 	
 	

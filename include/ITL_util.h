@@ -140,6 +140,62 @@ public:
 		return ( endTime - startTime );// /  CLOCKS_PER_MS;
 	}// end function
 
+	static void getArgs( const char *argsFileName, list<string> *argNames, list<string> *argValues )
+	{
+		char* argName = "";
+		char* argVal = "";
+		char nextLine[1000];
+
+		// Open ascii file containing list of arguments
+		FILE* argsFile = fopen( argsFileName, "r" );
+
+		// Scan the file to create two lists of strings
+		// List of argument names and list of argument values
+		while( 1 )
+		{
+			// Read next line
+			fgets( nextLine, 1000, argsFile );
+
+			// Check for EOF
+			if( feof( argsFile ) )
+				break;
+
+			// Skip to next line if this is a comment or a blank line
+			if( *nextLine == '#' || *nextLine == '\n' )
+				//printf( "Comment or blank line\n" );
+	        		continue;
+
+			// Tokenize string in to argument name and value
+			argName = strtok( nextLine, " \n" );
+			argVal = strtok( NULL, " \n" );
+			string name( argName );
+			string val( argVal );
+	
+			// Push strings in to lists
+			argNames->push_back( name );
+			argValues->push_back( val );
+		}
+
+		// Close file
+		fclose( argsFile );
+
+	}// end function
+
+	static char* getArgWithName( const char* name, list<string> *argNames, list<string> *argValues )
+	{	
+		list<string>::iterator iterName;
+		list<string>::iterator iterVal;
+
+		for( iterName = argNames->begin(), iterVal = argValues->begin(); iterName != argNames->end(); ++iterName, ++iterVal )
+		{
+			if( strcmp( (*iterName).c_str(), name ) == 0 )
+				return (char*)( (*iterVal).c_str() );
+
+		}// end for
+
+		return "";
+
+	}// end function
 
 };
 

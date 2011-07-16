@@ -23,7 +23,7 @@ public:
 	 * @param nPoint Number of points. Same as the length of bin array.
 	 * @param nBin Number of bins used in histogram computation.
 	 */
-	static float computeEntropy_HistogramBased( int* binIds, int nPoint, int nBin, bool toNormalize );
+	static float computeEntropy_HistogramBased( int* binIds, int* freqArray, int nPoint, int nBin, bool toNormalize );
 	
 	/**
 	 * KDE based entropy computation function.

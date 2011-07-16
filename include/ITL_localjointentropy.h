@@ -96,8 +96,6 @@ public:
 		T rangeValue2 = maxValue2 - minValue2;
 		float binWidth2 = rangeValue2 / (float)nBin;
 
-		cout << "2" << endl;
-		
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
 		int index1d = 0;
@@ -274,11 +272,13 @@ public:
 		}
 
 		// Compute entropy
-		float entropy = this->computeJointEntropy( binArray, nNeighbors, nBins*nBins );
+		int* localJointFreqList = NULL;
+		float entropy = this->computeJointEntropy( binArray, localJointFreqList, nNeighbors, nBins*nBins );
 
 		// Store entropy
 		this->jointEntropyField->setDataAt( entropyFieldIndex, entropy );
 
+		delete [] localJointFreqList;
 		delete binArray;
 
 	}// end function
@@ -289,20 +289,24 @@ public:
 	 * @param nels Number of points in the neighborhood. Same as the length of bin array.
 	 * @param nbins Number of bins used in histogram computation.
 	 */
-	float computeJointEntropy( int* binIds, int nels, int nbins )
+	float computeJointEntropy( int* binIds, int* jointFreqArray, int nels, int nbins )
 	{
 		// Initialize probability array
+		if( jointFreqArray == NULL ) jointFreqArray = new int[nbins];
 		float* probarray = new float[nbins];
 		for( int i=0; i<nbins; i++ )
+		{
+			jointFreqArray[i] = 0;
 			probarray[i] = 0;
+		}
 
 		// Scan through bin Ids and keep count
 		for( int i = 0; i<nels; i++ )
-			probarray[ binIds[i] ] ++;
+			jointFreqArray[ binIds[i] ] ++;
 
 		// Turn count into probabilities
 		for( int i = 0; i<nbins; i++ )
-			probarray[i] /= (float)nels;
+			probarray[i] = jointFreqArray[i] / (float)nels;
 
 
 		// Compute entropy
@@ -314,6 +318,7 @@ public:
 
 		entropy = -entropy;
 
+		delete [] jointFreqArray;
 		delete [] probarray;
 
 		return entropy;

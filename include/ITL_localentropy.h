@@ -274,11 +274,13 @@ public:
 		}
 
 		// Compute entropy
-		float entropy = ITL_entropycore::computeEntropy_HistogramBased( binArray, nNeighbors, nBins, toNormalize );
+		int* localFreqList = NULL;
+		float entropy = ITL_entropycore::computeEntropy_HistogramBased( binArray, localFreqList, nNeighbors, nBins, toNormalize );
 
 		// Store entropy
 		this->entropyField->setDataAt( entropyFieldIndex, entropy );
 
+		delete [] localFreqList;
 		delete binArray;
 
 	}// end function
