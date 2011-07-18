@@ -9,6 +9,9 @@
 #define ITL_LOCALENTROPY_H_
 
 #include "ITL_header.h"
+// ADD-BY-LEETEN 07/18/2011-BEGIN
+#include "ITL_histogram.h"
+// ADD-BY-LEETEN 07/18/2011-END
 #include "ITL_field_regular.h"
 #include "ITL_entropycore.h"
 

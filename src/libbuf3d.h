@@ -88,7 +88,11 @@ struct TBuffer3D: public TBuffer<t>
 	}
 
 	// ADD-BY-LEETEN 09/19/2010-BEGIN
-	void _Save(char *szFilenamePrefix)
+	// MOD-BY-LEETEN 07/18/2011-FROM:
+		 // void _Save(char *szFilenamePrefix)
+	// TO:
+	void _Save(const char *szFilenamePrefix)
+	// MOD-BY-LEETEN 07/18/2011-END
 	{
 		// MOD-BY-LEETEN 01/25/2011-FROM:
 			// if( !BIsAllocated() )

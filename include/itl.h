@@ -16,23 +16,6 @@
 #ifndef _ITL
 #define _ITL
 
-#if	0	// MOD-BY-LEETEN 07/05/2011-FROM:
-	#include "mpi.h"
-
-	/*-------------------------------------------------------------------------*/
-
-	#ifdef __cplusplus
-	extern "C"
-	#endif
-	void ITL_begin();
-	#ifdef __cplusplus
-	extern "C"
-	#endif
-	void ITL_get_data();
-
-	/*-------------------------------------------------------------------------*/
-#else	// MOD-BY-LEETEN 07/05/2011-TO:
-
 //--------------------------------------------------------------------------
 // functions
 
@@ -65,6 +48,8 @@ ITL_end();
 */
 extern "C"
 void itl_end_();
+
+#if	0	// DEL-BY-LEETEN 07/18/2011-BEGIN
 
 /////////////////////////////////////////////////////////////////////
 //! The C and C++ API to specify #blocks
@@ -553,7 +538,8 @@ itl_geom_rect_dim_coord_
 	int *piStep
 );
 
-#endif	// MOD-BY-LEETEN 07/05/2011-END
+#endif	// DEL-BY-LEETEN 07/18/2011-END
+
 #endif	// #ifndef _ITL
 
 /*
