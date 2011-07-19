@@ -105,6 +105,12 @@ public:
 			maxValue2 = histogramMax2;				
 		}
 
+		// Compute bin widths along each dimension
+		T rangeValue1 = maxValue1 - minValue1;
+		float binWidth1 = rangeValue1 / (float)nBin;
+		T rangeValue2 = maxValue2 - minValue2;
+		float binWidth2 = rangeValue2 / (float)nBin;
+
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
 		int index1d = 0;
