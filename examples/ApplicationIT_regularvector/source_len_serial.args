@@ -20,8 +20,4 @@ neighborhoodSizeX 6
 neighborhoodSizeY 6
 neighborhoodSizeZ 6
 
-# Number of blocks to be created along each dimension. 
-# One processor will process one block. So total number blocks should be equal to number of processors.
-nBlockX 2
-nBlockY 1
-nBlockZ 1
+

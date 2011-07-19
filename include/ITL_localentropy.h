@@ -24,6 +24,10 @@ public:
 	ITL_field_regular<int>* binData;	/**< A scalar field containing histogram bins corresponding to field points. */
 	ITL_field_regular<float> *entropyField;
 
+	T histogramMin;
+	T histogramMax;
+	bool histogramRangeSet;
+
 	float globalEntropy;				/**< Value of computed entropy at a specified point in the field. */
 	float* probarray;   				/**< Probability array used in emtropy computation. */
 public:
@@ -36,6 +40,7 @@ public:
 		this->dataField = f;
 		this->binData = NULL;
 		this->entropyField = NULL;
+		histogramRangeSet = false;		// ADD-BY-ABON 07/19/2011
 	}// End constructor
 	
 	/**
@@ -69,7 +74,7 @@ public:
 	void computeHistogramBinField_Scalar( int nBin )
 	{
 		assert( this->dataField->datastore->array != NULL );
-	        T nextV;
+	        T nextV, minValue, maxValue, rangeValue;
 		
 		// The histogram field is padded, pad length is same as neighborhood size of vector field
 	        //int* lPadHisto = new int[this->grid->nDim];
@@ -90,12 +95,24 @@ public:
 												//lPadHisto, hPadHisto,
 												this->dataField->grid->neighborhoodSizeArray );
 
-		// Get min-max values of the scalar field
-		T minValue = ITL_util<T>::Min( this->dataField->datastore->array, this->dataField->grid->nVertices );
-		T maxValue = ITL_util<T>::Max( this->dataField->datastore->array, this->dataField->grid->nVertices );
-		T rangeValue = maxValue - minValue;
+		// MOD-BY-ABON 07/19/2011-BEGIN			
+		if( histogramRangeSet == false )
+		{
+			// Get min-max values of the scalar field
+			minValue = ITL_util<T>::Min( this->dataField->datastore->array, this->dataField->grid->nVertices );
+			maxValue = ITL_util<T>::Max( this->dataField->datastore->array, this->dataField->grid->nVertices );
+		}
+		else
+		{	
+			minValue = histogramMin;
+			maxValue = histogramMax;
+		}
+		rangeValue = maxValue - minValue;
+
+		// Compute bin width			
 		float binWidth = rangeValue / (float)nBin;
-					
+		// MOD-BY-ABON 07/19/2011-END					
+
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
 		int index1d = 0;
@@ -287,6 +304,22 @@ public:
 		delete binArray;
 
 	}// end function
+
+	// ADD-BY-ABON 07/19/2011-BEGIN	
+	/**
+	  * Historgam range set function
+	  * Sets the range over which historgam computation is to be done.
+	  * @param minR lower limit of the range.
+	  * @param maxR upper limit of the range.
+	  */
+	void setHistogramRange( T minR, T maxR )
+	{
+		histogramMin = minR;
+		histogramMax = maxR;
+		histogramRangeSet = true;
+	}
+	// ADD-BY-ABON 07/19/2011-END	
+
 
 	/**
 	 * Entropy accessor function.
