@@ -366,14 +366,14 @@ void compute_jointlocalentropy_sequential()
 	// Joint entropy Computation
 	printf( "Computing joint entropy at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	jointEntropyComputer->computeJointEntropyOfField( nBin );
+	jointEntropyComputer->computeLocalJointEntropyOfField( nBin );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
 	printf( "Done\n" );
 
 	// Saving data to binary file
 	printf( "saving entropy field to binary file ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	ITL_field_regular<float>* jointEntropyField = jointEntropyComputer->getJointEntropyField();
+	ITL_field_regular<float>* jointEntropyField = jointEntropyComputer->getLocalJointEntropyField();
 	ITL_ioutil<float>::writeFieldBinarySerial( jointEntropyField->getDataFull(), outFieldFile, jointEntropyField->grid->dim, nDim );
 	execTime[3] = ITL_util<float>::endTimer( starttime );
 	printf( "Done\n" );
@@ -429,13 +429,13 @@ void compute_jointlocalentropy_parallel()
 	// Joint entropy Computation
 	printf( "Computing joint entropy at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	jointEntropyComputer->computeJointEntropyOfField( nBin );
+	jointEntropyComputer->computeLocalJointEntropyOfField( nBin );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
 	printf( "Done\n" );
 
 	// Saving data to binary file
 	if( myId == 0 ) starttime = ITL_util<float>::startTimer();
-	ITL_field_regular<float>* jointEntropyField = jointEntropyComputer->getJointEntropyField();
+	ITL_field_regular<float>* jointEntropyField = jointEntropyComputer->getLocalJointEntropyField();
 	//ITL_ioutil<float>::writeFieldBinaryParallel( entropyField->getDataFull(), outFieldFile,
 	//										     dataDim, blockDim,
 	//										     lowF, nDim,

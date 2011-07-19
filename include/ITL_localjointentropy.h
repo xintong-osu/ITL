@@ -22,8 +22,7 @@ public:
 	ITL_field_regular<int> *binData;
 	ITL_field_regular<float> *jointEntropyField;
 
-	T histogramMin;
-	T histogramMax;
+	T histogramMin1, histogramMax1, histogramMin2, histogramMax2;
 	bool histogramRangeSet;
 
 public:
@@ -73,6 +72,7 @@ public:
 		assert( this->dataField1->datastore->array != NULL );
 		assert( this->dataField2->datastore->array != NULL );
 		T nextVField1, nextVField2;
+		T minValue1, maxValue1, minValue2, maxValue2;
 
 		// The histogram field is padded, pad length is same as neighborhood size of vector field
 		//int* lPadHisto = new int[this->grid->nDim];
@@ -344,7 +344,7 @@ public:
 	 * Returns computed entropy field.
 	 * @return pointer to entropy field.
 	 */
-	ITL_field_regular<float>* getJointEntropyField()
+	ITL_field_regular<float>* getLocalJointEntropyField()
 	{
 		return this->jointEntropyField;
 	}// end function
