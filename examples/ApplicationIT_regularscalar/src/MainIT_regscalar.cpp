@@ -15,7 +15,7 @@
 #include "ITL_histogramconstants.h"
 #include "ITL_localentropy.h"
 #include "ITL_globalentropy.h"
-//#include "ITL_localjointentropy.h"
+#include "ITL_globaljointentropy.h"
 #include "ITL_field_regular.h"
 
 using namespace std;
@@ -43,14 +43,21 @@ int blockDim[3];
 int nBlock[3];
 int blockId[3];
 int method = 0;
+float histogramLowEnd = 0;
+float histogramHighEnd = 0;
 
 SCALAR *scalarFieldData = NULL;
+SCALAR *scalarFieldData2 = NULL;
 
 ITL_field_regular<SCALAR> *scalarField = NULL;
+ITL_field_regular<SCALAR> *scalarField2 = NULL;
+
 ITL_localentropy<SCALAR> *localEntropyComputer = NULL;
 ITL_globalentropy<SCALAR> *globalEntropyComputer = NULL;
+ITL_globaljointentropy<SCALAR> *globalJointEntropyComputer = NULL;
 
 const char *scalarFieldFile = NULL;
+const char *scalarFieldFile2 = NULL;
 const char *heightFieldFile = NULL;
 const char *tetMeshFile = NULL;
 const char *outFieldFile = NULL;
@@ -70,6 +77,10 @@ void compute_localentropy_regularfield_parallel();
  * Serial global entropy computation function for regular scalar field.
  */
 void compute_globalentropy_regularfield_serial();
+/**
+ * Serial global joint entropy computation function for regular scalar field.
+ */
+void compute_globaljointentropy_regularfield_serial();
 
 /**
  * Main function.
@@ -88,6 +99,7 @@ int main( int argc, char** argv )
 	// Parse command line arguments
 	functionType = atoi( ITL_util<float>::getArgWithName( "functionType", &argNames, &argValues ) );
 	scalarFieldFile =  ITL_util<float>::getArgWithName( "scalarField", &argNames, &argValues );
+	scalarFieldFile2 =  ITL_util<float>::getArgWithName( "scalarField2", &argNames, &argValues );
 	outFieldFile =  ITL_util<float>::getArgWithName( "outField", &argNames, &argValues );
 	nDim = atoi(  ITL_util<float>::getArgWithName( "nDim", &argNames, &argValues ) );
 	nBin = atoi(  ITL_util<float>::getArgWithName( "nBin", &argNames, &argValues ) );
@@ -99,6 +111,8 @@ int main( int argc, char** argv )
 	nBlock[1] = atoi(  ITL_util<float>::getArgWithName( "nBlockY", &argNames, &argValues ) );
 	nBlock[2] = atoi(  ITL_util<float>::getArgWithName( "nBlockZ", &argNames, &argValues ) );
 	method = atoi(  ITL_util<float>::getArgWithName( "method", &argNames, &argValues ) );
+	histogramLowEnd = atof( ITL_util<float>::getArgWithName( "histLow", &argNames, &argValues ) );
+	histogramHighEnd = atof( ITL_util<float>::getArgWithName( "histHigh", &argNames, &argValues ) );
 
 	switch( functionType )
 	{
@@ -114,6 +128,12 @@ int main( int argc, char** argv )
 		printf( "Entering serial computation of global entropy of the regular scalar field ...\n" );	
 		compute_globalentropy_regularfield_serial();
 		break;
+	// ADD-BY-Abon 07/19/2011-BEGIN	
+	case 3:
+		printf( "Entering serial computation of global joint entropy of the regular scalar field ...\n" );	
+		compute_globaljointentropy_regularfield_serial();
+		break;
+	// ADD-BY-Abon 07/19/2011-END
 	default:
 		break;
 	}// end switch
@@ -300,6 +320,53 @@ void compute_globalentropy_regularfield_serial()
 	delete scalarField;
 	
 }// end function
+
+// ADD-BY-Abon 07/19/2011-BEGIN
+void compute_globaljointentropy_regularfield_serial()
+{
+	// Read chunk of data from both files 
+	starttime = ITL_util<float>::startTimer();
+	scalarFieldData = ITL_ioutil<SCALAR>::readFieldBinarySerial( scalarFieldFile, nDim, dataDim );
+	scalarFieldData2 = ITL_ioutil<SCALAR>::readFieldBinarySerial( scalarFieldFile2, nDim, dataDim );
+	execTime[0] = ITL_util<float>::endTimer( starttime );
+
+	// Create two scalar field classes from the data
+	highF[0] = dataDim[0]-1.0f;
+	highF[1] = dataDim[1]-1.0f;
+	highF[2] = dataDim[2]-1.0f;
+	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF, lowPad, highPad, sizeNeighborhood );
+	scalarField2 = new ITL_field_regular<SCALAR>( scalarFieldData2, nDim, lowF, highF, lowPad, highPad, sizeNeighborhood );
+
+	// Initialize class that can compute global joint entropy
+	globalJointEntropyComputer = new ITL_globaljointentropy<SCALAR>( scalarField, scalarField2 );
+
+	// Histogram computation
+	printf( "Converting scalars into joint histogram bins at each point of the scalar field ...\n" );
+	starttime = ITL_util<float>::startTimer();
+	if( histogramLowEnd != histogramHighEnd )
+		globalJointEntropyComputer->setJointHistogramRange( histogramLowEnd, histogramHighEnd, histogramLowEnd, histogramHighEnd );	
+	globalJointEntropyComputer->computeJointHistogramBinField( "scalar", nBin );
+	execTime[1] = ITL_util<float>::endTimer( starttime );
+	printf( "Done\n" );
+
+	// Global Joint entropy Computation
+	printf( "Computing joint entropy of the entire scalar field ...\n" );
+	starttime = ITL_util<float>::startTimer();
+	globalJointEntropyComputer->computeGlobalJointEntropyOfField( nBin, false );
+	execTime[2] = ITL_util<float>::endTimer( starttime );
+	printf( "Done\n" );
+	
+	// Display computed global joint entropy
+	printf( "Joint global entropy of scalar fields: %f\n", globalJointEntropyComputer->getGlobalJointEntropy() );
+	
+
+	// Runtime
+	execTime[4] = execTime[1] + execTime[2];
+	printf( "%d: Read/Histogram/Entropy/Write/Total Computation Time: %f %f %f %f %f seconds\n", myId, execTime[0], execTime[1], execTime[2], execTime[3], execTime[4]  );
+
+}// end function
+// ADD-BY-Abon 07/19/2011-END
+
 
 
 

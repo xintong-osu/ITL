@@ -1,29 +1,30 @@
 /**
- * Joint entropy computation class.
- * Created on: Jan 05, 2011.
+ * Joint entropy computation class for the entire domain.
+ * Created on: Jul 19, 2011.
  * @author Abon
  * @author Teng-Yok
  */
 
-#ifndef ITL_LOCALJOINTENTROPY_H_
-#define ITL_LOCALJOINTENTROPY_H_
+#ifndef ITL_GLOBALJOINTENTROPY_H_
+#define ITL_GLOBALJOINTENTROPY_H_
 
 #include "ITL_header.h"
 #include "ITL_field_regular.h"
 #include "ITL_entropycore.h"
 
 template <class T>
-class ITL_localjointentropy
+class ITL_globaljointentropy
 {
 public:
 
 	ITL_field_regular<T> *dataField1;
 	ITL_field_regular<T> *dataField2;
 	ITL_field_regular<int> *binData;
-	ITL_field_regular<float> *jointEntropyField;
+	
+	int *jointFreqList;
+	float globalJointEntropy;
 
-	T histogramMin;
-	T histogramMax;
+	T histogramMin1, histogramMax1, histogramMin2, histogramMax2;
 	bool histogramRangeSet;
 
 public:
@@ -31,12 +32,12 @@ public:
 	/**
 	 * Default Constructor.
 	 */
-	ITL_localjointentropy( ITL_field_regular<T> *f1, ITL_field_regular<T> *f2 )
+	ITL_globaljointentropy( ITL_field_regular<T> *f1, ITL_field_regular<T> *f2 )
 	{
 		this->dataField1 = f1;
 		this->dataField2 = f2;
 		this->binData = NULL;
-		this->jointEntropyField = NULL;
+		this->jointFreqList = NULL;
 		histogramRangeSet = false;
 	}
 	
@@ -73,6 +74,7 @@ public:
 		assert( this->dataField1->datastore->array != NULL );
 		assert( this->dataField2->datastore->array != NULL );
 		T nextVField1, nextVField2;
+		T minValue1, maxValue1, minValue2, maxValue2;
 
 		// The histogram field is padded, pad length is same as neighborhood size of vector field
 		//int* lPadHisto = new int[this->grid->nDim];
@@ -87,7 +89,6 @@ public:
 													this->dataField1->grid->lowPad, this->dataField1->grid->highPad,
 													//lPadHisto, hPadHisto,
 													this->dataField1->grid->neighborhoodSizeArray );
-
 		// Compute the range over which histogram computation needs to be done
 		if( histogramRangeSet == false )
 		{
@@ -103,7 +104,13 @@ public:
 			maxValue1 = histogramMax1;
 			minValue2 = histogramMin2;
 			maxValue2 = histogramMax2;				
-		}
+		}	
+		
+		// Compute bin widths along each dimension
+		T rangeValue1 = maxValue1 - minValue1;
+		float binWidth1 = rangeValue1 / (float)nBin;
+		T rangeValue2 = maxValue2 - minValue2;
+		float binWidth2 = rangeValue2 / (float)nBin;
 
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
@@ -117,7 +124,7 @@ public:
 				{
 					// Get vector at this location from both fields individually
 					nextVField1 = this->dataField1->datastore->array[index1d];
-					nextVField2 = this->dataField1->datastore->array[index1d];
+					nextVField2 = this->dataField2->datastore->array[index1d];
 
 					// Obtain the binID corresponding to the value at this location from both fields individually
 					binId1 = (int)floor( ( nextVField1 - minValue1 ) / binWidth1  );
@@ -204,144 +211,58 @@ public:
 	}// end function
 
 	/**
-	 * Local joint Entropy computation function.
+	 * Global joint Entropy computation function.
 	 * Creates a scalar field that contains entropy at each grid vertex.
 	 * @param nBins Number of bins used in histogram computation.
 	 */
-	void computeLocalJointEntropyOfField( int nBins )
+	void computeGlobalJointEntropyOfField( int nBin, bool toNormalize, int method = 0 )
 	{
-	    // Allocate memory for entropy field (a non-padded scalar field), if not already done
-	    if( this->jointEntropyField == NULL )
-	    	this->jointEntropyField = new ITL_field_regular<float>( this->dataField1->grid->nDim,
-	    													   this->dataField1->grid->low, this->dataField1->grid->high );
-
-		// Compute total number of vertices in the neighborhood, including the vertext itself
-		int nNeighbors = (int)std::pow( 2.0f*this->dataField1->grid->neighborhoodSize + 1.0f, this->dataField1->grid->nDim );
-
-		int index1d = 0;
-		for( int z=0; z<this->jointEntropyField->grid->dim[2]; z++ )
-		{
-			for( int y=0; y<this->jointEntropyField->grid->dim[1]; y++ )
-			{
-				for( int x=0; x<this->jointEntropyField->grid->dim[0]; x++ )
-				{
-					// Compute and store the value of entropy at this point
-					this->computeJointEntropySinglePoint( x, y, z, nNeighbors, nBins, index1d );
-
-					// increment to the next element
-					index1d ++;
-				}
-			}
-		}
+		if( method == 0 )	this->globalJointEntropy = ITL_entropycore::computeEntropy_HistogramBased( this->binData->datastore->array, this->jointFreqList, this->binData->grid->nVertices, nBin*nBin, toNormalize );	
 
 	}// end function
 
 	/**
-	 * Entropy computation function.
-	 * Computes entropy at a spatial point in the field.
-	 * @param x x-coordinate of the spatial point.
-	 * @param y y-coordinate of the spatial point.
-	 * @param z z-coordinate of the spatial point.
-	 * @param nNeighbors total number of neighbors in the neighborhood (including self).
-	 * @param nBins Number of bins to use in histogram computation.
-	 * @param entropyFieldIndex 1D index to the entopy field.
-	 */
-	void computeJointEntropySinglePoint( int x, int y, int z, int nNeighbors, int nBins, int entropyFieldIndex )
+	  * Joint historgam range set function
+	  * Sets the range over which historgam computation is to be done.
+	  * @param minR1 lower limit of the range along first dimension.
+	  * @param maxR1 upper limit of the range along first dimension.
+	  * @param minR2 lower limit of the range along second dimension.
+	  * @param maxR2 upper limit of the range along second dimension.
+	  */
+	void setJointHistogramRange( T minR1, T maxR1, T minR2, T maxR2 )
 	{
-		int* binArray = new int[nNeighbors];
-		int index1d = 0;
-		int binArrayIndex = 0;
+		histogramMin1 = minR1;
+		histogramMax1 = maxR1;
+		histogramMin2 = minR2;
+		histogramMax2 = maxR2;
+		histogramRangeSet = true;
+	}// end function
 
-		for( int k = -this->binData->grid->neighborhoodSize; k <= this->binData->grid->neighborhoodSize; k++ )
-		{
-			for( int j = -this->binData->grid->neighborhoodSize; j <= this->binData->grid->neighborhoodSize; j++ )
-			{
-				for( int i = -this->binData->grid->neighborhoodSize; i <= this->binData->grid->neighborhoodSize; i++ )
-				{
-					// Convert the 1D index corresponding to the point
-					#ifdef DUPLICATE
-					index1d = this->binData->grid->convert3DIndex( ITL_util<int>::clamp( x+i+this->binData->grid->lowPad[0], 0, this->binData->grid->dimWithPad[0]-1 ),
-													ITL_util<int>::clamp( y+j+this->binData->grid->lowPad[1], 0, this->binData->grid->dimWithPad[1]-1 ),
-													ITL_util<int>::clamp( z+k+this->binData->grid->lowPad[2], 0, this->binData->grid->dimWithPad[2]-1 ) );
-					#endif
+	/**
+	 * Joint histogram frequency data accessor function.
+	 * Returns pointer to integer array storing the joint histogram freqencies.
+	 */
+	void getHistogramFrequencies( int nBin, int *jointfreqlist )
+	{
+		assert( this->jointFreqList != NULL );
 
-					#ifdef MIRROR
-					index1d = this->binData->grid->convert3DIndex( ITL_util<int>::mirror( x+i+this->binData->grid->lowPad[0], 0, this->binData->grid->dimWithPad[0]-1 ),
-													ITL_util<int>::mirror( y+j+this->binData->grid->lowPad[1], 0, this->binData->grid->dimWithPad[1]-1 ),
-													ITL_util<int>::mirror( z+k+this->binData->grid->lowPad[2], 0, this->binData->grid->dimWithPad[2]-1 ) );
-					#endif
+		// Allocate memorry for the bin frequencies
+		if( jointfreqlist == NULL ) jointfreqlist = new int[nBin];
 
-					// Obtain the binID corresponding to the value at this location
-					binArray[binArrayIndex] = this->binData->getDataAt( index1d );
-
-					// Move to next point in the neighborhood
-					binArrayIndex ++;
-				}
-			}
-		}
-
-		// Compute entropy
-		int* localJointFreqList = NULL;
-		float entropy = this->computeJointEntropy( binArray, localJointFreqList, nNeighbors, nBins*nBins );
-
-		// Store entropy
-		this->jointEntropyField->setDataAt( entropyFieldIndex, entropy );
-
-		delete [] localJointFreqList;
-		delete binArray;
+		// Copy frequency
+		memcpy( jointfreqlist, this->jointFreqList, sizeof( int ) * nBin );	
 
 	}// end function
 
 	/**
-	 * Joint entropy computation function.
-	 * @param binIds Pointer to array containing histogram bin assignments of the points in the neighborhood.
-	 * @param nels Number of points in the neighborhood. Same as the length of bin array.
-	 * @param nbins Number of bins used in histogram computation.
+	 * Entropy accessor function.
+	 * @return computed entropy.
 	 */
-	float computeJointEntropy( int* binIds, int* jointFreqArray, int nels, int nbins )
+	float getGlobalJointEntropy()
 	{
-		// Initialize probability array
-		if( jointFreqArray == NULL ) jointFreqArray = new int[nbins];
-		float* probarray = new float[nbins];
-		for( int i=0; i<nbins; i++ )
-		{
-			jointFreqArray[i] = 0;
-			probarray[i] = 0;
-		}
-
-		// Scan through bin Ids and keep count
-		for( int i = 0; i<nels; i++ )
-			jointFreqArray[ binIds[i] ] ++;
-
-		// Turn count into probabilities
-		for( int i = 0; i<nbins; i++ )
-			probarray[i] = jointFreqArray[i] / (float)nels;
-
-
-		// Compute entropy
-		float entropy = 0;
-		for( int i = 0; i<nbins; i++ )
-		{
-			entropy += ( probarray[i] * ( probarray[i] == 0 ? 0 : ( log( probarray[i] ) / log(2.0) ) ) );
-		}
-
-		entropy = -entropy;
-
-		delete [] jointFreqArray;
-		delete [] probarray;
-
-		return entropy;
-	}
-
-	/**
-	 * Entropy field accessor function.
-	 * Returns computed entropy field.
-	 * @return pointer to entropy field.
-	 */
-	ITL_field_regular<float>* getJointEntropyField()
-	{
-		return this->jointEntropyField;
+		return this->globalJointEntropy;
 	}// end function
+
 };
 
 #endif
