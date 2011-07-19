@@ -355,7 +355,11 @@ ITLRandomField::_Create
 	this->pcBlockInfo.alloc(iNrOfBlocks);
 
 	ASSERT_OR_LOG(iNrOfDataComponents, fprintf(stderr, "%d: invalide #data-components.", iNrOfDataComponents));
-	this->pcDataComponentInfo.alloc(iNrOfDataComponents);
+	// MOD-BY-LEETEN 07/18/2011-FROM:
+		// this->pcDataComponentInfo.alloc(iNrOfDataComponents);
+	// TO:
+	this->pcDataComponentInfo.New(iNrOfDataComponents);
+	// MOD-BY-LEETEN 07/18/2011-END
 
 	this->p2DcBlockData.alloc(iNrOfBlocks, iNrOfDataComponents);
 }
