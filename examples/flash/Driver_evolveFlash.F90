@@ -73,10 +73,10 @@ subroutine Driver_evolveFlash()
 #include "Flash.h"
 
 !--- declarations for ITL
-! TEST-ADD-BEGIN
+  ! ADD-BY-LEETEN 07/20/2011-BEGIN
   integer rf_id 
   integer rv_id
-! TEST-ADD-END
+  ! ADD-BY-LEETEN 07/20/2011-END
   integer :: i, b, lb, nx, ny, nz
   integer :: blkLimits(2, MDIM)
   integer :: blkLimitsGC(2, MDIM)
@@ -384,7 +384,12 @@ subroutine Driver_evolveFlash()
 	! scalar
 	call ITL_add_random_variable(rv_id)
 	call ITL_bind_random_variable(rv_id)
-	call ITL_random_varable_as_scalar(1) ! 1 mean using the vector orientation
+	! MOD-BY-LEETEN 07/20/2011-FROM:
+		! call ITL_random_varable_as_scalar(1) ! 1 mean using the vector orientation
+	! TO:
+	call ITL_random_varable_as_scalar(1, "raw") 
+	! MOD-BY-LEETEN 07/20/2011-END
+
 
      do b = 1, blockCount
           lb = blockList(b)
@@ -405,14 +410,27 @@ subroutine Driver_evolveFlash()
 
 	! specify the data
 	call ITL_bind_data_component(1) 	! specify the data component
-	call ITL_data_range(2.0e-30, 4.0e-30)! (optional) specify the scalar range
+	! DEL-BY-LEETEN 07/20/2011-BEGIN
+		! call ITL_data_range(2.0e-30, 4.0e-30)! (optional) specify the scalar range
+	! DEL-BY-LEETEN 07/20/2011-END
 	call ITL_data_source(data, 1, 1) 	! specify the array to the data
+
+     ! ADD-BY-LEETEN 07/20/2011-BEGIN
+     enddo
+
+     ! Find the range of the entire domain 
+     call ITL_use_domain_range(rv_id)
+
+     do b = 1, blockCount
+	call ITL_bind_block(b)
+     ! ADD-BY-LEETEN 07/20/2011-END
 
 	call ITL_dump_bound_block_feature_vector_2tmp(rv_id)
 
 	! compute and dump the entropy
 	call ITL_dump_bound_block_local_entropy3_2tmp(rv_id, REAL(4), REAL(4), REAL(4))
      enddo
+
      deallocate(data)
 !---
 

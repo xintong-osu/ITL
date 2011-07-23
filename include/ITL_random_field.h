@@ -12,32 +12,38 @@ using namespace std;
 
 #include <math.h>
 
+// ADd-BY-LEETEN 07/22/2011-BEGIN
+#include "ITL_Range.h"
+// ADd-BY-LEETEN 07/22/2011-END
+
 #include "liblog.h"
 #include "libbuf.h"
 #include "libbuf2d.h"
 #include "libbuf3d.h"
 
-struct CRange{
-	double dMin;
-	double dMax;
+#if	0	// DEL-BY-LEETEN 07/22/2011-BEGIN
+	struct CRange{
+		double dMin;
+		double dMax;
 
-	CRange()
-	{
-		dMin = -HUGE_VAL;
-		dMax = +HUGE_VAL;
-	}
+		CRange()
+		{
+			dMin = -HUGE_VAL;
+			dMax = +HUGE_VAL;
+		}
 
-	void _Set(double dMin, double dMax)
-	{
-		this->dMin = dMin;
-		this->dMax = dMax;
-	}
+		void _Set(double dMin, double dMax)
+		{
+			this->dMin = dMin;
+			this->dMax = dMax;
+		}
 
-	double DClamp(double d)
-	{
-		return min(max(d, dMin), dMax);
-	}
-};
+		double DClamp(double d)
+		{
+			return min(max(d, dMin), dMax);
+		}
+	};
+#endif	// DEL-BY-LEETEN 07/22/2011-END
 
 class ITLRandomField
 {
@@ -188,6 +194,11 @@ class ITLRandomField
 	TBuffer<CBlock> pcBlockInfo;
 	int iBoundBlock;
 
+	// ADd-BY-LEETEN 07/22/2011-BEGIN
+	// make CDataComponent accessible
+public:
+	// ADd-BY-LEETEN 07/22/2011-END
+
 	struct CDataComponent
 	{
 		CRange cRange;
@@ -197,16 +208,177 @@ class ITLRandomField
 
 	struct CRandomVariable
 	{
+		// ADd-BY-LEETEN 07/22/2011-BEGIN
+		enum {
+			//! The default feature mapping
+			DEFAULT_FEATURE_MAPPING,
+
+			//! Use the magnitude of the feature vector
+			FEATURE_MAGNITUDE = DEFAULT_FEATURE_MAPPING,
+
+			//! Use the raw value of the feature vector, which is only supported for 1D scalar fields
+			FEATURE_RAW_VALUE,
+
+			//! Use the orientation of the feature vector. It is only supported for 2D/3D vector fields
+			FEATURE_ORIENTATION,
+
+			//! Use the magnitude scale of the feature vector. Essentially, the feature vector is the logarithm of the magnitude
+			FEATURE_MAGNITUDE_SCALE,
+
+			//! # support mappings from feature vector to random variable
+			NR_OF_FEATURE_MAPPINGS
+		};
+		// ADd-BY-LEETEN 07/22/2011-END
+
 		TBuffer<int> piFeatureVector;
 		CRange cRange;
-		bool bIsUsingOrientation;
+		#if	0	// MOD-BY-LEETEN 07/22/2011-FROM:
+			//! A flag whether the orientation of the feature vector is used as the random variable, which only can be true for 2D or 3D
+			bool bIsUsingOrientation;
+		#else	// MOD-BY-LEETEN 07/22/2011-TO:
+		int iFeatureMapping;
+
+		static
+		int
+		IConvertStringToFeatureMapping(const char* szString)
+		{
+			int iFeatureMapping = DEFAULT_FEATURE_MAPPING;
+
+			if( !strncmp(szString, "abs", 3) )
+				iFeatureMapping = FEATURE_MAGNITUDE;
+			else
+			if( !strncmp(szString, "raw", 3) )
+				iFeatureMapping = FEATURE_RAW_VALUE;
+			else
+			if( !strncmp(szString, "dir", 3) )
+				iFeatureMapping = FEATURE_ORIENTATION;
+			else
+			if( !strncmp(szString, "log", 3) )
+				iFeatureMapping = FEATURE_MAGNITUDE_SCALE;
+			else
+				ASSERT_OR_LOG(false, fprintf(stderr, "%s: Unknown feature mapping.", szString));
+
+			return iFeatureMapping;
+		}
+
+		void
+		_Set
+		(
+			const int iFeatureLength,
+			const int piFeatureVector[],
+			const int iFeatureMapping = DEFAULT_FEATURE_MAPPING
+		)
+		{
+			ASSERT_OR_LOG(
+					DEFAULT_FEATURE_MAPPING <= iFeatureMapping && iFeatureMapping < NR_OF_FEATURE_MAPPINGS,
+					fprintf(stderr, "%d: unsupported feature mapping.", iFeatureMapping)
+			);
+			this->iFeatureMapping = iFeatureMapping;
+			this->piFeatureVector.alloc(iFeatureLength);
+			for(int f = 0; f < iFeatureLength; f++)
+				this->piFeatureVector[f] = piFeatureVector[f];
+		}
+
+		//! Convert the input feature vector to the random variable
+		double
+		DGetRandomVariable
+		(
+			const double pdFeatureVector[]
+		) const
+		{
+			int iFeatureLength = this->piFeatureVector.USize();
+			double dSample = 0.0;
+			switch(iFeatureLength)
+			{
+			case 1:
+			{
+				if( FEATURE_RAW_VALUE == iFeatureMapping )
+				{
+					dSample = pdFeatureVector[0];
+					break;
+				}
+				// otherwise, enter the following part...
+			}
+
+			case 2:
+			{
+				if( FEATURE_ORIENTATION == iFeatureMapping )
+				{
+					dSample = atan2(pdFeatureVector[1], pdFeatureVector[0]);
+					break;
+				}
+				// otherwise, enter the following part...
+			}
+
+			case 3:
+			{
+				if( FEATURE_ORIENTATION == iFeatureMapping )
+				{
+					// TEST only...
+					dSample = (double)(rand()%360);
+					break;
+				}
+				// otherwise, enter the following part...
+			}
+
+			default:
+				ASSERT_OR_LOG(
+					FEATURE_MAGNITUDE == iFeatureMapping ||
+					FEATURE_MAGNITUDE_SCALE == iFeatureMapping,
+					fprintf(stderr, "%d: unknown feature mapping.", iFeatureMapping));
+
+				dSample = 0.0;
+				for(int f = 0; f < iFeatureLength; f++)
+				{
+					dSample += pdFeatureVector[f] * pdFeatureVector[f];
+				}
+				dSample = sqrt(dSample);
+
+				if( FEATURE_MAGNITUDE_SCALE == iFeatureMapping )
+					dSample = log(dSample);
+			}
+			if( FEATURE_MAGNITUDE_SCALE == iFeatureMapping )
+				dSample = log(dSample);
+
+			return dSample;
+		}
+
+		//! get the default range of the random variable. This method is designed for vector orientation
+		void
+		_GetDefaultRange
+		(
+				double& dMin,
+				double& dMax
+		)
+		{
+			dMin = -HUGE_VAL;
+			dMax = +HUGE_VAL;
+			int iFeatureLength = this->piFeatureVector.USize();
+			if(FEATURE_ORIENTATION == iFeatureMapping)
+			{
+				switch(iFeatureLength)
+				{
+				case 2:	dMin = -M_PI;	dMax = +M_PI;	break;
+				case 3:	dMin = 0.0;		dMax = 360;		break;	// the range is from 0 to the number of patches on the semi-sphere
+				}
+			}
+		}
+		#endif	// MOD-BY-LEETEN 07/22/2011-END
 
 		CRandomVariable()
 		{
-			bIsUsingOrientation = false;
+			// MOD-BY-LEETEN 07/22/2011-FROM:
+				// bIsUsingOrientation = false;
+			// TO:
+			iFeatureMapping = DEFAULT_FEATURE_MAPPING;
+			// MOD-BY-LEETEN 07/22/2011-END
 		}
 	};
-	vector<CRandomVariable> vcRandomVariables;
+	// MOD-BY-LEETEN 07/22/2011-FROM:
+		// vector<CRandomVariable> vcRandomVariables;
+	// TO:
+	vector<CRandomVariable*> vcRandomVariables;
+	// MOD-BY-LEETEN 07/22/2011-END
 	int iBoundRandomVariable;
 public:
 	/////////////////////////////////////////////////
@@ -357,8 +529,22 @@ public:
 	(
 		const int iFeatureLength,
 		const int piFeatureVector[],
-		const bool bIsUsingOrientation
+		// MOD-BY-LEETEN 07/22/2011-FROM:
+			// const bool bIsUsingOrientation
+		// TO:
+		const int iFeatureMapping
+		// MOD-BY-LEETEN 07/22/2011-END
 	);
+
+	// ADD-BY-LEETEN 07/22/2011-BEGIN
+	//! Search for the domain range across all processes and
+	// automatically assign the range for the random variable
+	void
+	_UseDomainRange
+	(
+		const int iRandonVariable
+	);
+	// ADD-BY-LEETEN 07/22/2011-END
 
 	void
 	_DumpBoundBlockFeatureVector
@@ -366,6 +552,16 @@ public:
 		const int iRandomVariable,
 		const char* szGeomPathFilename
 	);
+
+	// ADD-BY-LEETEN 07/22/2011-BEGIN
+	void
+	_CollectRandomSamplesInBlock
+	(
+		const int iBlock,
+		const int iRandomVariable,
+		float *pfRandomSamples
+	);
+	// ADD-BY-LEETEN 07/22/2011-END
 
 	///////////////////////////////////////////////////////////////////
 	void

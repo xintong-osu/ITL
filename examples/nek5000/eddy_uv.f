@@ -225,6 +225,12 @@ c
         save rv_vec_id
         data rv_vec_id /0/
 
+        ! ADD-BY-LEETEN 07/22/2011-BEGIN
+        integer rv_vecm_id ! ID of the random variable for the vector orientation
+        save rv_vecm_id
+        data rv_vecm_id /0/
+        ! ADD-BY-LEETEN 07/22/2011-END
+
         integer time_step 
         save time_step 
         data time_step /0/
@@ -252,7 +258,17 @@ c first time step
           ! vector
           call ITL_add_random_variable(rv_vec_id)
           call ITL_bind_random_variable(rv_vec_id)
-          call ITL_random_varable_as_vector3(1, 2, 3, 1) ! 1 mean using the vector orientation
+          ! MOD-BY-LEETEN 07/22/2011-FROM:
+          ! call ITL_random_varable_as_vector3(1, 2, 3, 1) ! 1 mean using the vector orientation
+          ! TO:
+          call ITL_random_varable_as_vector2(1, 2, "dir")
+          ! MOD-BY-LEETEN 07/22/2011-END
+
+          ! ADD-BY-LEETEN 07/22/2011-BEGIN
+          call ITL_add_random_variable(rv_vecm_id)
+          call ITL_bind_random_variable(rv_vecm_id)
+          call ITL_random_varable_as_vector2(1, 2, "abs")
+          ! ADD-BY-LEETEN 07/22/2011-END
 
           do b = 1, nelv
              nvpb = nx1 * ny1 * nz1 
@@ -273,12 +289,38 @@ c every 100 time steps
       time_step = time_step + 1
       
       time_step_mod = modulo(time_step, 100)
-      if( time_step_mod.eq.1 ) then
+      if( time_step_mod.eq.1 ) then 
+           if( 0.eq.1 ) then ! MOD-BY-LEETEN 07/22/2011-FROM:
+	          do b = 1, nelv
+	             nvpb = nx1 * ny1 * nz1 
+	             bo = 1 + (b - 1) * nvpb
+	
+	             ! specfiy the data
+	             call ITL_bind_block(b)
+	             call ITL_bind_data_component(1) ! specify the U component
+	             call ITL_data_source(vx, bo, 1) 
+	             call ITL_bind_data_component(2) ! specify the V component 
+	             call ITL_data_source(vy, bo, 1) 
+	             call ITL_bind_data_component(3) ! specify the W component 
+	             call ITL_data_source(vz, bo, 1) 
+	
+                     ! dump the feature vector
+                     ! call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
+
+                     ! compute and dump the entropy
+                     ! call ITL_dump_bound_block_global_entropy_2tmp(rv_vec_id)
+
+                     ! compute and dump the entropy
+                     ! call ITL_dump_bound_block_global_entropy_2tmp(rv_vecm_id)
+	          enddo
+
+         else ! MOD-BY-LEETEN 07/22/2011-TO:
+
           do b = 1, nelv
              nvpb = nx1 * ny1 * nz1 
              bo = 1 + (b - 1) * nvpb
 
-c specfiy the data
+             ! specfiy the data
              call ITL_bind_block(b)
              call ITL_bind_data_component(1) ! specify the U component
              call ITL_data_source(vx, bo, 1) 
@@ -286,13 +328,25 @@ c specfiy the data
              call ITL_data_source(vy, bo, 1) 
              call ITL_bind_data_component(3) ! specify the W component 
              call ITL_data_source(vz, bo, 1) 
+          enddo
 
-c dump the feature vector
+          call ITL_use_domain_range(rv_vecm_id) ! obtain the range over the entire domain
+
+          do b = 1, nelv
+             ! specfiy the data
+             call ITL_bind_block(b)
+
+             ! dump the feature vector
              call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
 
-c comput and dump the entropy
+             ! compute and dump the entropy
              call ITL_dump_bound_block_global_entropy_2tmp(rv_vec_id)
+
+             ! compute and dump the entropy
+             call ITL_dump_bound_block_global_entropy_2tmp(rv_vecm_id)
           enddo
+
+          endif ! MOD-BY-LEETEN 07/22/2011-END
       endif
 
 c last time step
