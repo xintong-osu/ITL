@@ -44,7 +44,13 @@ CSphereSpace::_LoadDefaultMapping()
 }
 
 int
-CSphereSpace::IGetNrOfPatches()
+// MOD-BY-LEETEN 07/23/2011-FROM:
+// CSphereSpace::IGetNrOfPatches()
+// TO:
+CSphereSpace::IGetNrOfPatches
+(
+) const
+// MOD-BY-LEETEN 07/23/2011-END
 {
 	return iNrOfPatches;
 }
@@ -52,7 +58,11 @@ CSphereSpace::IGetNrOfPatches()
 int
 CSphereSpace::IGetNrOfThetas
 (
-)
+// MOD-BY-LEETEN 07/23/2011-FROML
+// )
+// TO:
+) const
+// MOD-BY-LEETEN 07/23/2011-END
 {
 	return this->p2DiMapping.iHeight;
 }
@@ -60,14 +70,26 @@ CSphereSpace::IGetNrOfThetas
 int
 CSphereSpace::IGetNrOfPhis
 (
-)
+// MOD-BY-LEETEN 07/23/2011-FROM:
+// )
+// TO:
+) const
+// MOD-BY-LEETEN 07/23/2011-END
 {
 	return this->p2DiMapping.iWidth;
 }
 
 // compute the theta
 double
-CSphereSpace::DGetAngle(double x, double y)
+// MOD-BY-LEETEN 07/23/2011-FROM:
+// CSphereSpace::DGetAngle(double x, double y)
+// TO:
+CSphereSpace::DGetAngle
+(
+ double x, 
+ double y
+) const
+// MOD-BY-LEETEN 07/23/2011-END
 {
 
 	if( 0.0 == x && 0.0 == y )
@@ -78,7 +100,15 @@ CSphereSpace::DGetAngle(double x, double y)
 
 // compute phi
 double
-CSphereSpace::DGetAngle2(double x, double y)
+// MOD-BY-LEETEN 07/23/2011-FROM:
+// CSphereSpace::DGetAngle2(double x, double y)
+// TO:
+CSphereSpace::DGetAngle2
+(
+ double x, 
+ double y
+) const
+// MOD-BY-LEETEN 07/23/2011-END
 {
 	if( 0.0 == x && 0.0 == y )
 		return 0.0;
@@ -88,7 +118,14 @@ CSphereSpace::DGetAngle2(double x, double y)
 
 
 int
-CSphereSpace::IMapVectorToPatch(double pdVector[])
+// MOD-BY-LEETEN 07/23/2011-FROM:
+// CSphereSpace::IMapVectorToPatch(double pdVector[])
+// TO:
+CSphereSpace::IMapVectorToPatch
+(
+ const double pdVector[]
+) const
+// MOD-BY-LEETEN 07/23/2011-END
 {
 	// convert the vector from Cartesian coodinates to sphercial coordinates;
 	// the magnitude is ignored.
@@ -109,7 +146,15 @@ CSphereSpace::IMapVectorToPatch(double pdVector[])
 // according to the lookup table composed of theta and phi.
 // The #entries in the lookup table is specified by the parameter 'binnum'.
 int
-CSphereSpace::IGetBinByAngle(double mytheta, double myphi)
+// MOD-BY-LEETEN 07/23/2011-FROM:
+// CSphereSpace::IGetBinByAngle(double mytheta, double myphi)
+// TO:
+CSphereSpace::IGetBinByAngle
+(
+     double mytheta, 
+     double myphi
+) const
+// MOD-BY-LEETEN 07/23/2011-END
 {
 	for(int i = 0; i < iNrOfPatches; i++)
 		if(
@@ -141,15 +186,19 @@ CSphereSpace::IGetBinByAngle(double mytheta, double myphi)
 void
 CSphereSpace::_CopyDefaultMapping()
 {
+  // ADD-BY-LEETEN 07/23/2011-BEGIN
+  _LoadDefaultMapping();
+  // ADD-BY-LEETEN 07/23/2011-END
 	this->iNrOfPatches = DEFAULT_NR_OF_PATCHES;
 	this->pcThetaBins.New(DEFAULT_NR_OF_PATCHES);
 	this->pcPhiBins.New(DEFAULT_NR_OF_PATCHES);
-/*
+
+	// ADD-BY-LEETEN 07/23/2011-BEGIN
 	memcpy(&pcThetaBins[0],	&pcDefaultThetaBins[0],	sizeof(pcThetaBins[0]) * pcThetaBins.USize());
 	memcpy(&pcPhiBins[0], 	&pcDefaultPhiBins[0], 	sizeof(pcPhiBins[0])   * pcPhiBins.USize()	);
 	// create the table to accelerate the mapping
 	_ComputeMapping(DEFAULT_NR_OF_THETA_SAMPLES, DEFAULT_NR_OF_PHI_SAMPLES);
-*/
+	// ADD-BY-LEETEN 07/23/2011-END
 }
 
 void

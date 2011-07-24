@@ -892,4 +892,14 @@ ITLRandomField::ITLRandomField() {
 
 ITLRandomField::~ITLRandomField() {
 	// TODO Auto-generated destructor stub
+  // ADD-BY-LEETEN 07/23/2011-BEGIN
+  for(vector<CRandomVariable*>::iterator ivcRandomVariables = vcRandomVariables.begin();
+      ivcRandomVariables != vcRandomVariables.end();
+      ivcRandomVariables++)
+	if( *ivcRandomVariables )
+	{
+		delete *ivcRandomVariables;
+		*ivcRandomVariables = NULL;
+	}
+  // ADD-BY-LEETEN 07/23/2011-BEGIN
 }

@@ -261,13 +261,21 @@ c first time step
           ! MOD-BY-LEETEN 07/22/2011-FROM:
           ! call ITL_random_varable_as_vector3(1, 2, 3, 1) ! 1 mean using the vector orientation
           ! TO:
-          call ITL_random_varable_as_vector2(1, 2, "dir")
+          ! MOD-BY-LEETEN 07/23/2011-FROM:
+          ! call ITL_random_varable_as_vector2(1, 2, "dir")
+          ! TO:
+          call ITL_random_varable_as_vector3(1, 2, 3, "dir")
+          ! MOD-BY-LEETEN 07/23/2011-END
           ! MOD-BY-LEETEN 07/22/2011-END
 
           ! ADD-BY-LEETEN 07/22/2011-BEGIN
           call ITL_add_random_variable(rv_vecm_id)
           call ITL_bind_random_variable(rv_vecm_id)
-          call ITL_random_varable_as_vector2(1, 2, "abs")
+          ! MOD-BY-LEETEN 07/23/2011-FROM:
+          ! call ITL_random_varable_as_vector2(1, 2, "abs")
+          ! TO:
+          call ITL_random_varable_as_vector3(1, 2, 3, "abs")
+          ! MOD-BY-LEETEN 07/23/2011-END
           ! ADD-BY-LEETEN 07/22/2011-END
 
           do b = 1, nelv

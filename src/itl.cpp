@@ -723,7 +723,11 @@ itl_random_varable_as_vector3_
 	int *piU,
 	int *piV,
 	int *piW,
-	int *piIsUsingOrientation
+	// MOD-BY-LEETEM 07/23/2011-FROM:
+	// int *piIsUsingOrientation
+	// TO:
+	char *szFeatureMapping
+	// MOD-BY-LEETEM 07/23/2011-END
 )
 {
 	int piFeatureVector[3];
@@ -737,9 +741,14 @@ itl_random_varable_as_vector3_
 		// MOD-BY-LEETEN 07/22/2011-FROM:
 			// (*piIsUsingOrientation)?true:false
 		// TO:
+		
+                #if 0 // MOD-BY-LEETEM 07/23/2011-FROM:
 		(*piIsUsingOrientation)?
 				ITLRandomField::CRandomVariable::FEATURE_ORIENTATION:
 				ITLRandomField::CRandomVariable::FEATURE_MAGNITUDE
+                #else // MOD-BY-LEETEM 07/23/2011-TO:
+		ITLRandomField::CRandomVariable::IConvertStringToFeatureMapping(szFeatureMapping)
+                #endif // MOD-BY-LEETEM 07/23/2011-END
 		// MOD-BY-LEETEN 07/22/2011-END
 	);
 }

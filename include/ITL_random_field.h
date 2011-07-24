@@ -16,6 +16,10 @@ using namespace std;
 #include "ITL_Range.h"
 // ADd-BY-LEETEN 07/22/2011-END
 
+// ADD-BY-LEETEN 07/23/2011-BEGIN
+#include "ITL_SphereSpace.h"
+// ADD-BY-LEETEN 07/23/2011-END
+
 #include "liblog.h"
 #include "libbuf.h"
 #include "libbuf2d.h"
@@ -230,6 +234,10 @@ public:
 		};
 		// ADd-BY-LEETEN 07/22/2011-END
 
+	  // ADD-BY-LEETEN 07/23/2011-BEGIN
+	  CSphereSpace cSphereSpace;
+	  // ADD-BY-LEETEN 07/23/2011-END
+
 		TBuffer<int> piFeatureVector;
 		CRange cRange;
 		#if	0	// MOD-BY-LEETEN 07/22/2011-FROM:
@@ -305,6 +313,9 @@ public:
 				if( FEATURE_ORIENTATION == iFeatureMapping )
 				{
 					dSample = atan2(pdFeatureVector[1], pdFeatureVector[0]);
+#if 0 // TMP-ADD
+					dSample = 16.0 * (dSample + M_PI)/(2.0 * M_PI);
+#endif
 					break;
 				}
 				// otherwise, enter the following part...
@@ -315,7 +326,11 @@ public:
 				if( FEATURE_ORIENTATION == iFeatureMapping )
 				{
 					// TEST only...
-					dSample = (double)(rand()%360);
+				        // MOD-BY-LEETEN 07/23/2011-FROM:
+					// dSample = (double)(rand()%360);
+				        // TO:
+					dSample = (double)cSphereSpace.IMapVectorToPatch(pdFeatureVector);
+					// MOD-BY-LEETEN 07/23/2011-END
 					break;
 				}
 				// otherwise, enter the following part...
@@ -337,9 +352,10 @@ public:
 				if( FEATURE_MAGNITUDE_SCALE == iFeatureMapping )
 					dSample = log(dSample);
 			}
+                        #if 0  // DEL-BY-LEETEN 07/23/2011-BEGIN
 			if( FEATURE_MAGNITUDE_SCALE == iFeatureMapping )
 				dSample = log(dSample);
-
+                        #endif // DEL-BY-LEETEN 07/23/2011-END
 			return dSample;
 		}
 
@@ -358,8 +374,17 @@ public:
 			{
 				switch(iFeatureLength)
 				{
+                                #if 1 // TMP-MOD
 				case 2:	dMin = -M_PI;	dMax = +M_PI;	break;
-				case 3:	dMin = 0.0;		dMax = 360;		break;	// the range is from 0 to the number of patches on the semi-sphere
+                                #else
+				case 2:	dMin = 0.0;	dMax = 359.0;	break;
+                                #endif
+
+				// MOD-BY-LEETEN 07/23/2011-FROM:
+				// case 3:	dMin = 0.0;		dMax = 360;		break;	// the range is from 0 to the number of patches on the semi-sphere
+				// TO:
+				case 3: dMin = 0.0; dMax = cSphereSpace.IGetNrOfPatches(); break;
+				// MOD-BY-LEETEN 07/23/2011-END
 				}
 			}
 		}
@@ -372,6 +397,10 @@ public:
 			// TO:
 			iFeatureMapping = DEFAULT_FEATURE_MAPPING;
 			// MOD-BY-LEETEN 07/22/2011-END
+
+			// ADD-BY-LEETEN 07/23/2011-BEGIN
+			cSphereSpace._CopyDefaultMapping();
+			// ADD-BY-LEETEN 07/23/2011-END
 		}
 	};
 	// MOD-BY-LEETEN 07/22/2011-FROM:

@@ -37,10 +37,15 @@ public:
 		DEFAULT_NR_OF_PATCHES		= 360
 	};
 
+        #if 0 // MOD-BY-LEETEN 07/23/2011-FROM:
 	int IGetNrOfThetas();
 	int IGetNrOfPhis();
 	int IGetNrOfPatches();
-
+        #else // MOD-BY-LEETEN 07/23/2011-TO:
+	int IGetNrOfThetas() const;
+	int IGetNrOfPhis() const;
+	int IGetNrOfPatches() const;
+        #endif// MOD-BY-LEETEN 07/23/2011-END
 	void
 	_ComputeMapping
 	(
@@ -50,9 +55,15 @@ public:
 
 	int
 	IMapVectorToPatch
+        #if 0 // MOD-BY-LEETEN 07/23/2011-FROM:
 	(
 		double pdVector[]
-	);
+	 );
+        #else // MOD-BY-LEETEN 07/23/2011-TO:
+	  (
+		const double pdVector[]
+	   ) const;	
+        #endif// MOD-BY-LEETEN 07/23/2011-END
 
 	// compute the theta
 	double
@@ -60,7 +71,11 @@ public:
 	(
 		double x,
 		double y
-	);
+	// MOD-BY-LEETEN 07/23/2011-FROM:
+	// );
+	// TO:
+	) const;
+	// MOD-BY-LEETEN 07/23/2011-END
 
 	// compute phi
 	double
@@ -68,7 +83,12 @@ public:
 	(
 		double x,
 		double y
-	);
+
+	// MOD-BY-LEETEN 07/23/2011-FROM:
+	// );
+	// TO:
+        ) const;
+	// MOD-BY-LEETEN 07/23/2011-END
 
 	// convert the angles in the spherical coordinates (mytheta, myphi) to the patch index
 	// according to the lookup table composed of theta and phi.
@@ -78,7 +98,11 @@ public:
 	(
 		double mytheta,
 		double myphi
-	);
+	// MOD-BY-LEETEN 07/23/2011-FROM:
+	// );
+	// TO:
+        )const;
+	// MOD-BY-LEETEN 07/23/2011-END
 
 	//! the method to load the default mapping
 	void _CopyDefaultMapping
