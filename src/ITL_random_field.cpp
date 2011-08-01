@@ -13,6 +13,7 @@
 	#include "ITL_localentropy.h"
 	#include "ITL_globalentropy.h"
 	#include "ITL_localjointentropy.h"
+	#include "ITL_globaljointentropy.h"
 	#include "ITL_field_regular.h"
 
 	#include "ITL_random_field.h"
@@ -436,7 +437,10 @@ ITLRandomField::_CollectRandomSamplesInBlock
 (
 	const int iBlock,
 	const int iRandomVariable,	// CRandomVariable& cRandomVariable,
-	float pfRandomSamples[]
+	float pfRandomSamples[],
+	// ADD-BY-LEETEN 07/31/2011-BEGIN
+	const bool bIsMappingToBins
+	// ADD-BY-LEETEN 07/31/2011-END
 )
 {
 	const CRandomVariable& cRandomVariable = this->CGetRandomVariable(iRandomVariable);
@@ -467,7 +471,16 @@ ITLRandomField::_CollectRandomSamplesInBlock
 			pdFeatureVector[f] = cDataComponent.cRange.DClamp(dValue);
 		}
 		double dSample = cRandomVariable.DGetRandomVariable(&pdFeatureVector[0]);
-		pfRandomSamples[c] = (float)cRandomVariable.cRange.DClamp(dSample);
+		// MOD-BY-LEETEN 07/31/2011-FROM:
+			// pfRandomSamples[c] = (float)cRandomVariable.cRange.DClamp(dSample);
+		// TO:
+		dSample = cRandomVariable.cRange.DClamp(dSample);
+		if( bIsMappingToBins )
+		  {
+		    dSample = cRandomVariable.DMapToBin(dSample);
+		  }
+		pfRandomSamples[c] = (float)dSample;
+		// MOD-BY-LEETEN 07/31/2011-END
 	}
 }
 // ADD-BY-LEETEN 07/22/2011-END
@@ -521,7 +534,9 @@ ITLRandomField::_ComputeEntorpyInBoundBlock
 	int	piLowPad[CBlock::MAX_DIM];
 	int piHighPad[CBlock::MAX_DIM];
 	int piNeighborhood[CBlock::MAX_DIM];
-	int iDefaultNrOfBins = 360;
+	// DEL-BY-LEETEN 07/31/2011-BEGIN
+		// int iDefaultNrOfBins = 360;
+	// DEL-BY-LEETEN 07/31/2011-END
 
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
 	{
@@ -640,7 +655,11 @@ ITLRandomField::_ComputeEntorpyInBoundBlock
 		cBoundBlock.piDimLengths[2]
 		);
 
-	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable, &p3DfFeatureScalars[0]);
+	// MOD-BY-LEETEN 07/31/2011-FROM:
+		// _CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable, &p3DfFeatureScalars[0]);
+	// TO:
+	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable, &p3DfFeatureScalars[0], true);
+	// MOD-BY-LEETEN 07/31/2011-END
 
 	ITL_field_regular<SCALAR> *scalarField = new ITL_field_regular<SCALAR>(
 		&p3DfFeatureScalars[0],
@@ -654,18 +673,27 @@ ITLRandomField::_ComputeEntorpyInBoundBlock
 	ITL_globalentropy<SCALAR> *globalEntropyComputerForScalar = new ITL_globalentropy<SCALAR>( scalarField );
 
 	// obtain the default range of the random variable, which is especially useful for orientation
-	double dDefaultMin, dDefaultMax;
-	cRandomVariable._GetDefaultRange(dDefaultMin, dDefaultMax);
-	double dHistMin, dHistMax;
-	dHistMin = max(cRandomVariable.cRange.dMin, dDefaultMin);
-	dHistMax = min(cRandomVariable.cRange.dMax, dDefaultMax);
-	globalEntropyComputerForScalar->setHistogramRange(dHistMin, dHistMax);
+	#if 0 // MOD-BY-LEETEN 07/31/2011-FROM:
+		double dDefaultMin, dDefaultMax;
+		cRandomVariable._GetDefaultRange(dDefaultMin, dDefaultMax);
+		double dHistMin, dHistMax;
+		dHistMin = max(cRandomVariable.cRange.dMin, dDefaultMin);
+		dHistMax = min(cRandomVariable.cRange.dMax, dDefaultMax);
+		globalEntropyComputerForScalar->setHistogramRange(dHistMin, dHistMax);
 
-	// convert each vector into bin index
-	globalEntropyComputerForScalar->computeHistogramBinField("scalar", iDefaultNrOfBins);
+		// convert each vector into bin index
+		globalEntropyComputerForScalar->computeHistogramBinField("scalar", iDefaultNrOfBins);
+
+		// compute the entropy
+		globalEntropyComputerForScalar->computeGlobalEntropyOfField(iDefaultNrOfBins, false);
+	#else	// MOD-BY-LEETEN 07/31/2011-TO:
+	int iNrOfBins = cRandomVariable.IGetNrOfBins();
+	globalEntropyComputerForScalar->setHistogramRange(0, iNrOfBins);
+	globalEntropyComputerForScalar->computeHistogramBinField("scalar", iNrOfBins);
 
 	// compute the entropy
-	globalEntropyComputerForScalar->computeGlobalEntropyOfField(iDefaultNrOfBins, false);
+	globalEntropyComputerForScalar->computeGlobalEntropyOfField(ITL_histogram::DEFAULT_NR_OF_BINS, false);
+	#endif	// MOD-BY-LEETEN 07/31/2011-END
 
 	// save the block-wise entropy
 	float fEntropy = globalEntropyComputerForScalar->getGlobalEntropy();
@@ -710,7 +738,9 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	int	piLowPad[CBlock::MAX_DIM];
 	int piHighPad[CBlock::MAX_DIM];
 	int piNeighborhood[CBlock::MAX_DIM];
-	int iDefaultNrOfBins = 360;
+	// DEL-BY-LEETEN 07/31/2011-BEGIN
+		// int iDefaultNrOfBins = 360;
+	// DEL-BY-LEETEN 07/31/2011-END
 
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
 	{
@@ -841,7 +871,11 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 		cBoundBlock.piDimLengths[2]
 		);
 
-	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable, &p3DfFeatureScalars[0]);
+	// MOD-BY-LEETEN 07/31/2011-FROM:
+		// _CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable, &p3DfFeatureScalars[0]);
+	// TO:
+	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable, &p3DfFeatureScalars[0], true);
+	// MOD-BY-LEETEN 07/31/2011-END
 
 	ITL_field_regular<SCALAR> *scalarField = new ITL_field_regular<SCALAR>(
 		&p3DfFeatureScalars[0],
@@ -855,18 +889,29 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	ITL_localentropy<SCALAR> *localEntropyComputerForScalar = new ITL_localentropy<SCALAR>( scalarField );
 
 	// obtain the default range of the random variable, which is especially useful for orientation
-	double dDefaultMin, dDefaultMax;
-	cRandomVariable._GetDefaultRange(dDefaultMin, dDefaultMax);
-	double dHistMin, dHistMax;
-	dHistMin = max(cRandomVariable.cRange.dMin, dDefaultMin);
-	dHistMax = min(cRandomVariable.cRange.dMax, dDefaultMax);
-	localEntropyComputerForScalar->setHistogramRange(dHistMin, dHistMax);
+	#if 0 // MOD-BY-LEETEN 07/31/2011-FROM:
+		double dDefaultMin, dDefaultMax;
+		cRandomVariable._GetDefaultRange(dDefaultMin, dDefaultMax);
+		double dHistMin, dHistMax;
+		dHistMin = max(cRandomVariable.cRange.dMin, dDefaultMin);
+		dHistMax = min(cRandomVariable.cRange.dMax, dDefaultMax);
+		localEntropyComputerForScalar->setHistogramRange(dHistMin, dHistMax);
+
+		// convert each vector into bin index
+		localEntropyComputerForScalar->computeHistogramBinField("scalar", iDefaultNrOfBins);
+
+		// compute the entropy
+		localEntropyComputerForScalar->computeEntropyOfField( iDefaultNrOfBins, false);
+	#else	// MOD-BY-LEETEN 07/31/2011-TO:
+	int iNrOfBins = cRandomVariable.IGetNrOfBins();
+	localEntropyComputerForScalar->setHistogramRange(0, iNrOfBins);
 
 	// convert each vector into bin index
-	localEntropyComputerForScalar->computeHistogramBinField("scalar", iDefaultNrOfBins);
+	localEntropyComputerForScalar->computeHistogramBinField("scalar", iNrOfBins);
 
 	// compute the entropy
-	localEntropyComputerForScalar->computeEntropyOfField( iDefaultNrOfBins, false);
+	localEntropyComputerForScalar->computeEntropyOfField( ITL_histogram::DEFAULT_NR_OF_BINS, false);
+	#endif	// MOD-BY-LEETEN 07/31/2011-END
 
 	if( NULL != szEntropyPathPrefix )
 	{
@@ -881,6 +926,105 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	delete localEntropyComputerForScalar;
 	#endif	// MOD-BY-LEETEN 07/22/2011-END
 }
+
+// ADD-BY-LEETEN 07/31/2011-BEGIN
+//////////////////////////////////////////////////////////////////////////
+void
+ITLRandomField::_ComputeJointEntorpyInBoundBlock
+(
+	int iRandomVariable1,
+	int iRandomVariable2,
+	const char *szEntropyLogPathFilename
+)
+{
+	const int iBoundBlock = IGetBoundBlock();
+	const CBlock& cBoundBlock = CGetBoundBlock();
+
+	CRandomVariable& cRandomVariable1 = CGetRandomVariable(iRandomVariable1);
+	CRandomVariable& cRandomVariable2 = CGetRandomVariable(iRandomVariable2);
+
+	// compute the #cells
+	int iNrOfCells = 1;
+	for(int d = 0;	d < CBlock::MAX_DIM; d++)
+	{
+		iNrOfCells *= cBoundBlock.piDimLengths[d];
+	}
+
+	// other setting of the blocks.
+	float pfBlockDimLow[CBlock::MAX_DIM];
+	float pfBlockDimUp[CBlock::MAX_DIM];
+	int	piLowPad[CBlock::MAX_DIM];
+	int piHighPad[CBlock::MAX_DIM];
+	int piNeighborhood[CBlock::MAX_DIM];
+
+	for(int d = 0; d < CBlock::MAX_DIM; d++)
+	{
+		pfBlockDimLow[d] = 0.0f;
+		pfBlockDimUp[d] = (float)cBoundBlock.piDimLengths[d] - 1;
+		piLowPad[d] = 0;
+		piHighPad[d] = 0;
+		piNeighborhood[d] = 0;
+	}
+
+	TBuffer3D<float> p3DfFeatureScalars1;
+	p3DfFeatureScalars1.alloc(
+		cBoundBlock.piDimLengths[0],
+		cBoundBlock.piDimLengths[1],
+		cBoundBlock.piDimLengths[2]
+		);
+	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable1, &p3DfFeatureScalars1[0], true);
+
+	ITL_field_regular<SCALAR> *scalarField1 = new ITL_field_regular<SCALAR>(
+		&p3DfFeatureScalars1[0],
+		3,
+		pfBlockDimLow,
+		pfBlockDimUp,
+		piLowPad,
+		piHighPad,
+		piNeighborhood );
+
+	TBuffer3D<float> p3DfFeatureScalars2;
+	p3DfFeatureScalars2.alloc(
+		cBoundBlock.piDimLengths[0],
+		cBoundBlock.piDimLengths[1],
+		cBoundBlock.piDimLengths[2]
+		);
+	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable2, &p3DfFeatureScalars2[0], true);
+
+	ITL_field_regular<SCALAR> *scalarField2 = new ITL_field_regular<SCALAR>(
+		&p3DfFeatureScalars2[0],
+		3,
+		pfBlockDimLow,
+		pfBlockDimUp,
+		piLowPad,
+		piHighPad,
+		piNeighborhood );
+
+	// Initialize class that can compute global joint entropy
+	ITL_globaljointentropy<SCALAR>* globalJointEntropyComputer = new ITL_globaljointentropy<SCALAR>( scalarField1, scalarField2 );
+
+	int iNrOfBins1 = cRandomVariable1.IGetNrOfBins();
+	int iNrOfBins2 = cRandomVariable2.IGetNrOfBins();
+	globalJointEntropyComputer->setJointHistogramRange( 0, iNrOfBins1, 0, iNrOfBins2 );	
+	globalJointEntropyComputer->computeJointHistogramBinField( "scalar",  ITL_histogram::DEFAULT_NR_OF_BINS);
+
+	// Global Joint entropy Computation
+	globalJointEntropyComputer->computeGlobalJointEntropyOfField( ITL_histogram::DEFAULT_NR_OF_BINS, false );
+	
+	// save the block-wise entropy
+	float fJointEntropy = globalJointEntropyComputer->getGlobalJointEntropy();
+
+	// save the computed entropy...
+	if( NULL != szEntropyLogPathFilename )
+	{
+		char szCommmand[1024];
+		sprintf(szCommmand, "echo Block %d RV %d %d JEntropy %e >> %s", iBoundBlock, iRandomVariable1, iRandomVariable2, fJointEntropy, szEntropyLogPathFilename);
+		system(szCommmand);
+	}
+
+	delete globalJointEntropyComputer;
+}
+// ADD-BY-LEETEN 07/31/2011-END
 
 //////////////////////////////////////////////////////////////////////////
 ITLRandomField::ITLRandomField() {

@@ -48,7 +48,9 @@
 
 	char szGlobalEntropyLogPathFilename[1024];
 
-	const int iNrOfBins = 360;
+	// DEL-BY-LEETEN 07/31/2011-BEGIN
+		// const int iNrOfBins = 360;
+	// DEL-BY-LEETEN 07/31/2011-END
 
 	ITLRandomField *pcBoundRandomField;
 
@@ -70,7 +72,11 @@ ITL_begin()
 
 	// Initialize histogram
 	// "!" means the default patch file
-	ITL_histogram::ITL_init_histogram( "!", iNrOfBins );
+	// MOD-BY-LEETEN 07/31/2011-FROM:
+		// ITL_histogram::ITL_init_histogram( "!", iNrOfBins );
+	// TO:
+	ITL_histogram::ITL_init_histogram( "!" );
+	// MOD-BY-LEETEN 07/31/2011-END
 
 	// create a folder to hold the tmp. dumpped result
 	if( 0 == iRank )
@@ -612,6 +618,39 @@ itl_set_random_variable_range_
 }
 // ADD-BY-LEETEN 07/22/2011-END
 
+// ADD-BY-LEETEN 07/31/2011-BEGIN
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to specify the #bins of the bound random variable
+/*!
+ * \param	iNrOfBins	#bins
+*/
+void
+ITL_set_n_bins
+(
+	const int iNrOfBins
+)
+{
+  pcBoundRandomField->CGetBoundRandomVariable()._SetNrOfBins(iNrOfBins);
+}
+
+//! The Fortran API to specify the #bins of the bound random variable
+/*!
+ * \sa 		ITL_set_n_bins
+*/
+extern "C"
+void
+itl_set_n_bins_
+(
+	int *piNrOfBins
+)
+{
+	ITL_set_n_bins
+	(
+	 *piNrOfBins
+	);
+}
+// ADD-BY-LEETEN 07/31/2011-END
+
 /////////////////////////////////////////////////////////////////////
 //! The C/C++ API to set up the feature vector of the current random variable
 /*!
@@ -945,6 +984,59 @@ itl_dump_bound_block_local_entropy3_2tmp_
 		szLocalEntropyLogPathFilename
 	);
 }
+
+// ADD-BY-LEETEN 07/31/2011-BEGIN
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to compute and dump the global joint entropy of the bound block to a file
+/*!
+\param	iRvId1	ID (0-based) of the 1st random variable
+\param	iRvId2	ID (0-based) of the 2nd random variable
+\param	szGlobalEntropyLogPathFilename	Path/filename of the file
+*/
+void
+ITL_dump_bound_block_global_jentropy
+(
+	const int iRvId1,
+	const int iRvId2,
+	const char* szGlobalEntropyLogPathFilename
+)
+{
+	pcBoundRandomField->_ComputeJointEntorpyInBoundBlock
+	(
+		iRvId1,
+		iRvId2,
+		 szGlobalEntropyLogPathFilename
+	);
+}
+
+//! The Fortran API to dump the feature vector to a default path/filename
+/*!
+\param	iRvId	Pointer to the ID (1-based) of the random variable
+\sa		ITL_dump_bound_block_global_joint_entropy
+*/
+extern "C"
+void
+itl_dump_bblk_jentropy_2tmp_
+(
+ int *piRvId1,
+ int *piRvId2,
+ int *piIsLocal
+)
+{
+  if( 0 == *piIsLocal )
+	ITL_dump_bound_block_global_jentropy
+	(
+		*piRvId1 - 1,
+		*piRvId2 - 1,
+		szGlobalEntropyLogPathFilename
+	);
+  else
+    {
+      ASSERT_OR_LOG(false, fprintf(stderr, "Not implemented yet."));
+    }
+
+}
+// ADD-BY-LEETEN 07/31/2011-END
 
 /*
  *

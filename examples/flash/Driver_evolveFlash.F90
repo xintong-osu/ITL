@@ -388,6 +388,9 @@ subroutine Driver_evolveFlash()
 		! call ITL_random_varable_as_scalar(1) ! 1 mean using the vector orientation
 	! TO:
 	call ITL_random_varable_as_scalar(1, "raw") 
+	// ADD-BY-LEETEN 07/31/2011-BEGIN
+	call ITL_set_n_bins(16) 
+	// ADD-BY-LEETEN 07/31/2011-END
 	! MOD-BY-LEETEN 07/20/2011-END
 
 

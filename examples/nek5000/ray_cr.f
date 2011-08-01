@@ -350,6 +350,9 @@ c first time step
           call ITL_random_varable_as_scalar(1, "raw")
           ! MOD-BY-LEETEN 07/22/2011-END
           call ITL_set_random_variable_range(-2.0, +2.0)
+		  ! ADD-BY-LEETEN 07/31/2011-BEGIN
+          call ITL_set_n_bins(16)
+		  ! ADD-BY-LEETEN 07/31/2011-END
 
           ! vector
           call ITL_add_random_variable(rv_vec_id)
@@ -359,6 +362,10 @@ c first time step
           ! TO:
           call ITL_random_varable_as_vector2(2, 3, "dir")
           ! MOD-BY-LEETEN 07/22/2011-END
+
+		  ! ADD-BY-LEETEN 07/31/2011-BEGIN
+          call ITL_set_n_bins(16)
+		  ! ADD-BY-LEETEN 07/31/2011-END
 
          do b = 1, nelv
             call ITL_bind_block(b)

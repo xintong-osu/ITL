@@ -264,7 +264,13 @@ c first time step
           ! MOD-BY-LEETEN 07/23/2011-FROM:
           ! call ITL_random_varable_as_vector2(1, 2, "dir")
           ! TO:
-          call ITL_random_varable_as_vector3(1, 2, 3, "dir")
+
+		  ! MOD-BY-LEETEN 07/31/2011-FROM:	
+          	! call ITL_random_varable_as_vector3(1, 2, 3, "dir")
+		  ! TO:
+          call ITL_random_varable_as_vector2(1, 2, "dir")
+          call ITL_set_n_bins(16)
+		  ! MOD-BY-LEETEN 07/31/2011-END
           ! MOD-BY-LEETEN 07/23/2011-END
           ! MOD-BY-LEETEN 07/22/2011-END
 
@@ -274,7 +280,12 @@ c first time step
           ! MOD-BY-LEETEN 07/23/2011-FROM:
           ! call ITL_random_varable_as_vector2(1, 2, "abs")
           ! TO:
-          call ITL_random_varable_as_vector3(1, 2, 3, "abs")
+		  ! MOD-BY-LEETEN 07/31/2011-FROM:
+	  		! call ITL_random_varable_as_vector3(1, 2, 3, "abs")
+		  ! TO:
+	  	  call ITL_random_varable_as_vector2(1, 2, "abs")
+          call ITL_set_n_bins(16)
+          ! MOD-BY-LEETEN 07/31/2011-END
           ! MOD-BY-LEETEN 07/23/2011-END
           ! ADD-BY-LEETEN 07/22/2011-END
 
@@ -295,10 +306,15 @@ c first time step
 
 c every 100 time steps
       time_step = time_step + 1
-      
-      time_step_mod = modulo(time_step, 100)
+
+	  ! MOD-BY-LEETEN 07/31/2011-FROM:	      
+      	! time_step_mod = modulo(time_step, 100)
+	  ! TO:
+      time_step_mod = modulo(time_step, 300)
+	  ! MOD-BY-LEETEN 07/31/2011-END
       if( time_step_mod.eq.1 ) then 
-           if( 0.eq.1 ) then ! MOD-BY-LEETEN 07/22/2011-FROM:
+#if 0 
+           ! if( 0.eq.1 ) then ! MOD-BY-LEETEN 07/22/2011-FROM:
 	          do b = 1, nelv
 	             nvpb = nx1 * ny1 * nz1 
 	             bo = 1 + (b - 1) * nvpb
@@ -322,8 +338,8 @@ c every 100 time steps
                      ! call ITL_dump_bound_block_global_entropy_2tmp(rv_vecm_id)
 	          enddo
 
-         else ! MOD-BY-LEETEN 07/22/2011-TO:
-
+#else
+!         else ! MOD-BY-LEETEN 07/22/2011-TO:
           do b = 1, nelv
              nvpb = nx1 * ny1 * nz1 
              bo = 1 + (b - 1) * nvpb
@@ -352,9 +368,13 @@ c every 100 time steps
 
              ! compute and dump the entropy
              call ITL_dump_bound_block_global_entropy_2tmp(rv_vecm_id)
-          enddo
 
-          endif ! MOD-BY-LEETEN 07/22/2011-END
+			 ! ADD-BY-LEETEN 07/31/2011-BEGIN
+             call ITL_dump_bblk_jentropy_2tmp(rv_vec_id, rv_vec_id, 0)
+			 ! ADD-BY-LEETEN 07/31/2011-END
+          enddo
+#endif  
+!  endif ! MOD-BY-LEETEN 07/22/2011-END
       endif
 
 c last time step

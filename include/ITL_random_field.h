@@ -246,6 +246,7 @@ public:
 		#else	// MOD-BY-LEETEN 07/22/2011-TO:
 		int iFeatureMapping;
 
+
 		static
 		int
 		IConvertStringToFeatureMapping(const char* szString)
@@ -292,6 +293,7 @@ public:
 		DGetRandomVariable
 		(
 			const double pdFeatureVector[]
+
 		) const
 		{
 			int iFeatureLength = this->piFeatureVector.USize();
@@ -313,9 +315,6 @@ public:
 				if( FEATURE_ORIENTATION == iFeatureMapping )
 				{
 					dSample = atan2(pdFeatureVector[1], pdFeatureVector[0]);
-#if 0 // TMP-ADD
-					dSample = 16.0 * (dSample + M_PI)/(2.0 * M_PI);
-#endif
 					break;
 				}
 				// otherwise, enter the following part...
@@ -326,9 +325,9 @@ public:
 				if( FEATURE_ORIENTATION == iFeatureMapping )
 				{
 					// TEST only...
-				        // MOD-BY-LEETEN 07/23/2011-FROM:
-					// dSample = (double)(rand()%360);
-				        // TO:
+				    // MOD-BY-LEETEN 07/23/2011-FROM:
+						// dSample = (double)(rand()%360);
+				    // TO:
 					dSample = (double)cSphereSpace.IMapVectorToPatch(pdFeatureVector);
 					// MOD-BY-LEETEN 07/23/2011-END
 					break;
@@ -365,30 +364,87 @@ public:
 		(
 				double& dMin,
 				double& dMax
-		)
+		// MOD-BY-LEETEN 07/31/2011-FROM:
+			// )
+		// TO:
+		  ) const
+		// MOD-BY-LEETEN 07/31/2011-END
 		{
 			dMin = -HUGE_VAL;
 			dMax = +HUGE_VAL;
 			int iFeatureLength = this->piFeatureVector.USize();
-			if(FEATURE_ORIENTATION == iFeatureMapping)
-			{
+			#if 0 // MOD-BY-LEETEN 07/31/2011-FROM:
+				if(FEATURE_ORIENTATION == iFeatureMapping)
+				{
+					switch(iFeatureLength)
+					{
+					case 2:	dMin = -M_PI;	dMax = +M_PI;	break;
+
+					// MOD-BY-LEETEN 07/23/2011-FROM:
+					// case 3:	dMin = 0.0;		dMax = 360;		break;	// the range is from 0 to the number of patches on the semi-sphere
+					// TO:
+					case 3: dMin = 0.0; dMax = cSphereSpace.IGetNrOfPatches(); break;
+					// MOD-BY-LEETEN 07/23/2011-END
+					}
+				}
+			#else	// MOD-BY-LEETEN 07/31/2011-TO:
+			switch(iFeatureMapping)
+			  {
+			  case FEATURE_ORIENTATION:
 				switch(iFeatureLength)
 				{
-                                #if 1 // TMP-MOD
 				case 2:	dMin = -M_PI;	dMax = +M_PI;	break;
-                                #else
-				case 2:	dMin = 0.0;	dMax = 359.0;	break;
-                                #endif
-
-				// MOD-BY-LEETEN 07/23/2011-FROM:
-				// case 3:	dMin = 0.0;		dMax = 360;		break;	// the range is from 0 to the number of patches on the semi-sphere
-				// TO:
 				case 3: dMin = 0.0; dMax = cSphereSpace.IGetNrOfPatches(); break;
-				// MOD-BY-LEETEN 07/23/2011-END
 				}
-			}
+				break;
+			  case FEATURE_MAGNITUDE:
+			    dMin = 0;
+			    dMax = HUGE_VAL;
+			    break;
+			  }
+			#endif	// MOD-BY-LEETEN 07/31/2011-END
 		}
 		#endif	// MOD-BY-LEETEN 07/22/2011-END
+
+		// ADD-BY-LEETEN 07/31/2011-BEGIN
+		int iNrOfBins;
+
+		void
+		_SetNrOfBins
+		(
+			const int iNrOfBins
+		)
+		{
+			this->iNrOfBins = iNrOfBins;
+		}
+
+		int
+		IGetNrOfBins
+		(
+		) const
+		{
+		  return iNrOfBins;
+		}
+
+		double
+		DMapToBin
+		(
+				double dSample
+		) const
+		{
+				// obtain the default range of the random variable, which is especially useful for orientation
+				double dDefaultMin, dDefaultMax;
+				_GetDefaultRange(dDefaultMin, dDefaultMax);
+				double dHistMin, dHistMax;
+				dHistMin = max(cRange.dMin, dDefaultMin);
+				dHistMax = min(cRange.dMax, dDefaultMax);
+
+				double dBin = (dSample - dHistMin)/(dHistMax - dHistMin);
+				dBin = min(1.0, max(0.0, dBin));
+				dBin *= (double)iNrOfBins;
+				return dBin;
+		}
+		// ADD-BY-LEETEN 07/31/2011-END
 
 		CRandomVariable()
 		{
@@ -401,6 +457,10 @@ public:
 			// ADD-BY-LEETEN 07/23/2011-BEGIN
 			cSphereSpace._CopyDefaultMapping();
 			// ADD-BY-LEETEN 07/23/2011-END
+
+			// ADD-BY-LEETEN 07/31/2011-BEGIN
+			iNrOfBins = ITL_histogram::DEFAULT_NR_OF_BINS;
+			// ADD-BY-LEETEN 07/31/2011-END
 		}
 	};
 	// MOD-BY-LEETEN 07/22/2011-FROM:
@@ -588,7 +648,10 @@ public:
 	(
 		const int iBlock,
 		const int iRandomVariable,
-		float *pfRandomSamples
+		float *pfRandomSamples,
+		// ADD-BY-LEETEN 07/31/2011-BEGIN
+		const bool bIsMappingToBins = false
+		// ADD-BY-LEETEN 07/31/2011-END
 	);
 	// ADD-BY-LEETEN 07/22/2011-END
 
@@ -608,6 +671,16 @@ public:
 		const double pdLocalNeighborhood[],
 		const char *szEntropyPathPrefix
 	);
+
+	// ADD-BY-LEETEN 07/31/2011-BEGIN
+    void
+	_ComputeJointEntorpyInBoundBlock
+	(
+			int iRandomVariable1,
+			int iRandomVariable2,
+			const char *szEntropyLogPathFilename
+	);
+	// ADD-BY-LEETEN 07/31/2011-END
 
 	///////////////////////////////////////////////////////////////////
 	void
