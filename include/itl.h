@@ -24,7 +24,15 @@
  *
 */
 void
-ITL_begin();
+// MOD-BY-LEETEN 08/05/2011-FROM:
+	// ITL_begin();
+// TO:
+ITL_begin
+(
+ const char *szName
+ );
+// MOD-BY-LEETEN 08/05/2011-END
+
 
 //! The Fortran API to initialize ITL
 /*!
@@ -32,7 +40,16 @@ ITL_begin();
 */
 extern "C"
 void
-itl_begin_();
+// MOD-BY-LEETEN 08/05/2011-FROM:
+	// itl_begin_();
+// TO:
+itl_begin_
+(
+ int *piNameLength,
+ char* szName
+ );
+// MOD-BY-LEETEN 08/05/2011-END
+
 
 /////////////////////////////////////////////////////////////////////
 //! The C and C++ API to free ITL

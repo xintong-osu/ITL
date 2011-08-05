@@ -250,7 +250,30 @@ c first time step
       data first /1/
       if (first.eq.1) then
           first = 0
-          call ITL_begin()
+
+	  ! MOD-BY-LEETEN 08/05/2011-FROM:
+          	! call ITL_begin()
+	  ! TO:
+	  ! read the session's name
+	ierr = 0
+	IF(NID.EQ.0) THEN
+        	OPEN (UNIT=8,FILE='SESSION.NAME',STATUS='OLD',ERR=24)
+	        READ(8,10) SESSION
+        	READ(8,10) PATH
+ 10		FORMAT(A132)
+		CLOSE(UNIT=8)
+        	GOTO 23
+ 24     	ierr = 1
+ 23   	ENDIF
+
+	call err_chk(ierr,' Cannot open SESSION.NAME!$')
+
+	! send the session's name to all process and then call ITL
+	call bcast(SESSION,132*CSIZE)
+
+	! initialize ITL by sending the name of this test
+	call ITL_begin(132, SESSION) 
+	! MOD-BY-LEETEN 08/05/2011-END
 
           call ITL_add_random_field(nelv, 3, rf_id)
           call ITL_bind_random_field(rf_id)
@@ -313,33 +336,10 @@ c every 100 time steps
       time_step_mod = modulo(time_step, 300)
 	  ! MOD-BY-LEETEN 07/31/2011-END
       if( time_step_mod.eq.1 ) then 
-#if 0 
-           ! if( 0.eq.1 ) then ! MOD-BY-LEETEN 07/22/2011-FROM:
-	          do b = 1, nelv
-	             nvpb = nx1 * ny1 * nz1 
-	             bo = 1 + (b - 1) * nvpb
-	
-	             ! specfiy the data
-	             call ITL_bind_block(b)
-	             call ITL_bind_data_component(1) ! specify the U component
-	             call ITL_data_source(vx, bo, 1) 
-	             call ITL_bind_data_component(2) ! specify the V component 
-	             call ITL_data_source(vy, bo, 1) 
-	             call ITL_bind_data_component(3) ! specify the W component 
-	             call ITL_data_source(vz, bo, 1) 
-	
-                     ! dump the feature vector
-                     ! call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
+	! ADD-BY-LEETEN 08/05/2011-BEGIN
+	call ITL_set_time_stamp(time_step)
+	! ADD-BY-LEETEN 08/05/2011-END
 
-                     ! compute and dump the entropy
-                     ! call ITL_dump_bound_block_global_entropy_2tmp(rv_vec_id)
-
-                     ! compute and dump the entropy
-                     ! call ITL_dump_bound_block_global_entropy_2tmp(rv_vecm_id)
-	          enddo
-
-#else
-!         else ! MOD-BY-LEETEN 07/22/2011-TO:
           do b = 1, nelv
              nvpb = nx1 * ny1 * nz1 
              bo = 1 + (b - 1) * nvpb
@@ -370,11 +370,9 @@ c every 100 time steps
              call ITL_dump_bound_block_global_entropy_2tmp(rv_vecm_id)
 
 			 ! ADD-BY-LEETEN 07/31/2011-BEGIN
-             call ITL_dump_bblk_jentropy_2tmp(rv_vec_id, rv_vec_id, 0)
+             ! TMP-DEL call ITL_dump_bblk_jentropy_2tmp(rv_vec_id, rv_vec_id, 0)
 			 ! ADD-BY-LEETEN 07/31/2011-END
           enddo
-#endif  
-!  endif ! MOD-BY-LEETEN 07/22/2011-END
       endif
 
 c last time step
@@ -454,6 +452,28 @@ c-----------------------------------------------------------------------
       subroutine usrdat3
       return
       end
+
+c ADD-BY-LEETEN 08/05/2011-BEGIN
+C=======================================================================
+      subroutine usr_moab2nek(id_nek, id_moab)
+
+      character*3 id_nek(1)
+      integer id_moab
+
+      print*,"usr_moab2nek:",id_moab
+
+      id_nek(1) = 'E  '
+      if     (id_moab.eq.100) then
+         id_nek(1) = 'v  '
+      else if(id_moab.eq.200) then
+         id_nek(1) = 'O  '
+      else if(id_moab.eq.300) then
+         id_nek(1) = 'W  '
+      endif
+
+      end
+c ADD-BY-LEETEN 08/05/2011-END
+
 c-----------------------------------------------------------------------
 c
 c automatically added by makenek

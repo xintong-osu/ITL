@@ -54,6 +54,13 @@
 
 	ITLRandomField *pcBoundRandomField;
 
+	// ADD-BY-LEETEN 08/05/2011-BEGIN
+	const char DEFAULT_DUMP_PATH[] = "dump";
+	static int iTimeStamp = 0;
+	static char szDumpPath[1024];
+	static char szCommand[1024];	// buffer to hold the command for the func. system()
+	// ADD-BY-LEETEN 08/05/2011-END
+
 //--------------------------------------------------------------------------
 // functions
 
@@ -62,7 +69,15 @@
  *
 */
 void
-ITL_begin()
+// MOD-BY-LEETEN 08/05/2011-FROM:
+	// ITL_begin()
+// TO:
+  ITL_begin
+  (
+   const int iNameLength,
+   const char* szName
+  ) 
+// MOD-BY-LEETEN 08/05/2011-END
 {
 	// Get the rank of the current processors
 	MPI_Comm_rank(MPI_COMM_WORLD, &::iRank);
@@ -85,14 +100,58 @@ ITL_begin()
 			system("mkdir dump");
 			system("rm dump/*");
 		#else	// MOD-BY-LEETEN 07/22/2011-TO:
-		system("rm -r dump");
+		#if 0 	// MOD-BY-LEETEN 08/05/2011-FROM:
+			system("rm -r dump");
+			system("mkdir dump");
+		#else	// MOD-BY-LEETEN 08/05/2011-TO:
 		system("mkdir dump");
+		if( iNameLength <= 0 )
+		  sprintf(::szDumpPath, "%s", DEFAULT_DUMP_PATH);
+		else
+		{
+		  char *szTemp = new char[iNameLength];
+		  strncpy(szTemp, szName, iNameLength);
+		  for(int i = 0; i < iNameLength; i++)
+		    if(! ( ('0' <= szTemp[i] && szTemp[i] <= '9') ||
+			   ('a' <= szTemp[i] && szTemp[i] <= 'z') ||
+			   ('A' <= szTemp[i] && szTemp[i] <= 'Z') ||
+			   '-' == szTemp[i] ||
+			   '_' == szTemp[i] ) )
+		      {
+		      szTemp[i] = '\0';
+		      break;
+		      }
+
+		  sprintf(::szDumpPath, "%s/%s", DEFAULT_DUMP_PATH, szTemp);
+		}
+
+		// LOG_VAR_TO_ERROR(::szDumpPath);
+		// exit(0);
+
+		sprintf(::szCommand, "rm -r %s", ::szDumpPath);
+		system(::szCommand);
+
+		sprintf(::szCommand, "mkdir %s", ::szDumpPath);
+		system(::szCommand);
+
+		MPI_Bcast(&::szDumpPath, sizeof(::szDumpPath), MPI_CHAR, 0, MPI_COMM_WORLD);
+		#endif	// MOD-BY-LEETEN 08/05/2011-END
 		#endif	// MOD-BY-LEETEN 07/22/2011-END
 	}
+	// ADD-BY-LEETEN 08/05/2011-BEGIN
+	else
+	  {
+		MPI_Bcast(&::szDumpPath, sizeof(::szDumpPath), MPI_CHAR, 0, MPI_COMM_WORLD);
+	  }
+	// ADD-BY-LEETEN 08/05/2011-END
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	// create the path/filename of the log for global entropy
-	sprintf(szGlobalEntropyLogPathFilename, "dump/ge.rank_%d.log", ::iRank);
+	// MOD-BY-LEETEN 08/05/2011-FROM:
+		// sprintf(szGlobalEntropyLogPathFilename, "dump/ge.rank_%d.log", ::iRank);
+	// TO:
+	sprintf(szGlobalEntropyLogPathFilename, "%s/ge.rank_%d.log", ::szDumpPath, ::iRank);
+	// MOD-BY-LEETEN 08/05/2011-END
 
 	// register ITL_end to be called at the end of execution (in case the application does not call it)
 	atexit(ITL_end);
@@ -104,10 +163,25 @@ ITL_begin()
 */
 extern "C"
 void
-itl_begin_()
+#if 0 // MOD-BY-LEETEN 08/05/2011-FROM:
+	itl_begin_()
+	{
+		ITL_begin();
+	}
+#else	// MOD-BY-LEETEN 08/05/2011-TO:
+itl_begin_
+(
+ int *piNameLength,
+ char *szName
+ )
 {
-	ITL_begin();
+  ITL_begin
+    ( 
+     *piNameLength,
+     szName
+      );
 }
+#endif	// MOD-BY-LEETEN 08/05/2011-END
 
 /////////////////////////////////////////////////////////////////////
 //! The C/C++ API to terminate ITL
@@ -132,6 +206,39 @@ void itl_end_
 {
 	ITL_end();
 }
+
+// ADD-BY-LEETEN 08/05/2011-BEGIN
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to automatically decide the random variable's range
+/*!
+*/
+void
+ITL_set_time_stamp
+(
+	const int iTimeStamp
+)
+{
+  ::iTimeStamp = iTimeStamp;
+}
+
+//! The Fortran API to automatically decide the random variable's range
+/*!
+ * \param	piRandomVariable	Pointer to the index (1-based) of the random variable
+ * \sa ITL_set_time_stamp 
+*/
+extern "C"
+void
+itl_set_time_stamp_
+(
+	int *piTimeStamp
+)
+{
+	ITL_set_time_stamp 
+	(
+		*piTimeStamp
+	);
+}
+// ADD-BY-LEETEN 08/05/2011-END
 
 // ADD-BY-LEETEN 07/22/2011-BEGIN
 /////////////////////////////////////////////////////////////////////
@@ -845,7 +952,11 @@ itl_dump_bound_block_geom_2tmp_
 )
 {
 	char szGeomPathFilename[1024];
-	sprintf(szGeomPathFilename, "dump/geom.rank_%d.block_%d.txt", ::iRank, ::pcBoundRandomField->IGetBoundBlock());
+	// MOD-BY-LEETEN 08/05/2011-FROM:
+		// sprintf(szGeomPathFilename, "dump/geom.rank_%d.block_%d.txt", ::iRank, ::pcBoundRandomField->IGetBoundBlock());
+	// TO:
+	sprintf(szGeomPathFilename, "%s/geom.rank_%d.blk_%d.t_%d.txt", ::szDumpPath, ::iRank, ::pcBoundRandomField->IGetBoundBlock(), ::iTimeStamp);
+	// MOD-BY-LEETEN 08/05/2011-END
 	ITL_dump_bound_block_geom(szGeomPathFilename);
 }
 
@@ -883,7 +994,11 @@ itl_dump_bound_block_feature_vector_2tmp_
 {
 	const int iRvId = *piRvId - 1;
 	char szFeatureVectorPathFilename[1024];
-	sprintf(szFeatureVectorPathFilename, "dump/feature_vector.rank_%d.block_%d.rv_%d", ::iRank, ::pcBoundRandomField->IGetBoundBlock(), iRvId);
+	// MOD-BY-LEETEN 08/05/2011-FROM:
+		// sprintf(szFeatureVectorPathFilename, "dump/feature_vector.rank_%d.block_%d.rv_%d", ::iRank, ::pcBoundRandomField->IGetBoundBlock(), iRvId);
+	// TO:
+	sprintf(szFeatureVectorPathFilename, "%s/feature_vector.rank_%d.blk_%d.t_%d.rv_%d", ::szDumpPath, ::iRank, ::pcBoundRandomField->IGetBoundBlock(), ::iTimeStamp, iRvId);
+	// MOD-BY-LEETEN 08/05/2011-END
 	ITL_dump_bound_block_feature_vector_
 	(
 		iRvId,
@@ -974,7 +1089,11 @@ itl_dump_bound_block_local_entropy3_2tmp_
 	pdNeighborhood[1] = *pdYNeighborhood;
 	pdNeighborhood[2] = *pdZNeighborhood;
 	char szLocalEntropyLogPathFilename[1024];
-	sprintf(szLocalEntropyLogPathFilename, "dump/le.rank_%d.block_%d", ::iRank, ::pcBoundRandomField->IGetBoundBlock());
+	// MOD-BY-LEETEN 08/05/2011-FROM:
+		// sprintf(szLocalEntropyLogPathFilename, "dump/le.rank_%d.block_%d", ::iRank, ::pcBoundRandomField->IGetBoundBlock());
+	// TO:
+	sprintf(szLocalEntropyLogPathFilename, "%s/le.rank_%d.blk_%d.t_%d", ::szDumpPath, ::iRank, ::pcBoundRandomField->IGetBoundBlock(), ::iTimeStamp);
+	// MOD-BY-LEETEN 08/05/2011-END
 
 	ITL_dump_bound_block_local_entropy
 	(

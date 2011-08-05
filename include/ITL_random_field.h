@@ -349,7 +349,11 @@ public:
 				dSample = sqrt(dSample);
 
 				if( FEATURE_MAGNITUDE_SCALE == iFeatureMapping )
-					dSample = log(dSample);
+					// MOD-BY-LEETEN 08/05/2011-FROM:
+						// dSample = log(dSample);
+					// TO:
+					dSample = log10(dSample);
+					// MOD-BY-LEETEN 08/05/2011-END
 			}
                         #if 0  // DEL-BY-LEETEN 07/23/2011-BEGIN
 			if( FEATURE_MAGNITUDE_SCALE == iFeatureMapping )

@@ -266,10 +266,6 @@ c-----------------------------------------------------------------------
 
          elseif (icase.eq.2) then  ! Make estimate and exit
 
-            ! ADD-BY-LEETEN 07/22/2011-BEGIN
-            call itl()          ! calls ITL
-            ! ADD-BY-LEETEN 07/22/2011-END
-
             Ek3 = Ek
             r12 = Ra1 - (Ra2-Ra1)*Ek1/(Ek2-Ek1)
             r23 = Ra2 - (Ra3-Ra2)*Ek2/(Ek3-Ek2)
@@ -287,6 +283,10 @@ c-----------------------------------------------------------------------
 
          endif
       endif
+
+	! ADD-BY-LEETEN 08/05/2011-BEGIN
+      	call itl()                ! calls ITL
+	! ADD-BY-LEETEN 08/05/2011-END
 
       return
       end
@@ -335,7 +335,30 @@ c first time step
       data first /1/
       if (first.eq.1) then
           first = 0
-          call ITL_begin()
+
+	  ! MOD-BY-LEETEN 08/05/2011-FROM:
+          	! call ITL_begin()
+	  ! TO:
+	  ! read the session's name
+	ierr = 0
+	IF(NID.EQ.0) THEN
+        	OPEN (UNIT=8,FILE='SESSION.NAME',STATUS='OLD',ERR=24)
+	        READ(8,10) SESSION
+        	READ(8,10) PATH
+ 10		FORMAT(A132)
+		CLOSE(UNIT=8)
+        	GOTO 23
+ 24     	ierr = 1
+ 23   	ENDIF
+
+	call err_chk(ierr,' Cannot open SESSION.NAME!$')
+
+	! send the session's name to all process and then call ITL
+	call bcast(SESSION,132*CSIZE)
+
+	! initialize ITL by sending the name of this test
+	call ITL_begin(132, SESSION) 
+	! MOD-BY-LEETEN 08/05/2011-END
 
           ! create a random field of nelv blocks and 4 data components, which will be the temperature and the 3D vectors
           call ITL_add_random_field(nelv, 4, rf_id)
@@ -344,20 +367,30 @@ c first time step
           ! temperature
           call ITL_add_random_variable(rv_t_id)
           call ITL_bind_random_variable(rv_t_id)
+#if 0
+! MOD-BY-LEETEN 08/05/2011-FROM:
           ! MOD-BY-LEETEN 07/22/2011-FROM:
           ! call ITL_random_varable_as_scalar(1)
           ! TO:
-          call ITL_random_varable_as_scalar(1, "raw")
+	  call ITL_random_varable_as_scalar(1, "abs")
           ! MOD-BY-LEETEN 07/22/2011-END
           call ITL_set_random_variable_range(-2.0, +2.0)
-		  ! ADD-BY-LEETEN 07/31/2011-BEGIN
+#else
+! MOD-BY-LEETEN 08/05/2011-TO:
+	  call ITL_random_varable_as_scalar(1, "raw")
+          ! MOD-BY-LEETEN 07/22/2011-END
+          call ITL_set_random_variable_range(0.0, 1.0)
+#endif
+! MOD-BY-LEETEN 08/05/2011-END
+
+	  ! ADD-BY-LEETEN 07/31/2011-BEGIN
           call ITL_set_n_bins(16)
-		  ! ADD-BY-LEETEN 07/31/2011-END
+	  ! ADD-BY-LEETEN 07/31/2011-END
 
           ! vector
           call ITL_add_random_variable(rv_vec_id)
           call ITL_bind_random_variable(rv_vec_id)
-          ! MOD-BY-LEETEN 07/22/2011-FROM:
+          ! MOD-BY-LEETEN 07/22/2011-FROM: 
           ! call ITL_random_varable_as_vector3(2, 3, 4, 1) ! 1 mean using the vector orientation as the random variable
           ! TO:
           call ITL_random_varable_as_vector2(2, 3, "dir")
@@ -386,34 +419,9 @@ c every 10 time step
       time_step = time_step + 1
       time_step_mod = modulo(time_step, 10)
       if( time_step_mod.eq.1 ) then
-         if(0.eq.1) then ! MOD-BY-LEETEN 07/22/2011-FROM:
-
-	         do b = 1, nelv
-	            call ITL_bind_block(b)
-	            call ITL_block_size3(nx1, ny1, nz1)
-	
-	            nvpb = nx1 * ny1 * nz1 
-	            bo = 1 + (b - 1) * nvpb
-	
-	            call ITL_bind_data_component(1) ! specify the temperature
-	            call ITL_data_source(temp, bo, 1)
-	            call ITL_bind_data_component(2) ! specify the U component
-	            call ITL_data_source(vx, bo, 1) 
-	            call ITL_bind_data_component(3) ! specify the V component 
-	            call ITL_data_source(vy, bo, 1) 
-	            call ITL_bind_data_component(4) ! specify the W component 
-	            call ITL_data_source(vz, bo, 1) 
-	
-	            ! compute and dump the feature vector/entropy for temperature
-	            call ITL_dump_bound_block_feature_vector_2tmp(rv_t_id)
-	            call ITL_dump_bound_block_global_entropy_2tmp(rv_t_id)
-	
-	            ! compute and dump the feature vector/entropy for the 3D vector field
-	            ! call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
-	            ! call ITL_dump_bound_block_global_entropy_2tmp(rv_vec_id)
-	         enddo
-
-         else ! MOD-BY-LEETEN 07/22/2011-TO:
+	! ADD-BY-LEETEN 08/05/2011-BEGIN
+	call ITL_set_time_stamp(time_step)
+	! ADD-BY-LEETEN 08/05/2011-END
 
          do b = 1, nelv
             call ITL_bind_block(b)
@@ -422,7 +430,11 @@ c every 10 time step
             bo = 1 + (b - 1) * nvpb
 
             call ITL_bind_data_component(1) ! specify the temperature
-            call ITL_data_source(temp, bo, 1)
+            ! MOD-BY-LEETEN 08/05/2011-FROM: 
+		!call ITL_data_source(temp, bo, 1)
+            ! TO:
+            call ITL_data_source(t, bo, 1)
+            ! MOD-BY-LEETEN 08/05/2011-END
             call ITL_bind_data_component(2) ! specify the U component
             call ITL_data_source(vx, bo, 1) 
             call ITL_bind_data_component(3) ! specify the V component 
@@ -430,8 +442,6 @@ c every 10 time step
             call ITL_bind_data_component(4) ! specify the W component 
             call ITL_data_source(vz, bo, 1) 
          enddo
-
-         ! call ITL_use_domain_range(rv_t_id)
 
          do b = 1, nelv
             call ITL_bind_block(b)
@@ -444,7 +454,6 @@ c every 10 time step
             call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
             call ITL_dump_bound_block_global_entropy_2tmp(rv_vec_id)
          enddo
-         endif ! MOD-BY-LEETEN 07/22/2011-END
       endif
 
 c last time step
