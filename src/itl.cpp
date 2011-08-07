@@ -60,9 +60,153 @@
 	static char szDumpPath[1024];
 	static char szCommand[1024];	// buffer to hold the command for the func. system()
 	// ADD-BY-LEETEN 08/05/2011-END
+	
+	// ADD-BY-LEETEN 08/06/2011-BEGIN
+	//! Name of the current test, which is specified via ITL_begin/itl_begin_
+	static char szName[1024];
+	// ADD-BY-LEETEN 08/06/2011-END
 
 //--------------------------------------------------------------------------
 // functions
+
+// ADD-BY-LEETEN 08/06/2011-BEGIN
+static
+const char* SZConvert2CStr
+(
+	const char *szStr
+)
+{
+	static char szTemp[1024];
+	strncpy(szTemp, szStr, sizeof(szTemp));
+	for(int i = 0; i < (int)sizeof(szTemp); i++)
+		if(! ( ('0' <= szTemp[i] && szTemp[i] <= '9') ||
+			('a' <= szTemp[i] && szTemp[i] <= 'z') ||
+			('A' <= szTemp[i] && szTemp[i] <= 'Z') ||
+			'.' == szTemp[i] ||
+			'-' == szTemp[i] ||
+			'_' == szTemp[i] ) )
+		{
+			szTemp[i] = '\0';
+			break;
+		}
+	return szTemp;
+}
+
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to create the NetCDF file
+/*!
+*/
+void
+ITL_nc_create
+(
+)
+{
+	pcBoundRandomField->_CreateNetCdf
+	(
+		::szDumpPath,
+		::szName
+	);
+}
+
+//! The Fortran API to create the NetCDF file
+/*!
+\sa ITL_nc_create
+*/
+extern "C"
+void
+itl_nc_create_
+(
+)
+{
+	ITL_nc_create();
+}
+
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to dump the geometry of the bound block to the NetCDF file
+/*!
+\param	szGeomPathFilename path/filename of the file
+*/
+void
+ITL_nc_wr_geom
+(
+)
+{
+	for(int b = 0; b < ::pcBoundRandomField->IGetNrOfBlocks(); b++)
+	{
+		::pcBoundRandomField->_DumpBlockGeometry2NetCdf(b);
+	}
+}
+
+//! The Fortran API to dump the geometry of the bound block to a default file
+/*!
+ * \sa ITL_nc_dump_bblk_geom
+*/
+extern "C"
+void
+itl_nc_wr_geom_
+(
+)
+{
+	ITL_nc_wr_geom();
+}
+
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to dump the data of all blocks 
+/*!
+*/
+void
+ITL_nc_wr_data
+(
+)
+{
+  ::pcBoundRandomField->_DumpData2NetCdf();
+}
+
+//! The Fortran API to dump the geometry of the bound block to a default file
+/*!
+ * \sa ITL_nc_wr_data
+*/
+extern "C"
+void
+itl_nc_wr_data_
+(
+)
+{
+	ITL_nc_wr_data();
+}
+
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to dump the data of all blocks 
+/*!
+*/
+void
+ITL_nc_wr_rv
+(
+ const int iRvId
+)
+{
+  ::pcBoundRandomField->_DumpRandomSamples2NetCdf
+    (
+     iRvId
+     );
+}
+
+//! The Fortran API to dump the geometry of the bound block to a default file
+/*!
+ * \sa ITL_nc_wr_rv
+*/
+extern "C"
+void
+itl_nc_wr_rv_
+(
+ int *piRvId
+)
+{
+	ITL_nc_wr_rv(
+		     *piRvId-1 // from 1-based to 0-based ID
+		     );
+}
+// ADD-BY-LEETEN 08/06/2011-END
 
 //! The C/C++ API to initialize ITL
 /*!
@@ -94,56 +238,75 @@ void
 	// MOD-BY-LEETEN 07/31/2011-END
 
 	// create a folder to hold the tmp. dumpped result
+	#if	0	// MOD-BY-LEETEN 08/06/2011-FROM:
+		if( 0 == iRank )
+		{
+			#if	0	// MOD-BY-LEETEN 07/22/2011-FROM:
+				system("mkdir dump");
+				system("rm dump/*");
+			#else	// MOD-BY-LEETEN 07/22/2011-TO:
+			#if 0 	// MOD-BY-LEETEN 08/05/2011-FROM:
+				system("rm -r dump");
+				system("mkdir dump");
+			#else	// MOD-BY-LEETEN 08/05/2011-TO:
+			system("mkdir dump");
+			if( iNameLength <= 0 )
+			  sprintf(::szDumpPath, "%s", DEFAULT_DUMP_PATH);
+			else
+			{
+			  char *szTemp = new char[iNameLength];
+			  strncpy(szTemp, szName, iNameLength);
+			  for(int i = 0; i < iNameLength; i++)
+				if(! ( ('0' <= szTemp[i] && szTemp[i] <= '9') ||
+				   ('a' <= szTemp[i] && szTemp[i] <= 'z') ||
+				   ('A' <= szTemp[i] && szTemp[i] <= 'Z') ||
+				   '-' == szTemp[i] ||
+				   '_' == szTemp[i] ) )
+				  {
+				  szTemp[i] = '\0';
+				  break;
+				  }
+
+			  sprintf(::szDumpPath, "%s/%s", DEFAULT_DUMP_PATH, szTemp);
+			}
+
+			// LOG_VAR_TO_ERROR(::szDumpPath);
+			// exit(0);
+
+			sprintf(::szCommand, "rm -r %s", ::szDumpPath);
+			system(::szCommand);
+
+			sprintf(::szCommand, "mkdir %s", ::szDumpPath);
+			system(::szCommand);
+
+			MPI_Bcast(&::szDumpPath, sizeof(::szDumpPath), MPI_CHAR, 0, MPI_COMM_WORLD);
+			#endif	// MOD-BY-LEETEN 08/05/2011-END
+			#endif	// MOD-BY-LEETEN 07/22/2011-END
+		}
+		// ADD-BY-LEETEN 08/05/2011-BEGIN
+		else
+		  {
+			MPI_Bcast(&::szDumpPath, sizeof(::szDumpPath), MPI_CHAR, 0, MPI_COMM_WORLD);
+		  }
+		// ADD-BY-LEETEN 08/05/2011-END
+	#else	// MOD-BY-LEETEN 08/06/2011-TO:
+	strcpy(::szName, SZConvert2CStr(szName));
+	if( iNameLength <= 0 )
+		sprintf(::szDumpPath, "%s", DEFAULT_DUMP_PATH);
+	else
+		sprintf(::szDumpPath, "%s/%s", DEFAULT_DUMP_PATH, SZConvert2CStr(szName));
+		
 	if( 0 == iRank )
 	{
-		#if	0	// MOD-BY-LEETEN 07/22/2011-FROM:
-			system("mkdir dump");
-			system("rm dump/*");
-		#else	// MOD-BY-LEETEN 07/22/2011-TO:
-		#if 0 	// MOD-BY-LEETEN 08/05/2011-FROM:
-			system("rm -r dump");
-			system("mkdir dump");
-		#else	// MOD-BY-LEETEN 08/05/2011-TO:
 		system("mkdir dump");
-		if( iNameLength <= 0 )
-		  sprintf(::szDumpPath, "%s", DEFAULT_DUMP_PATH);
-		else
-		{
-		  char *szTemp = new char[iNameLength];
-		  strncpy(szTemp, szName, iNameLength);
-		  for(int i = 0; i < iNameLength; i++)
-		    if(! ( ('0' <= szTemp[i] && szTemp[i] <= '9') ||
-			   ('a' <= szTemp[i] && szTemp[i] <= 'z') ||
-			   ('A' <= szTemp[i] && szTemp[i] <= 'Z') ||
-			   '-' == szTemp[i] ||
-			   '_' == szTemp[i] ) )
-		      {
-		      szTemp[i] = '\0';
-		      break;
-		      }
-
-		  sprintf(::szDumpPath, "%s/%s", DEFAULT_DUMP_PATH, szTemp);
-		}
-
-		// LOG_VAR_TO_ERROR(::szDumpPath);
-		// exit(0);
 
 		sprintf(::szCommand, "rm -r %s", ::szDumpPath);
 		system(::szCommand);
 
 		sprintf(::szCommand, "mkdir %s", ::szDumpPath);
 		system(::szCommand);
-
-		MPI_Bcast(&::szDumpPath, sizeof(::szDumpPath), MPI_CHAR, 0, MPI_COMM_WORLD);
-		#endif	// MOD-BY-LEETEN 08/05/2011-END
-		#endif	// MOD-BY-LEETEN 07/22/2011-END
 	}
-	// ADD-BY-LEETEN 08/05/2011-BEGIN
-	else
-	  {
-		MPI_Bcast(&::szDumpPath, sizeof(::szDumpPath), MPI_CHAR, 0, MPI_COMM_WORLD);
-	  }
-	// ADD-BY-LEETEN 08/05/2011-END
+	#endif	// MOD-BY-LEETEN 08/06/2011-END
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	// create the path/filename of the log for global entropy
@@ -193,6 +356,9 @@ ITL_end
 (
 )
 {
+	// ADD-BY-LEETEN 08/06/2011-BEGIN
+	pcBoundRandomField->_CloseNetCdf();
+	// ADD-BY-LEETEN 08/06/2011-END
 }
 
 //! The Fortran API to free ITL
@@ -219,6 +385,9 @@ ITL_set_time_stamp
 )
 {
   ::iTimeStamp = iTimeStamp;
+	// ADD-BY-LEETEN 08/06/2011-BEGIN
+  ::pcBoundRandomField->_AddTimeStamp(iTimeStamp);
+	// ADD-BY-LEETEN 08/06/2011-END
 }
 
 //! The Fortran API to automatically decide the random variable's range
@@ -496,6 +665,34 @@ itl_bind_data_component_
 	);
 }
 
+// ADD-BY-LEETEN 08/06/2011-BEGIN
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to specify the name of the bound data component
+void
+ITL_data_name
+(
+		const char *szName
+)
+{
+  char szDataName[1024];
+  sprintf(szDataName, "data_%s", szName);
+  pcBoundRandomField->CGetBoundDataComponent()._SetName(szDataName);
+}
+
+//! The Fortran API to specify the name of the bound data component
+extern "C"
+void
+itl_data_name_
+(
+		char *szName
+)
+{
+	ITL_data_name(
+			SZConvert2CStr(szName)
+			);
+}
+// ADD-BY-LEETEN 08/06/2011-END
+
 /////////////////////////////////////////////////////////////////////
 //! The C/C++ API to specify the range of the bound data component
 /*!
@@ -687,6 +884,42 @@ itl_bind_random_variable_
 		*piRvId - 1	// from 1-based to 0-based
 	);
 }
+
+// ADD-BY-LEETEN 08/06/2011-BEGIN
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to set the name of the bound random variable
+/*!
+ * \param	piRvId		ID (0-based) of the new created random variable
+*/
+void
+ITL_rv_name
+(
+	const char* szName
+)
+{
+	char szRvName[1024];
+	sprintf(szRvName, "rv_%s", szName);
+	pcBoundRandomField->CGetBoundRandomVariable()._SetName(szRvName);
+}
+
+//! The Fortran API to add a random variable
+/*!
+ * \param	piRvId		Pointer to the ID (1-based) of the new created random variable
+\sa ITL_rv_name
+*/
+extern "C"
+void
+itl_rv_name_
+(
+	char* szName
+)
+{
+	ITL_rv_name
+	(
+		SZConvert2CStr(szName)
+	);
+}
+// ADD-BY-LEETEN 08/06/2011-END
 
 // ADD-BY-LEETEN 07/22/2011-BEGIN
 /////////////////////////////////////////////////////////////////////

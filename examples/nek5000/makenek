@@ -33,13 +33,11 @@ PLUGIN_LIST=""
 #USR="foo.o"
 
 # linking flags
-# TEST-MOD-FROM:
-	# USR_LFLAGS="-L../../../../lib -litl -L../../../../../diy/lib -ldiy -lstdc++"
+# MOD-BY-LEETEN 08/06/2011-FROM:
+	# USR_LFLAGS="-L/homes/leeten/workspace/itl/lib -lITLib -L/homes/leeten/workspace/diy/trunk/lib -ldiy -lstdc++"
 # TO:
-# TMP-MOD-FROM:	USR_LFLAGS="~/projects/itl_wrapper/itl.o -L/homes/leeten/workspace/itl/lib -litl -L/homes/leeten/workspace/diy/trunk/lib -ldiy -lstdc++"
-# USR_LFLAGS="-L/homes/leeten/projects/itl_wrapper/lib -litl -L/homes/leeten/workspace/diy/trunk/lib -ldiy -lstdc++"
-USR_LFLAGS="-L/homes/leeten/workspace/itl/lib -lITLib -L/homes/leeten/workspace/diy/trunk/lib -ldiy -lstdc++"
-# TEST-MOD-END
+USR_LFLAGS="-L/homes/leeten/workspace/itl/lib -lITLib -L/homes/leeten/workspace/diy/trunk/lib -ldiy -lstdc++ -lnetcdf"
+# MOD-BY-LEETEN 08/06/2011-END
 
 # generic compiler flags
 #G="-g"

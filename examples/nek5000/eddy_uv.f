@@ -281,6 +281,11 @@ c first time step
           ! vector
           call ITL_add_random_variable(rv_vec_id)
           call ITL_bind_random_variable(rv_vec_id)
+
+          ! ADD-BY-LEETEN 08/07/2011-BEGIN
+          call ITL_rv_name("vec_dir ")
+          ! ADD-BY-LEETEN 08/07/2011-END
+
           ! MOD-BY-LEETEN 07/22/2011-FROM:
           ! call ITL_random_varable_as_vector3(1, 2, 3, 1) ! 1 mean using the vector orientation
           ! TO:
@@ -300,6 +305,11 @@ c first time step
           ! ADD-BY-LEETEN 07/22/2011-BEGIN
           call ITL_add_random_variable(rv_vecm_id)
           call ITL_bind_random_variable(rv_vecm_id)
+
+          ! ADD-BY-LEETEN 08/07/2011-BEGIN
+          call ITL_rv_name("vec_mag ")
+          ! ADD-BY-LEETEN 08/07/2011-END
+
           ! MOD-BY-LEETEN 07/23/2011-FROM:
           ! call ITL_random_varable_as_vector2(1, 2, "abs")
           ! TO:
@@ -325,6 +335,26 @@ c first time step
              call ITL_geom_rect_dim_coord(3, zm1, bo, nx1 * ny1)
              call ITL_dump_bound_block_geom_2tmp()
           enddo
+
+          ! ADD-BY-LEETEN 08/07/2011-BEGIN
+          call ITL_bind_data_component(1)
+          call ITL_data_name('u ')
+          call ITL_bind_data_component(2)
+          call ITL_data_name('v ')
+          call ITL_bind_data_component(3)
+          call ITL_data_name('w ')
+
+          ! create the NetCDF
+          ! currently, it must be called after the 
+          ! #blocks and block dim. have been specified
+          call ITL_nc_create()
+
+          ! Write the geometry to NetCDf.
+          ! Since here the geometry is static, 
+          ! it is writen before the time stamp 
+          ! has been given
+          call ITL_nc_wr_geom()
+          ! ADD-BY-LEETEN 08/07/2011-END
       endif
 
 c every 100 time steps
@@ -333,7 +363,7 @@ c every 100 time steps
 	  ! MOD-BY-LEETEN 07/31/2011-FROM:	      
       	! time_step_mod = modulo(time_step, 100)
 	  ! TO:
-      time_step_mod = modulo(time_step, 300)
+      time_step_mod = modulo(time_step, 10)
 	  ! MOD-BY-LEETEN 07/31/2011-END
       if( time_step_mod.eq.1 ) then 
 	! ADD-BY-LEETEN 08/05/2011-BEGIN
@@ -356,12 +386,18 @@ c every 100 time steps
 
           call ITL_use_domain_range(rv_vecm_id) ! obtain the range over the entire domain
 
+          ! ADD-BY-LEETEN 08/07/2011-BEGIN
+          call ITL_nc_wr_data()
+          call ITL_nc_wr_rv(rv_vec_id)
+          call ITL_nc_wr_rv(rv_vecm_id)
+          ! ADD-BY-LEETEN 08/07/2011-END
+
           do b = 1, nelv
              ! specfiy the data
              call ITL_bind_block(b)
 
              ! dump the feature vector
-             call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
+             ! DEL-BY-LEETEN 08/07/2011  call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
 
              ! compute and dump the entropy
              call ITL_dump_bound_block_global_entropy_2tmp(rv_vec_id)

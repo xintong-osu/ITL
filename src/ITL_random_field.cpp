@@ -5,6 +5,10 @@
  *      Author: leeten
  */
 
+	// ADD-BY-LEETEN 08/06/2011-BEGIN
+	#include <netcdf.h>
+	// ADD-BY-LEETEN 08/06/2011-END
+
 	#include "ITL_header.h"
 	#include "ITL_base.h"
 	#include "ITL_ioutil.h"
@@ -18,6 +22,16 @@
 
 	#include "ITL_random_field.h"
 
+// ADD-BY-LEETEN 08/06/2011-BEGIN
+
+// declaration of the static members
+const char*
+ITLRandomField::pszNcDimNames[] =
+{
+	"x", "y", "z", "local_time", "block", "time"
+};
+// ADD-BY-LEETEN 08/06/2011-END
+
 // ADD-BY-LEETEN 07/22/2011-BEGIN
 void
 ITLRandomField::_UseDomainRange
@@ -26,7 +40,9 @@ ITLRandomField::_UseDomainRange
 )
 {
 	CRandomVariable& cRandomVariable = CGetRandomVariable(iRandomVariable);
-	const int iFeatureLength = cRandomVariable.piFeatureVector.USize();
+	// DEL-BY-LEETEN 08/06/2011-BEGIN
+		// const int iFeatureLength = cRandomVariable.piFeatureVector.USize();
+	// DEL-BY-LEETEN 08/06/2011-END
 
 	// scan through all block to find the maximal value
 	float fLocalMin = +HUGE_VALF;
@@ -63,11 +79,13 @@ ITLRandomField::_UseDomainRange
 	float fDomainMin;
 	MPI_Reduce(&fLocalMin, &fDomainMin, 1, MPI_FLOAT, MPI_MIN, 0, MPI_COMM_WORLD);
 
-	if( 0 == iRank )
-	{
-		LOG_VAR_TO_ERROR(fDomainMin);
-		LOG_VAR_TO_ERROR(fDomainMax);
-	}
+	#if 0	// DEL-BY-LEETEN 08/06/2011-BEGIN
+		if( 0 == iRank )
+		{
+			LOG_VAR_TO_ERROR(fDomainMin);
+			LOG_VAR_TO_ERROR(fDomainMax);
+		}
+	#endif	// DEL-BY-LEETEN 08/06/2011-END
 
 	MPI_Bcast(&fDomainMin, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 	MPI_Bcast(&fDomainMax, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
@@ -75,6 +93,46 @@ ITLRandomField::_UseDomainRange
 	cRandomVariable.cRange._Set((double)fDomainMin, (double)fDomainMax);
 }
 // ADD-BY-LEETEN 07/22/2011-END
+
+// ADD-BY-LEETEN 08/06/2011-BEGIN
+const int 
+ITLRandomField::IGetNrOfRandomVariables(
+				  )const
+{
+  return (int)vcRandomVariables.size();
+}
+
+int
+ITLRandomField::IGetNrOfTimeStamps(
+		)const
+{
+	return (int)viTimeStamps.size();
+}
+
+void
+ITLRandomField::_AddTimeStamp(
+		int iTimeStamp
+		)
+{
+	viTimeStamps.push_back(iTimeStamp);
+}
+
+const int
+ITLRandomField::IGetNrOfBlocks
+(
+		) const
+{
+	return (int)this->pcBlockInfo.USize();
+}
+
+const int
+ITLRandomField::IGetNrOfDataComponents
+(
+		) const
+{
+	return (int)this->pcDataComponentInfo.USize();
+}
+// ADD-BY-LEETEN 08/06/2011-END
 
 ITLRandomField::CBlock&
 ITLRandomField::CGetBlock
@@ -505,7 +563,299 @@ ITLRandomField::_Create
 	// MOD-BY-LEETEN 07/18/2011-END
 
 	this->p2DcBlockData.alloc(iNrOfBlocks, iNrOfDataComponents);
+
+	// ADD-BY-LEETEN 08/06/2011-BEGIN
+	// get the current rank
+	MPI_Comm_rank(MPI_COMM_WORLD, &iRank);
+	// ADD-BY-LEETEN 08/06/2011-END
 }
+
+// ADD-BY-LEETEN 08/06/2011-BEGIN
+/////////////////////////////////////////////////////////////////
+void
+ITLRandomField::_CreateNetCdf
+(
+		const char *szPath,
+		const char *szFilenamePrefix
+)
+{
+	char szNetCdfPathFilename[1024];
+	sprintf(szNetCdfPathFilename, "%s/%s.rank_%d.nc", szPath, szFilenamePrefix, iRank);
+
+    // Create the file.
+    ASSERT_NETCDF(nc_create(
+    		szNetCdfPathFilename,
+    		NC_CLOBBER,
+    		&iNcId));
+
+    // find the maximal block dim
+    int piBlockDimMaxLengths[CBlock::MAX_DIM];
+	for(int d = 0; d < CBlock::MAX_DIM; d++)
+	{
+		piBlockDimMaxLengths[d] = 0;
+	}
+    for(int b = 0; b < (int)pcBlockInfo.USize(); b++)
+    	for(int d = 0; d < CBlock::MAX_DIM; d++)
+    		piBlockDimMaxLengths[d] = max(piBlockDimMaxLengths[d], pcBlockInfo[b].piDimLengths[d]);
+
+	for(int d = 0; d < CBlock::MAX_DIM; d++)
+		ASSERT_NETCDF(nc_def_dim(
+						iNcId,
+						pszNcDimNames[d],
+						piBlockDimMaxLengths[d],
+						&piNcDimIds[d]));
+
+    // Define the block dimension
+	ASSERT_NETCDF(nc_def_dim(
+    				iNcId,
+    				pszNcDimNames[NC_DIM_BLOCK],
+    				IGetNrOfBlocks(),
+    				&piNcDimIds[NC_DIM_BLOCK]));
+
+    // Define the time dimension with unlimited length
+    ASSERT_NETCDF(nc_def_dim(
+    				iNcId,
+    				pszNcDimNames[NC_DIM_GLOBAL_TIME],
+    				NC_UNLIMITED,
+    				&piNcDimIds[NC_DIM_GLOBAL_TIME]));
+
+    // Define the variables for the coordinates
+	for(int d = 0; d < CBlock::MAX_DIM; d++)
+	{
+		int piBlockDims[3];
+		piBlockDims[0] = piNcDimIds[NC_DIM_GLOBAL_TIME];
+		piBlockDims[1] = piNcDimIds[NC_DIM_BLOCK];
+		piBlockDims[2] = piNcDimIds[d];
+
+		ASSERT_NETCDF(nc_def_var(
+						iNcId,
+						pszNcDimNames[d],
+						NC_DOUBLE,
+						sizeof(piBlockDims) / sizeof(piBlockDims[0]),
+						piBlockDims,
+						&piNcDimVarIds[d]));
+	}
+
+	// define the variable for time stamp
+	ASSERT_NETCDF(nc_def_var(
+			iNcId,
+			pszNcDimNames[NC_DIM_GLOBAL_TIME],
+			NC_INT,
+			1,
+			&piNcDimIds[NC_DIM_GLOBAL_TIME],
+	     	&iNcTimeVarId));
+
+	// define the variable for all data components
+	for(int c = 0; c < this->IGetNrOfDataComponents(); c++)
+	{
+		int piBlockDims[6];
+		piBlockDims[0] = piNcDimIds[NC_DIM_GLOBAL_TIME];
+		piBlockDims[1] = piNcDimIds[NC_DIM_BLOCK];
+		piBlockDims[2] = piNcDimIds[NC_DIM_T];
+		piBlockDims[3] = piNcDimIds[NC_DIM_Z];
+		piBlockDims[4] = piNcDimIds[NC_DIM_Y];
+		piBlockDims[5] = piNcDimIds[NC_DIM_X];
+
+		ASSERT_NETCDF(nc_def_var(
+						iNcId,
+						this->CGetDataComponent(c).szName,
+						NC_DOUBLE,
+						sizeof(piBlockDims) / sizeof(piBlockDims[0]),
+						piBlockDims,
+						&this->CGetDataComponent(c).iVarId));
+	}
+
+	// define the varaibles for all random variables
+	for(int r = 0; r < this->IGetNrOfRandomVariables(); r++)
+	{
+	  CRandomVariable& cRv = this->CGetRandomVariable(r);
+	  int piBlockDims[6];
+	  piBlockDims[0] = piNcDimIds[NC_DIM_GLOBAL_TIME];
+	  piBlockDims[1] = piNcDimIds[NC_DIM_BLOCK];
+	  piBlockDims[2] = piNcDimIds[NC_DIM_T];
+	  piBlockDims[3] = piNcDimIds[NC_DIM_Z];
+	  piBlockDims[4] = piNcDimIds[NC_DIM_Y];
+	  piBlockDims[5] = piNcDimIds[NC_DIM_X];
+
+	  ASSERT_NETCDF(nc_def_var(
+				   iNcId,
+				   cRv.szName,
+				   NC_FLOAT,
+				   sizeof(piBlockDims) / sizeof(piBlockDims[0]),
+				   piBlockDims,
+				   &cRv.iVarId));
+	}
+
+	// finish the definition mode
+	ASSERT_NETCDF(nc_enddef(
+			iNcId));
+
+	// enter the data mode...
+}
+
+void
+ITLRandomField::_CloseNetCdf
+(
+)
+{
+	if( iNcId > 0 )
+	{
+		// write the time stamp
+		TBuffer<int> piTemp;
+		piTemp.alloc(this->IGetNrOfTimeStamps());
+		for(int t = 0; t < (int)piTemp.USize(); t++)
+			piTemp[t] = this->viTimeStamps[t];
+		size_t uStart = 0;
+		size_t uCount = piTemp.USize();
+		ASSERT_NETCDF(nc_put_vara_int(
+				iNcId,
+				iNcTimeVarId,
+				&uStart,
+				&uCount,
+				&piTemp[0]));
+
+        /* Close the file. */
+	    ASSERT_NETCDF(nc_close(iNcId));
+	    iNcId = 0;
+	}
+};
+
+void
+ITLRandomField::_DumpBlockGeometry2NetCdf
+(
+		int iBlockId
+		)
+{
+    /* Write the coordinate variable data. This will put the latitudes
+       and longitudes of our data grid into the netCDF file. */
+	for(int d = 0; d < CBlock::MAX_DIM; d++)
+	{
+		size_t puStart[3];
+		size_t puCount[3];
+
+		// time
+		puStart[0] = this->IGetNrOfTimeStamps() - 1;
+		puCount[0] = 1;
+
+		// block
+		puStart[1] = (size_t)iBlockId;
+		puCount[1] = 1;
+
+		// spatial
+		puStart[2] = 0;
+		puCount[2] = (size_t)this->CGetBlock(iBlockId).piDimLengths[d];
+
+		this->CGetBlock(iBlockId)._DumpDimGeometry2Nc(
+						d,
+						iNcId,
+						piNcDimVarIds[d],
+						puStart,
+						puCount);
+	}
+}
+
+void
+ITLRandomField::_DumpData2NetCdf
+(
+		)
+{
+  for(int b = 0; b < IGetNrOfBlocks(); b++)
+    {
+      const CBlock& cBlock = this->CGetBlock(b);
+      int iNrOfCells = 1;
+      for(int d = 0; d < CBlock::MAX_DIM; d++)
+	iNrOfCells *= cBlock.piDimLengths[d];
+
+      TBuffer<double> pdTemp;
+      pdTemp.alloc(iNrOfCells);
+
+      size_t puStart[6];
+      size_t puCount[6];
+
+      // time
+      puStart[0] = this->IGetNrOfTimeStamps() - 1;
+      puCount[0] = 1;
+
+      // block
+      puStart[1] = (size_t)b;
+      puCount[1] = 1;
+
+      for(int d = 0; d < CBlock::MAX_DIM; d++)
+	{
+	  puStart[2+d] = 0;
+	  puCount[2+d] = (size_t)cBlock.piDimLengths[CBlock::MAX_DIM - 1 - d];
+	}
+
+      for(int c = 0; c < IGetNrOfDataComponents(); c++)
+	{ 
+	  const CDataComponent& cDataComponent = CGetDataComponent(c);
+	  const CArray &cArray = this->CGetArray(b, c);
+	  const double *pdData = cArray.pdData;
+	  int iBase = cArray.iBase;
+	  int iStep = cArray.iStep;
+
+	  for(int v = 0; v < iNrOfCells; v++)
+	    {
+	      double dValue = pdData[iBase + v * iStep];
+	      pdTemp[v] = cDataComponent.cRange.DClamp(dValue);
+	    }
+
+	  // dump the geometry of the given dim.
+	  ASSERT_NETCDF(nc_put_vara_double(
+					   iNcId,
+					   cDataComponent.iVarId,
+					   puStart,
+					   puCount,
+					   &pdTemp[0]));
+	}
+    }
+}
+
+void
+ITLRandomField::_DumpRandomSamples2NetCdf
+(
+ const int iRandomVariable
+		)
+{
+  for(int b = 0; b < IGetNrOfBlocks(); b++)
+    {
+      const CBlock& cBlock = this->CGetBlock(b);
+      int iNrOfCells = 1;
+      for(int d = 0; d < CBlock::MAX_DIM; d++)
+	iNrOfCells *= cBlock.piDimLengths[d];
+
+      TBuffer<float> pfTemp;
+      pfTemp.alloc(iNrOfCells);
+
+      size_t puStart[6];
+      size_t puCount[6];
+
+      // time
+      puStart[0] = this->IGetNrOfTimeStamps() - 1;
+      puCount[0] = 1;
+
+      // block
+      puStart[1] = (size_t)b;
+      puCount[1] = 1;
+
+      for(int d = 0; d < CBlock::MAX_DIM; d++)
+	{
+	  puStart[2+d] = 0;
+	  puCount[2+d] = (size_t)cBlock.piDimLengths[CBlock::MAX_DIM - 1 - d];
+	}
+
+      _CollectRandomSamplesInBlock(b, iRandomVariable, &pfTemp[0], true);
+
+      ASSERT_NETCDF(nc_put_vara_float(
+				      iNcId,
+				      CGetRandomVariable(iRandomVariable).iVarId,
+				      puStart,
+				      puCount,
+				      &pfTemp[0]));
+    }
+}
+
+// ADD-BY-LEETEN 08/06/2011-END
 
 //////////////////////////////////////////////////////////////////////////
 void
@@ -519,7 +869,9 @@ ITLRandomField::_ComputeEntorpyInBoundBlock
 	const CBlock& cBoundBlock = CGetBoundBlock();
 
 	CRandomVariable& cRandomVariable = CGetRandomVariable(iRandomVariable);
-	const int iFeatureLength = cRandomVariable.piFeatureVector.USize();
+	// DEL-BY-LEETEN 08/06/2011-BEGIN
+		// const int iFeatureLength = cRandomVariable.piFeatureVector.USize();
+	// DEL-BY-LEETEN 08/06/2011-END
 
 	// compute the #cells
 	int iNrOfCells = 1;
@@ -723,7 +1075,9 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	const CBlock& cBoundBlock = CGetBoundBlock();
 
 	CRandomVariable& cRandomVariable = CGetRandomVariable(iRandomVariable);
-	const int iFeatureLength = cRandomVariable.piFeatureVector.USize();
+	// DEL-BY-LEETEN 08/06/2011-BEGIN
+		// const int iFeatureLength = cRandomVariable.piFeatureVector.USize();
+	// DEL-BY-LEETEN 08/06/2011-END
 
 	// compute the #cells
 	int iNrOfCells = 1;
@@ -1032,6 +1386,14 @@ ITLRandomField::ITLRandomField() {
 	this->iBoundBlock = -1;
 	this->iBoundDataComponent = -1;
 	this->iBoundRandomVariable = -1;
+	// ADD-BY-LEETEN 08/06/2011-BEGIN
+	iNcId = 0;
+	iRank = -1;
+	memset(piNcDimIds, 0, sizeof(piNcDimIds));
+	memset(piNcDimVarIds, 0, sizeof(piNcDimVarIds));
+	iNcTimeVarId = 0;
+	viTimeStamps.push_back(GLOBAL_TIME_STAMP);
+	// ADD-BY-LEETEN 08/06/2011-END
 }
 
 ITLRandomField::~ITLRandomField() {

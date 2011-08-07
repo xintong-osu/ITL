@@ -10,6 +10,9 @@
 #include <vector>
 using namespace std;
 
+// ADD-BY-LEETEN 08/06/2011-BEGIN
+#include <netcdf.h>
+// ADD-BY-LEETEN 08/06/2011-END
 #include <math.h>
 
 // ADd-BY-LEETEN 07/22/2011-BEGIN
@@ -26,28 +29,17 @@ using namespace std;
 #include "libbuf3d.h"
 
 #if	0	// DEL-BY-LEETEN 07/22/2011-BEGIN
-	struct CRange{
-		double dMin;
-		double dMax;
-
-		CRange()
-		{
-			dMin = -HUGE_VAL;
-			dMax = +HUGE_VAL;
-		}
-
-		void _Set(double dMin, double dMax)
-		{
-			this->dMin = dMin;
-			this->dMax = dMax;
-		}
-
-		double DClamp(double d)
-		{
-			return min(max(d, dMin), dMax);
-		}
-	};
 #endif	// DEL-BY-LEETEN 07/22/2011-END
+
+// ADD-BY-LEETEN 08/06/2011-BEGIN
+#define ASSERT_NETCDF(nc_stmt)	\
+{	\
+	int iNcError;	\
+    ASSERT_OR_LOG(	\
+    		NC_NOERR == (iNcError = nc_stmt),	\
+    		fprintf(stderr, "NetCDF Error: %s.", nc_strerror(iNcError)));	\
+}
+// ADD-BY-LEETEN 08/06/2011-END
 
 class ITLRandomField
 {
@@ -189,6 +181,49 @@ class ITLRandomField
 			fclose(fpGeomLog);
 		}
 
+		// ADD-BY-LEETEN 08/06/2011-BEGIN
+		void
+		_DumpDimGeometry2Nc(
+				int iDim,
+				int iNcId,
+				int iVarId,
+				const size_t puStart[],
+				const size_t puCount[]
+		)
+		{
+			ASSERT_OR_LOG(
+				CGeometry::TYPE_RECTANGULAR_GRID == cGeometry.iType,
+				fprintf(stderr, "%d: Un-supported geometry type.", cGeometry.iType) );
+
+			ASSERT_OR_LOG(
+				iDim < MAX_DIM,
+				fprintf(stderr, "%d: Invalid dim.", iDim) );
+
+			const double *pdCoord = cGeometry.cContent.pcAxisCoords[iDim].pdData;
+			if( NULL == pdCoord )
+			{
+			}
+			else
+			{
+				TBuffer<double> pdTemp;
+				pdTemp.alloc(this->piDimLengths[iDim]);
+
+				int iBase = cGeometry.cContent.pcAxisCoords[iDim].iBase;
+				int iStep = cGeometry.cContent.pcAxisCoords[iDim].iStep;
+				for(int i = 0; i < piDimLengths[iDim]; i++)
+					pdTemp[i] = pdCoord[iBase + i * iStep];
+
+				// dump the geometry of the given dim.
+				ASSERT_NETCDF(nc_put_vara_double(
+						iNcId,
+						iVarId,
+						puStart,
+						puCount,
+						&pdTemp[0]));
+			}
+		}
+		// ADD-BY-LEETEN 08/06/2011-END
+		
 		CBlock()
 		{
 			for(int d = 0; d < MAX_DIM; d++)
@@ -205,13 +240,42 @@ public:
 
 	struct CDataComponent
 	{
+		// ADD-BY-LEETEN 08/06/2011-BEGIN
+		int iVarId;
+		char szName[1024];
+		// ADD-BY-LEETEN 08/06/2011-END
+
 		CRange cRange;
+
+		// ADD-BY-LEETEN 08/06/2011-BEGIN
+		void _SetName(
+				const char* szName
+				)
+		{
+			strcpy(this->szName, szName);
+		}
+
+		// constructor
+		CDataComponent()
+		{
+			iVarId = 0;
+			szName[0] = '\0';
+		}
+		// ADD-BY-LEETEN 08/06/2011-END
 	};
 	TBuffer<CDataComponent>	pcDataComponentInfo;
 	int iBoundDataComponent;
 
 	struct CRandomVariable
 	{
+		// ADD-BY-LEETEN 08/06/2011-BEGIN
+	  //! Name of this random variable
+		char szName[128];
+
+	  //! ID of the created feature vector
+	  int iVarId;
+		// ADD-BY-LEETEN 08/06/2011-END
+		
 		// ADd-BY-LEETEN 07/22/2011-BEGIN
 		enum {
 			//! The default feature mapping
@@ -430,6 +494,18 @@ public:
 		  return iNrOfBins;
 		}
 
+		// ADD-BY-LEETEN 08/06/2011-BEGIN
+		void _SetName(const char *szName)
+		{
+			strcpy(this->szName, szName);
+		}
+
+		const char* SZGetName() const
+		{
+		return szName;
+		}
+		// ADD-BY-LEETEN 08/06/2011-END
+		
 		double
 		DMapToBin
 		(
@@ -465,6 +541,12 @@ public:
 			// ADD-BY-LEETEN 07/31/2011-BEGIN
 			iNrOfBins = ITL_histogram::DEFAULT_NR_OF_BINS;
 			// ADD-BY-LEETEN 07/31/2011-END
+
+			// ADD-BY-LEETEN 08/06/2011-BEGIN
+			szName[0] = '\0';
+
+			iVarId = 0;
+			// ADD-BY-LEETEN 08/06/2011-END
 		}
 	};
 	// MOD-BY-LEETEN 07/22/2011-FROM:
@@ -474,6 +556,96 @@ public:
 	// MOD-BY-LEETEN 07/22/2011-END
 	int iBoundRandomVariable;
 public:
+	// ADD-BY-LEETEN 08/06/2011-BEGIN
+	enum {
+		GLOBAL_TIME_STAMP = -1,
+	};
+	vector<int> viTimeStamps;
+
+	void
+	_AddTimeStamp(
+			int iTimeStamp
+			);
+
+	int
+	IGetNrOfTimeStamps(
+			)const;
+
+	// ID of the created NetCDF file
+	int iNcId;
+
+	//! Rank of the current process
+	int iRank;
+
+	enum {
+		NC_DIM_X,
+		NC_DIM_Y,
+		NC_DIM_Z,
+		NC_DIM_T,
+		NC_DIM_BLOCK,
+		NC_DIM_GLOBAL_TIME,
+		NR_OF_NC_DIMS
+	};
+
+	int piNcDimIds[NR_OF_NC_DIMS];
+	int piNcDimVarIds[CBlock::MAX_DIM];	// variables to record the coordinates
+	int iNcTimeVarId;					// varialbe for the time stamps
+	static const char* pszNcDimNames[NR_OF_NC_DIMS];
+
+	//! path/filename of the NetCDF file
+	char szNetCdfPathFilename[1024];
+
+	//! ID of the random variables for block-wise global entropy
+	vector<int> vcBlockGlobalEntropyId;
+	void
+	_AddBlockGlobalEntropy
+	(
+			const int iRvId
+			);
+
+	void
+	_CreateNetCdf
+	(
+			const char *szPath,
+			const char *szFilenamePrefix
+	);
+
+	void
+	_CloseNetCdf
+	(
+	);
+
+	void
+	_DumpBlockGeometry2NetCdf
+	(
+			int iBlockId
+	);
+
+	void
+	  _DumpData2NetCdf(
+			   );
+
+	void
+	  _DumpRandomSamples2NetCdf
+	  (
+	   const int iRandomVariable
+	   );
+
+	const int
+	IGetNrOfBlocks
+	(
+			) const;
+
+	const int
+	IGetNrOfDataComponents
+	(
+			) const;
+
+	const int 
+	  IGetNrOfRandomVariables(
+				  )const;
+	// ADD-BY-LEETEN 08/06/2011-END
+	
 	/////////////////////////////////////////////////
 	int IGetBoundBlock
 	(

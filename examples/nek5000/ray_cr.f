@@ -367,7 +367,11 @@ c first time step
           ! temperature
           call ITL_add_random_variable(rv_t_id)
           call ITL_bind_random_variable(rv_t_id)
-#if 0
+          ! ADD-BY-LEETEN 08/06/2011-BEGIN
+          call ITL_rv_name("temperature ")
+          ! ADD-BY-LEETEN 08/06/2011-END
+
+#if 0 
 ! MOD-BY-LEETEN 08/05/2011-FROM:
           ! MOD-BY-LEETEN 07/22/2011-FROM:
           ! call ITL_random_varable_as_scalar(1)
@@ -390,6 +394,10 @@ c first time step
           ! vector
           call ITL_add_random_variable(rv_vec_id)
           call ITL_bind_random_variable(rv_vec_id)
+          ! ADD-BY-LEETEN 08/06/2011-BEGIN
+          call ITL_rv_name("vec ")
+          ! ADD-BY-LEETEN 08/06/2011-END
+
           ! MOD-BY-LEETEN 07/22/2011-FROM: 
           ! call ITL_random_varable_as_vector3(2, 3, 4, 1) ! 1 mean using the vector orientation as the random variable
           ! TO:
@@ -404,6 +412,32 @@ c first time step
             call ITL_bind_block(b)
             call ITL_block_size3(nx1, ny1, nz1)
 
+         ! ADD-BY-LEETEN 08/06/2011-BEGIN
+         enddo
+
+         call ITL_bind_data_component(1)
+         call ITL_data_name('temperature ')
+         call ITL_bind_data_component(2)
+         call ITL_data_name('u ')
+         call ITL_bind_data_component(3)
+         call ITL_data_name('v ')
+         call ITL_bind_data_component(4)
+         call ITL_data_name('w ')
+
+         ! Create the NetCDF.
+         ! In order to finish the define mode,
+         ! the NetCDF file must be created after
+         ! 1. The #blocks and #data components are known
+         ! 2. The dimension of the data block are given
+         ! Besides, for accuracy and readability, 
+         ! it is recommended to set the name of the data components
+         ! and random variable.
+         call ITL_nc_create()
+
+         do b = 1, nelv
+            call ITL_bind_block(b)
+         ! ADD-BY-LEETEN 08/06/2011-END
+
             nvpb = nx1 * ny1 * nz1 
             bo = 1 + (b - 1) * nvpb
 
@@ -411,14 +445,24 @@ c first time step
             call ITL_geom_rect_dim_coord(1, xm1, bo, 1)
             call ITL_geom_rect_dim_coord(2, ym1, bo, nx1)
             call ITL_geom_rect_dim_coord(3, zm1, bo, nx1 * ny1)
-            call ITL_dump_bound_block_geom_2tmp()
+            ! DEL-BY-LEETEN 08/06/2011  call ITL_dump_bound_block_geom_2tmp()
          enddo
+
+         ! ADD-BY-LEETEN 08/06/2011-BEGIN
+         call ITL_nc_wr_geom()
+         ! ADD-BY-LEETEN 08/06/2011-END
       endif
 
 c every 10 time step
       time_step = time_step + 1
-      time_step_mod = modulo(time_step, 10)
-      if( time_step_mod.eq.1 ) then
+
+      ! MOD-BY-LEETEN 08/07/2011-FROM:
+        ! time_step_mod = modulo(time_step, 10)
+        ! if( time_step_mod.eq.1 ) then
+      ! MOD-BY-LEETEN 08/07/2011-TO:
+      ! for 
+      if( time_step.le.100 ) then
+      ! MOD-BY-LEETEN 08/07/2011-END
 	! ADD-BY-LEETEN 08/05/2011-BEGIN
 	call ITL_set_time_stamp(time_step)
 	! ADD-BY-LEETEN 08/05/2011-END
@@ -443,15 +487,22 @@ c every 10 time step
             call ITL_data_source(vz, bo, 1) 
          enddo
 
+         ! ADD-BY-LEETEN 08/06/2011-BEGIN
+         call ITL_nc_wr_data()
+         call ITL_nc_wr_rv(rv_t_id)
+         call ITL_nc_wr_rv(rv_vec_id)
+         ! ADD-BY-LEETEN 08/06/2011-END
+
          do b = 1, nelv
             call ITL_bind_block(b)
 
             ! compute and dump the feature vector/entropy for temperature
-            call ITL_dump_bound_block_feature_vector_2tmp(rv_t_id)
+
+            ! DEL-BY-LEETEN 08/06/2011  call ITL_dump_bound_block_feature_vector_2tmp(rv_t_id)
             call ITL_dump_bound_block_global_entropy_2tmp(rv_t_id)
 
             ! compute and dump the feature vector/entropy for the 3D vector field
-            call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
+            ! DEL-BY-LEETEN 08/06/2011  call ITL_dump_bound_block_feature_vector_2tmp(rv_vec_id)
             call ITL_dump_bound_block_global_entropy_2tmp(rv_vec_id)
          enddo
       endif
