@@ -236,7 +236,7 @@ class ITLRandomField
 				for(int i = 0; i < piDimLengths[iDim]; i++)
 					pdTemp[i] = pdCoord[iBase + i * iStep];
 
-#if	0	// TEST-MOD
+				#ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
 				// dump the geometry of the given dim.
 				ASSERT_NETCDF(nc_put_vara_double(
 						iNcId,
@@ -244,8 +244,12 @@ class ITLRandomField
 						puStart,
 						puCount,
 						&pdTemp[0]));
-#else
-#endif
+
+				// ADD-BY-LEETEN 08/12/2011-BEGIN
+				#else	// #ifndef	WITH_PNETCDF
+				LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
+				#endif	// #ifndef	WITH_PNETCDF
+				// ADD-BY-LEETEN 08/12/2011-END
 			}
 		}
 		// ADD-BY-LEETEN 08/06/2011-END
