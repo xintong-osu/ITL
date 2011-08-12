@@ -1,0 +1,18 @@
+To build and run Flash, please follow the procedures below:
+
+[Build Flash]
+
+copy ~/flash-example/sites/soprano.mcs.anl.gov to ~/flash-example/sites/<your machine hostname>.mcs.anl.gov
+change the location of the itl and diy libs in line 119 of ~/flash-example/sites/<hostname>/Makefile.h to their location on your machine. Here itl means the ITL wrapper.
+cd ~/flash-example
+./setup_lssread.cmd_UG_64
+cd object
+make
+
+[Run Flash]
+cd ~/flash-example/run/vn_128_2
+mpiexec -n 8 ../../object/flash3
+
+Teng-Yok Lee
+06/29/2011
+

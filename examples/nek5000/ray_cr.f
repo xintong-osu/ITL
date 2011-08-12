@@ -265,7 +265,6 @@ c-----------------------------------------------------------------------
 
 
          elseif (icase.eq.2) then  ! Make estimate and exit
-
             Ek3 = Ek
             r12 = Ra1 - (Ra2-Ra1)*Ek1/(Ek2-Ek1)
             r23 = Ra2 - (Ra3-Ra2)*Ek2/(Ek3-Ek2)
@@ -363,6 +362,10 @@ c first time step
           ! create a random field of nelv blocks and 4 data components, which will be the temperature and the 3D vectors
           call ITL_add_random_field(nelv, 4, rf_id)
           call ITL_bind_random_field(rf_id)
+
+          ! ADD-BY-LEETEN 08/12/2011-BEGIN
+          call ITL_set_local2global_mapping(lglel, 1) ! 1: the IDs are 1-based
+          ! ADD-BY-LEETEN 08/12/2011-END
 
           ! temperature
           call ITL_add_random_variable(rv_t_id)
@@ -498,7 +501,7 @@ c every 10 time step
 
             ! compute and dump the feature vector/entropy for temperature
 
-            ! DEL-BY-LEETEN 08/06/2011  call ITL_dump_bound_block_feature_vector_2tmp(rv_t_id)
+            ! DEL-BY-LEETEN 08/06/2011  call ITL_dump_bound_block_feature_vector_2tmp(rv_t_id) 
             call ITL_dump_bound_block_global_entropy_2tmp(rv_t_id)
 
             ! compute and dump the feature vector/entropy for the 3D vector field

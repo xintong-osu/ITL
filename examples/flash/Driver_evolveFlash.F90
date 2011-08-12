@@ -77,6 +77,12 @@ subroutine Driver_evolveFlash()
   integer rf_id 
   integer rv_id
   ! ADD-BY-LEETEN 07/20/2011-END
+  ! ADD-BY-LEETEN 08/12/2011-BEGIN
+  integer time_step
+  integer time_step_mod
+  save time_step
+  data time_step /0/
+  ! ADD-BY-LEETEN 08/12/2011-END
   integer :: i, b, lb, nx, ny, nz
   integer :: blkLimits(2, MDIM)
   integer :: blkLimitsGC(2, MDIM)
@@ -378,29 +384,31 @@ subroutine Driver_evolveFlash()
      size(3) = nz
      allocate(data(nx, ny, nz))
 
-	call ITL_add_random_field(blockCount, 1, rf_id)
-	call ITL_bind_random_field(rf_id)
+     if( time_step.lt.1 ) then	  ! ADD-BY-LEETEN 08/12/2011
+     call ITL_add_random_field(blockCount, 1, rf_id)
+     call ITL_bind_random_field(rf_id)
 
-	! scalar
-	call ITL_add_random_variable(rv_id)
-	call ITL_bind_random_variable(rv_id)
-	! MOD-BY-LEETEN 07/20/2011-FROM:
-		! call ITL_random_varable_as_scalar(1) ! 1 mean using the vector orientation
-	! TO:
-	call ITL_random_varable_as_scalar(1, "raw") 
-	// ADD-BY-LEETEN 07/31/2011-BEGIN
-	call ITL_set_n_bins(16) 
-	// ADD-BY-LEETEN 07/31/2011-END
-	! MOD-BY-LEETEN 07/20/2011-END
+     ! scalar
+     call ITL_add_random_variable(rv_id)
+     call ITL_bind_random_variable(rv_id)
 
+     call ITL_rv_name("d ")	  ! ADD-BY-LEETEN 08/12/2011
+     ! MOD-BY-LEETEN 07/20/2011-FROM:
+     ! call ITL_random_varable_as_scalar(1) ! 1 mean using the vector orientation
+     ! TO:
+     call ITL_random_varable_as_scalar(1, "raw") 
+     ! ADD-BY-LEETEN 07/31/2011-BEGIN
+     call ITL_set_n_bins(16) 
+     ! ADD-BY-LEETEN 07/31/2011-END
+     ! MOD-BY-LEETEN 07/20/2011-END
 
      do b = 1, blockCount
-          lb = blockList(b)
-	  call Grid_getBlkData(lb, CENTER, PDEN_VAR, INTERIOR, start, data, &
-	  size)
-	  call Grid_getCellCoords(IAXIS, lb, CENTER, .false., xs, nx)
-	  call Grid_getCellCoords(JAXIS, lb, CENTER, .false., ys, ny)
-	  call Grid_getCellCoords(KAXIS, lb, CENTER, .false., zs, nz)
+        lb = blockList(b)
+        call Grid_getBlkData(lb, CENTER, PDEN_VAR, INTERIOR, start, data, &
+             size)
+        call Grid_getCellCoords(IAXIS, lb, CENTER, .false., xs, nx)
+        call Grid_getCellCoords(JAXIS, lb, CENTER, .false., ys, ny)
+        call Grid_getCellCoords(KAXIS, lb, CENTER, .false., zs, nz)
 
 	! specify the block size and geometry
 	call ITL_bind_block(b)
@@ -409,20 +417,36 @@ subroutine Driver_evolveFlash()
 	call ITL_geom_rect_dim_coord(1, xs, 1, 1)
 	call ITL_geom_rect_dim_coord(2, ys, 1, 1)
 	call ITL_geom_rect_dim_coord(3, zs, 1, 1)
-	call ITL_dump_bound_block_geom_2tmp()
+	! DEL-BY-LEETEN 08/12/2011-BEGIN	call ITL_dump_bound_block_geom_2tmp()
+     ! ADD-BY-LEETEN 08/12/2011-BEGIN
+     enddo
+     call ITL_bind_data_component(1) 	! specify the data component
+     call ITL_data_name("d ")
 
-	! specify the data
+     call ITL_nc_create()
+     call ITL_nc_wr_geom()
+     endif
+
+     time_step = time_step + 1;
+     if( time_step.le.100 ) then
+	call ITL_set_time_stamp(time_step)
+        do b = 1, blockCount
+           call ITL_bind_block(b)
+     ! ADD-BY-LEETEN 08/12/2011-END
+
+        ! specify the data
 	call ITL_bind_data_component(1) 	! specify the data component
-	! DEL-BY-LEETEN 07/20/2011-BEGIN
-		! call ITL_data_range(2.0e-30, 4.0e-30)! (optional) specify the scalar range
-	! DEL-BY-LEETEN 07/20/2011-END
 	call ITL_data_source(data, 1, 1) 	! specify the array to the data
-
      ! ADD-BY-LEETEN 07/20/2011-BEGIN
      enddo
 
      ! Find the range of the entire domain 
      call ITL_use_domain_range(rv_id)
+
+     ! ADD-BY-LEETEN 08/12/2011-BEGIN
+     call ITL_nc_wr_data()
+     call ITL_nc_wr_rv(rv_id)
+     ! ADD-BY-LEETEN 08/12/2011-END
 
      do b = 1, blockCount
 	call ITL_bind_block(b)
@@ -430,9 +454,10 @@ subroutine Driver_evolveFlash()
 
 	call ITL_dump_bound_block_feature_vector_2tmp(rv_id)
 
-	! compute and dump the entropy
+        ! compute and dump the entropy
 	call ITL_dump_bound_block_local_entropy3_2tmp(rv_id, REAL(4), REAL(4), REAL(4))
      enddo
+     endif	     ! ADD-BY-LEETEN 08/12/2011
 
      deallocate(data)
 !---

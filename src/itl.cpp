@@ -211,6 +211,9 @@ itl_nc_wr_rv_
 //! The C/C++ API to initialize ITL
 /*!
  *
+ *\sa iNameLength	Length of the given string szName
+ *\sa szName		Name of the current random field
+ *\sa
 */
 void
 // MOD-BY-LEETEN 08/05/2011-FROM:
@@ -373,10 +376,54 @@ void itl_end_
 	ITL_end();
 }
 
+#if	1	// TEST
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to specify the mapping between global and local block IDs
+/*!
+\sa	int iNrOfGlobalBlocks,
+\sa	const int piLocal2GlobalMapping[],
+ *
+*/
+void
+ITL_set_local2global_mapping
+(
+	const int piLocal2GlobalMapping[],
+	const bool bIs1Based
+)
+{
+	::pcBoundRandomField->_MapBlock2GlobalId
+	(
+			piLocal2GlobalMapping,
+			bIs1Based
+			);
+}
+
+//! The Fortran API to free ITL
+/*!
+ * \sa ITL_set_local2global_mapping
+*/
+extern "C"
+void itl_set_local2global_mapping_
+(
+	int *piLocal2GlobalMapping,
+	int *is1Based
+)
+{
+	ITL_set_local2global_mapping
+	(
+			piLocal2GlobalMapping,
+			(1 == *is1Based)?true:false
+			);
+}
+
+
+#endif
+
 // ADD-BY-LEETEN 08/05/2011-BEGIN
 /////////////////////////////////////////////////////////////////////
-//! The C/C++ API to automatically decide the random variable's range
+//! The C/C++ API to specify the time stamp
 /*!
+ * \sa iTimeStamp	the specified time stamp
 */
 void
 ITL_set_time_stamp
@@ -411,8 +458,9 @@ itl_set_time_stamp_
 
 // ADD-BY-LEETEN 07/22/2011-BEGIN
 /////////////////////////////////////////////////////////////////////
-//! The C/C++ API to automatically decide the random variable's range
+//! The C/C++ API to automatically decide a random variable's range
 /*!
+ * \sa iRandomVariable	ID (0-based) of the random variable
 */
 void
 ITL_use_domain_range
@@ -425,7 +473,7 @@ ITL_use_domain_range
 
 //! The Fortran API to automatically decide the random variable's range
 /*!
- * \param	piRandomVariable	Pointer to the index (1-based) of the random variable
+ * \param	piRandomVariable	Pointer to the ID (1-based) of the random variable
  * \sa ITL_use_domain_range
 */
 extern "C"

@@ -204,7 +204,11 @@ subroutine Driver_initFlash()
   call Timers_stop ("initialization")
 
   !! call ITL here
-  call ITL_begin()
+  ! MOD-BY-LEETEN 08/12/2011-FROM:
+  	! call ITL_begin()
+  ! TO:
+  call ITL_begin(1, "flash ")
+  ! MOD-BY-LEETEN 08/12/2011-END
 
   return
 end subroutine Driver_initFlash
