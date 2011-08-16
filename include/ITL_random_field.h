@@ -11,13 +11,13 @@
 using namespace std;
 
 // ADD-BY-LEETEN 08/06/2011-BEGIN
-#ifndef	WITH_PNERCDF	// TEST-ADD
+#ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
 #include <netcdf.h>
-// TEST-ADD-BEGIN
-#else	// #ifndef	WITH_PNERCDF	// TEST-ADD
+// ADD-BY-LEETEN 08/12/2011-BEGIN
+#else	// #ifndef	WITH_PNETCDF
 	#include <pnetcdf.h>
-#endif	// #ifndef	WITH_PNERCDF	// TEST-ADD
-// TEST-ADD-END
+#endif	// #ifndef	WITH_PNETCDF
+// ADD-BY-LEETEN 08/12/2011-END
 // ADD-BY-LEETEN 08/06/2011-END
 #include <math.h>
 
@@ -38,7 +38,7 @@ using namespace std;
 #endif	// DEL-BY-LEETEN 07/22/2011-END
 
 // ADD-BY-LEETEN 08/06/2011-BEGIN
-#ifndef	WITH_PNERCDF	// TEST-ADD
+#ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
 	#define ASSERT_NETCDF(nc_stmt)	\
 	{	\
 		int iNcError;	\
@@ -47,8 +47,8 @@ using namespace std;
 				fprintf(stderr, "NetCDF Error: %s.", nc_strerror(iNcError)));	\
 	}
 
-// TEST-ADD-BEGIN
-#else	// #ifndef	WITH_PNERCDF	// TEST-ADD
+// ADD-BY-LEETEN 08/12/2011-BEGIN
+#else	// #ifndef	WITH_PNETCDF
 	#define ASSERT_NETCDF(nc_stmt)	\
 	{	\
 		int iNcError;	\
@@ -57,8 +57,8 @@ using namespace std;
 				fprintf(stderr, "NetCDF Error: %s.", ncmpi_strerror(iNcError)));	\
 	}
 
-#endif	// #ifndef	WITH_PNERCDF	// TEST-ADD
-// TEST-ADD-END
+#endif	// #ifndef	WITH_PNETCDF
+// ADD-BY-LEETEN 08/12/2011-END
 // ADD-BY-LEETEN 08/06/2011-END
 
 class ITLRandomField
@@ -99,9 +99,7 @@ class ITLRandomField
 	//! a union to store the geometry of a block
 	struct CBlock
 	{
-#if	1	// TEST-ADD
-		int iGlobalId;
-#endif
+		int iGlobalId;	// ADD-BY-LEETEN 08/12/2011
 		enum {
 			MAX_DIM = 4
 		};
@@ -256,9 +254,7 @@ class ITLRandomField
 		
 		CBlock()
 		{
-#if	1	// TEST-ADD
-			iGlobalId = -1;
-#endif
+			iGlobalId = -1;	// ADD-BY-LEETEN 08/12/2011
 			for(int d = 0; d < MAX_DIM; d++)
 				piDimLengths[d] = 1;
 		}
@@ -589,9 +585,8 @@ public:
 	// MOD-BY-LEETEN 07/22/2011-END
 	int iBoundRandomVariable;
 public:
-#if	1	// TEST-ADD
-	int iNrOfGlobalBlocks;
-#endif
+	int iNrOfGlobalBlocks;	// ADD-BY-LEETEN 08/12/2011
+
 	// ADD-BY-LEETEN 08/06/2011-BEGIN
 	enum {
 		GLOBAL_TIME_STAMP = -1,
@@ -751,14 +746,15 @@ public:
 		int iDataComponent
 	);
 
-#if	1	// TEST-ADD
+	// ADD-BY-LEETEN 08/12/2011-BEGIN
 	void
 	_MapBlock2GlobalId
 	(
 			const int piLocal2GlobalMapping[],
 			const bool bIs1Based
 			);
-#endif
+	// ADD-BY-LEETEN 08/12/2011-END
+
 	/////////////////////////////////////////////////
 	void
 	_SetBoundArray

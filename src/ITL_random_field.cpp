@@ -612,7 +612,7 @@ ITLRandomField::_CreateNetCdf
 )
 {
 	char szNetCdfPathFilename[1024];
-	#ifndef	WITH_PNERCDF	// ADD-BY-LEETEN 08/12/2011
+	#ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
 	sprintf(szNetCdfPathFilename, "%s/%s.rank_%d.nc", szPath, szFilenamePrefix, iRank);
 
     // Create the file.
@@ -622,18 +622,18 @@ ITLRandomField::_CreateNetCdf
     		&iNcId));
 
     // ADD-BY-LEETEN 08/12/2011-BEGIN
-	#else	// #ifndef	WITH_PNERCDF	// TEST-ADD
+	#else	// #ifndef	WITH_PNETCDF
 	sprintf(szNetCdfPathFilename, "%s/%s.nc", szPath, szFilenamePrefix);
 
 	LOG_ERROR("");	// TMP-ADD
     ASSERT_NETCDF(ncmpi_create(
     		MPI_COMM_WORLD,
     		szNetCdfPathFilename,
-    		NC_WRITE,
+    		NC_CLOBBER,
     		MPI_INFO_NULL,
     		&iNcId));
 	LOG_ERROR("");	// TMP-ADD
-	#endif	// #ifndef	WITH_PNERCDF
+	#endif	// #ifndef	WITH_PNETCDF
     // ADD-BY-LEETEN 08/12/2011-END
 
 
@@ -658,7 +658,7 @@ ITLRandomField::_CreateNetCdf
 	}
     // ADD-BY-LEETEN 08/12/2011-END
 
-	#ifndef	WITH_PNERCDF	// ADD-BY-LEETEN 08/12/2011
+	#ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
 		ASSERT_NETCDF(nc_def_dim(
 						iNcId,
@@ -752,7 +752,7 @@ ITLRandomField::_CreateNetCdf
 			iNcId));
 
 	// ADD-BY-LEETEN 08/12/2011-BEGIN
-	#else	// #ifndef	WITH_PNERCDF
+	#else	// #ifndef	WITH_PNETCDF
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
 		ASSERT_NETCDF(ncmpi_def_dim(
 						iNcId,
@@ -846,7 +846,7 @@ ITLRandomField::_CreateNetCdf
 			iNcId));
 
 	LOG_ERROR("");	// TMP-ADD
-	#endif	// #ifndef	WITH_PNERCDF
+	#endif	// #ifndef	WITH_PNETCDF
 	// ADD-BY-LEETEN 08/12/2011-END
 
 	// enter the data mode...
@@ -865,7 +865,7 @@ ITLRandomField::_CloseNetCdf
 		for(int t = 0; t < (int)piTemp.USize(); t++)
 			piTemp[t] = this->viTimeStamps[t];
 
-		#ifndef	WITH_PNERCDF		// ADD-BY-LEETEN 08/12/2011
+		#ifndef	WITH_PNETCDF		// ADD-BY-LEETEN 08/12/2011
 
 		size_t uStart = 0;
 		size_t uCount = piTemp.USize();
@@ -880,7 +880,7 @@ ITLRandomField::_CloseNetCdf
 	    ASSERT_NETCDF(nc_close(iNcId));
 
 		// ADD-BY-LEETEN 08/12/2011-BEGIN
-		#else	// #ifndef	WITH_PNERCDF
+		#else	// #ifndef	WITH_PNETCDF
 	    MPI_Offset uStart = 0;
 	    MPI_Offset uCount = piTemp.USize();
 
@@ -896,7 +896,7 @@ ITLRandomField::_CloseNetCdf
 
         /* Close the file. */
 	    ASSERT_NETCDF(ncmpi_close(iNcId));
-		#endif	// #ifndef	WITH_PNERCDF
+		#endif	// #ifndef	WITH_PNETCDF
 		// ADD-BY-LEETEN 08/12/2011-END
 
 	    iNcId = 0;
@@ -983,7 +983,7 @@ ITLRandomField::_DumpData2NetCdf
 	      pdTemp[v] = cDataComponent.cRange.DClamp(dValue);
 	    }
 
-		#ifndef	WITH_PNERCDF	// ADD-BY-LEETEN 08/12/2011
+		#ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
 	  // dump the geometry of the given dim.
 	  ASSERT_NETCDF(nc_put_vara_double(
 					   iNcId,
@@ -993,9 +993,9 @@ ITLRandomField::_DumpData2NetCdf
 					   &pdTemp[0]));
 
 		// ADD-BY-LEETEN 08/12/2011-BEGIN
-		#else	// #ifndef	WITH_PNERCDF
+		#else	// #ifndef	WITH_PNETCDF
 		LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
-		#endif	// #ifndef	WITH_PNERCDF
+		#endif	// #ifndef	WITH_PNETCDF
 		// ADD-BY-LEETEN 08/12/2011-END
 	}
     }
@@ -1037,7 +1037,7 @@ ITLRandomField::_DumpRandomSamples2NetCdf
       _CollectRandomSamplesInBlock(b, iRandomVariable, &pfTemp[0], true);
 
 
-		#ifndef	WITH_PNERCDF	// ADD-BY-LEETEN 08/12/2011
+		#ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
       ASSERT_NETCDF(nc_put_vara_float(
 				      iNcId,
 				      CGetRandomVariable(iRandomVariable).iVarId,
@@ -1045,9 +1045,9 @@ ITLRandomField::_DumpRandomSamples2NetCdf
 				      puCount,
 				      &pfTemp[0]));
 		// ADD-BY-LEETEN 08/12/2011-BEGIN
-		#else	// #ifndef	WITH_PNERCDF
+		#else	// #ifndef	WITH_PNETCDF
 		LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
-		#endif	// #ifndef	WITH_PNERCDF
+		#endif	// #ifndef	WITH_PNETCDF
 		// ADD-BY-LEETEN 08/12/2011-END
     }
 }

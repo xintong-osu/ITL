@@ -376,7 +376,7 @@ void itl_end_
 	ITL_end();
 }
 
-#if	1	// TEST
+// ADD-BY-LEETEN 08/12/2011-BEGIN
 /////////////////////////////////////////////////////////////////////
 //! The C/C++ API to specify the mapping between global and local block IDs
 /*!
@@ -415,9 +415,7 @@ void itl_set_local2global_mapping_
 			(1 == *is1Based)?true:false
 			);
 }
-
-
-#endif
+// ADD-BY-LEETEN 08/12/2011-END
 
 // ADD-BY-LEETEN 08/05/2011-BEGIN
 /////////////////////////////////////////////////////////////////////
