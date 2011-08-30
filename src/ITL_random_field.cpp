@@ -56,9 +56,13 @@ ITLRandomField::_MapBlock2GlobalId
 	iMaxGlobalId++;
 
 	// collect the max. #global blocks to proc. 0 and then broadcast too all others
+#if	0	// MOD-BY-LEETEN 08/29/2011-FROM:
 	ASSERT_OR_LOG(MPI_SUCCESS == MPI_Reduce(&iMaxGlobalId, &iNrOfGlobalBlocks, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD), "");
 	if( 0 == iRank )
 		ASSERT_OR_LOG(MPI_SUCCESS == MPI_Bcast(&iNrOfGlobalBlocks, 1, MPI_INT, 0, MPI_COMM_WORLD), "");
+#else   // MOD-BY-LEETEN 08/29/2011-TO:
+	ASSERT_OR_LOG(MPI_SUCCESS == MPI_Allreduce(MPI_IN_PLACE, &iNrOfGlobalBlocks, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD), "");
+#endif  // MOD-BY-LEETEN 08/29/2011-END
 }
 // ADD-BY-LEETEN 08/12/2011-END
 
@@ -105,6 +109,7 @@ ITLRandomField::_UseDomainRange
 		MPI_Comm_rank(MPI_COMM_WORLD, &iRank);
 	#endif	// DEL-BY-LEETEN 08/12/2011-END
 
+#if	0	// MOD-BY-LEETEN 08/29/2011-FROM:
 	float fDomainMax;
 	MPI_Reduce(&fLocalMax, &fDomainMax, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
 
@@ -121,6 +126,12 @@ ITLRandomField::_UseDomainRange
 
 	MPI_Bcast(&fDomainMin, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 	MPI_Bcast(&fDomainMax, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+#else   // MOD-BY-LEETEN 08/29/2011-TO:
+	float fDomainMin;
+	float fDomainMax;
+	MPI_Allreduce(MPI_IN_PLACE, &fDomainMin, 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+	MPI_Allreduce(MPI_IN_PLACE, &fDomainMax, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+#endif  // MOD-BY-LEETEN 08/29/2011-END
 
 	cRandomVariable.cRange._Set((double)fDomainMin, (double)fDomainMax);
 }
@@ -624,18 +635,14 @@ ITLRandomField::_CreateNetCdf
     // ADD-BY-LEETEN 08/12/2011-BEGIN
 	#else	// #ifndef	WITH_PNETCDF
 	sprintf(szNetCdfPathFilename, "%s/%s.nc", szPath, szFilenamePrefix);
-
-	LOG_ERROR("");	// TMP-ADD
     ASSERT_NETCDF(ncmpi_create(
     		MPI_COMM_WORLD,
     		szNetCdfPathFilename,
     		NC_CLOBBER,
     		MPI_INFO_NULL,
     		&iNcId));
-	LOG_ERROR("");	// TMP-ADD
 	#endif	// #ifndef	WITH_PNETCDF
     // ADD-BY-LEETEN 08/12/2011-END
-
 
     // find the maximal block dim
     int piBlockDimMaxLengths[CBlock::MAX_DIM];
@@ -649,6 +656,7 @@ ITLRandomField::_CreateNetCdf
 
     // ADD-BY-LEETEN 08/12/2011-BEGIN
 	// collect the max. length of all dim.
+#if	0	// MOD-BY-LEETEN 08/29/2011-FROM:
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
 	{
 		int iTemp = piBlockDimMaxLengths[d];
@@ -656,7 +664,9 @@ ITLRandomField::_CreateNetCdf
 		if( 0 == iRank )
 			ASSERT_OR_LOG(MPI_SUCCESS == MPI_Bcast(&piBlockDimMaxLengths[d], 1, MPI_INT, 0, MPI_COMM_WORLD), "");
 	}
-    // ADD-BY-LEETEN 08/12/2011-END
+#else   // MOD-BY-LEETEN 08/29/2011-TO:
+	ASSERT_OR_LOG(MPI_SUCCESS == MPI_Allreduce(MPI_IN_PLACE, &piBlockDimMaxLengths[0], CBlock::MAX_DIM, MPI_INT, MPI_MAX, MPI_COMM_WORLD), "");
+#endif  // MOD-BY-LEETEN 08/29/2011-END
 
 	#ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
@@ -673,7 +683,7 @@ ITLRandomField::_CreateNetCdf
     				IGetNrOfBlocks(),
     				&piNcDimIds[NC_DIM_BLOCK]));
 
-    // Define the time dimension with unlimited length
+	// Define the time dimension with unlimited length
     ASSERT_NETCDF(nc_def_dim(
     				iNcId,
     				pszNcDimNames[NC_DIM_GLOBAL_TIME],
@@ -754,17 +764,23 @@ ITLRandomField::_CreateNetCdf
 	// ADD-BY-LEETEN 08/12/2011-BEGIN
 	#else	// #ifndef	WITH_PNETCDF
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
+	{
 		ASSERT_NETCDF(ncmpi_def_dim(
 						iNcId,
 						pszNcDimNames[d],
 						piBlockDimMaxLengths[d],
 						&piNcDimIds[d]));
+	}
 
     // Define the block dimension
 	ASSERT_NETCDF(ncmpi_def_dim(
     				iNcId,
     				pszNcDimNames[NC_DIM_BLOCK],
-    				IGetNrOfBlocks(),
+				// MOD-BY-LEETEN 08/30/2011-FROM:
+    				  // IGetNrOfBlocks(),
+				// TO:
+				iNrOfGlobalBlocks,
+				// MOD-BY-LEETEN 08/30/2011-END
     				&piNcDimIds[NC_DIM_BLOCK]));
 
     // Define the time dimension with unlimited length
@@ -844,11 +860,8 @@ ITLRandomField::_CreateNetCdf
 	// finish the definition mode
 	ASSERT_NETCDF(ncmpi_enddef(
 			iNcId));
-
-	LOG_ERROR("");	// TMP-ADD
 	#endif	// #ifndef	WITH_PNETCDF
 	// ADD-BY-LEETEN 08/12/2011-END
-
 	// enter the data mode...
 }
 
@@ -866,7 +879,6 @@ ITLRandomField::_CloseNetCdf
 			piTemp[t] = this->viTimeStamps[t];
 
 		#ifndef	WITH_PNETCDF		// ADD-BY-LEETEN 08/12/2011
-
 		size_t uStart = 0;
 		size_t uCount = piTemp.USize();
 		ASSERT_NETCDF(nc_put_vara_int(
@@ -875,7 +887,6 @@ ITLRandomField::_CloseNetCdf
 				&uStart,
 				&uCount,
 				&piTemp[0]));
-
         /* Close the file. */
 	    ASSERT_NETCDF(nc_close(iNcId));
 
@@ -954,7 +965,6 @@ ITLRandomField::_DumpData2NetCdf
 
       size_t puStart[6];
       size_t puCount[6];
-
       // time
       puStart[0] = this->IGetNrOfTimeStamps() - 1;
       puCount[0] = 1;

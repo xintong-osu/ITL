@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8)
 project (ApplicationIT_regularscalar) 
 
 # set ITL path
-set(ITL_DIR "../.." CACHE PATH "The path to ITL")
+# DEL-BY-LEETEN 08/30/2011		set(ITL_DIR "../.." CACHE PATH "The path to ITL")
 
 # find the mpi package
 find_package(MPI REQUIRED)

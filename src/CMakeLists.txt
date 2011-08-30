@@ -4,8 +4,14 @@
 cmake_minimum_required (VERSION 2.8)
 project (ITLib) 
 
-set(ITL_DIR "/homes/leeten/workspace/itl" CACHE PATH "The path to ITL")
-set(MYLIB_DIR "/homes/leeten/mylib" CACHE PATH "The path to MYLIB")
+# MOD-BY-LEETEN 08/29/2011-FROM:
+	# set(ITL_DIR "/homes/leeten/workspace/itl" CACHE PATH "The path to ITL")
+	# set(MYLIB_DIR "/homes/leeten/mylib" CACHE PATH "The path to MYLIB")
+# MOD-BY-LEETEN 08/29/2011-TO:
+# set the path of MYLIB files
+set(MYLIB_INC '${MYLIB_DIR}/include')  
+set(MYLIB_LIB '${MYLIB_DIR}/lib')  
+# MOD-BY-LEETEN 08/29/2011-END
 
 # find the mpi package
 find_package(MPI REQUIRED)
@@ -20,9 +26,14 @@ SET(CMAKE_CXX_COMPILER mpicxx)
 # specify the path to the headers
 include_directories(
 		. 
-		../include
-		${ITL_DIR}/include
-		${MYLIB_DIR}/include
+		# MOD-BY-LEETEN 08/29/2011-FROM:	
+			# ../include
+			# ${ITL_DIR}/include
+			# ${MYLIB_DIR}/include
+		# MOD-BY-LEETEN 08/29/2011-TO:
+		${ITL_INC}
+		${MYLIB_INC}
+		# MOD-BY-LEETEN 08/29/2011--END
 	)
 
 # grab all the source codes
@@ -32,7 +43,10 @@ AUX_SOURCE_DIRECTORY ("." 	SRC_FILES)
 add_library(${PROJECT_NAME} ${SRC_FILES})
 
 # output the library to the lib/ folder
-set(LIBRARY_OUTPUT_PATH "../lib")
+# MOD-BY-LEETEN 08/29/2011-FROM:	set(LIBRARY_OUTPUT_PATH "../lib")
+# TO:
+set(LIBRARY_OUTPUT_PATH ${ITL_LIB})
+# MOD-BY-LEETEN 08/29/2011-END
 
 #
 # $Log$

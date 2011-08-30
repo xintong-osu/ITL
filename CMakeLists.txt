@@ -5,17 +5,41 @@ cmake_minimum_required (VERSION 2.8)
 project (ITL)
 
 # ADD-BY-LEETEN 08/15/2011-BEGIN
+set(MYLIB_DIR 	"/homes/leeten/mylib" CACHE PATH "The path to MYLIB")
 set(WITH_PNETCDF OFF CACHE BOOL "whether PNETCDF is used")
-set(PNETCDF_PATH  "/usr/local/parallel-pnetcdf" CACHE PATH "installed path of PNETCDF")
+# MOD-BY-LEETEN 08/29/2011-FROM:	set(PNETCDF_DIR  "/usr/local/parallel-pnetcdf" CACHE PATH "installed path of PNETCDF")
+# TO:
+set(PNETCDF_DIR  "/usr/local/parallel-netcdf" CACHE PATH "installed path of PNETCDF")
+# MOD-BY-LEETEN 08/29/2011-END	
 
-if(WITH_PNETCDF EQUAL ON)
+# ADD-BY-LEETEN 08/29/2011-BEGIN
+set(HDF5_DIR 	"/usr/local/hdf5" CACHE PATH "The path to HDF5")
+set(DIY_DIR 	"/usr/local/diy" CACHE PATH "The path to DIY")
+
+# set the path of DIY files
+set(DIY_INC "${DIY_DIR}/include")  
+set(DIY_LIB "${DIY_DIR}/lib")  
+
+# set the path of ITL files
+set(ITL_DIR "${CMAKE_SOURCE_DIR}")
+set(ITL_INC "${ITL_DIR}/include")  
+set(ITL_LIB "${ITL_DIR}/lib")  
+# ADD-BY-LEETEN 08/29/2011-END
+
+# if(WITH_PNETCDF EQUAL ON)
+if( ${WITH_PNETCDF} )
   add_definitions(-DWITH_PNETCDF)
   # specify the path to the headers
   include_directories(
-    ${PNETCDF_PATH}/include
+    ${PNETCDF_DIR}/include
     )
 endif()
 # ADD-BY-LEETEN 08/15/2011-END
+
+# ADD-BY-LEETEN 08/29/2011-BEGIN
+set(PNETCDF_LIB	${PNETCDF_DIR}/lib)
+set(PNETCDF_INC	${PNETCDF_DIR}/include)
+# ADD-BY-LEETEN 08/29/2011-END
 
 # Recurse into the "src" subdirectory. This does not actually
 # cause another cmake executable to run. The same process will walk through
@@ -24,6 +48,11 @@ add_subdirectory (src)
 
 add_subdirectory (examples/ApplicationIT_regularvector)
 add_subdirectory (examples/ApplicationIT_regularscalar)
+
+# ADD-BY-LEETEN 08/29/2011-BEGIN
+add_subdirectory (examples/nek5000)
+add_subdirectory (examples/flash)
+# ADD-BY-LEETEN 08/29/2011-END
 
 #
 # $Log$

@@ -294,14 +294,20 @@ void
 		// ADD-BY-LEETEN 08/05/2011-END
 	#else	// MOD-BY-LEETEN 08/06/2011-TO:
 	strcpy(::szName, SZConvert2CStr(szName));
+
 	if( iNameLength <= 0 )
 		sprintf(::szDumpPath, "%s", DEFAULT_DUMP_PATH);
 	else
 		sprintf(::szDumpPath, "%s/%s", DEFAULT_DUMP_PATH, SZConvert2CStr(szName));
-		
+
 	if( 0 == iRank )
 	{
-		system("mkdir dump");
+	        // MOD-BY-LEETEN 08/29/2011-FROM:
+	  // system("mkdir dump");
+	        // TO:
+		sprintf(::szCommand, "mkdir %s", DEFAULT_DUMP_PATH);
+		system(::szCommand);
+	        // MOD-BY-LEETEN 08/29/2011-FROM:
 
 		sprintf(::szCommand, "rm -r %s", ::szDumpPath);
 		system(::szCommand);
@@ -310,6 +316,7 @@ void
 		system(::szCommand);
 	}
 	#endif	// MOD-BY-LEETEN 08/06/2011-END
+
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	// create the path/filename of the log for global entropy
@@ -359,6 +366,7 @@ ITL_end
 (
 )
 {
+  if( pcBoundRandomField ) // ADD-By-LEETEN 08/29/2011
 	// ADD-BY-LEETEN 08/06/2011-BEGIN
 	pcBoundRandomField->_CloseNetCdf();
 	// ADD-BY-LEETEN 08/06/2011-END
@@ -1201,7 +1209,6 @@ itl_random_varable_as_vector2_
 	(
 		sizeof(piFeatureVector)/sizeof(piFeatureVector[0]),
 		piFeatureVector,
-		// ITLRandomField::CRandomVariable::FEATURE_ORIENTATION	// TMP: temporary ignore the feature mapping string
 		ITLRandomField::CRandomVariable::IConvertStringToFeatureMapping(szFeatureMapping)
 	);
 }
