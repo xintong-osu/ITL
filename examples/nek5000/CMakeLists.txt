@@ -4,11 +4,13 @@
 cmake_minimum_required (VERSION 2.8)
 project (itl-nek5000-examples) 
 
-if ( ${WITH_PNETCDF} )
-	SET(NETCDF_LFLAGS	"-L${PNETCDF_LIB} -lpnetcdf")
-else()
-	SET(NETCDF_LFLAGS	"-lnetcdf")
-endif()
+# DEL-BY-LEETEN 09/01/2011-BEGIN
+# if ( ${WITH_PNETCDF} )
+#	SET(NETCDF_LFLAGS	"-L${PNETCDF_LIB} -lpnetcdf")
+# else()
+#	SET(NETCDF_LFLAGS	"-lnetcdf")
+# endif()
+# DEL-BY-LEETEN 09/01/2011-END
 
 SET(ITL_LFLAGS "\"-L${ITL_LIB} -lITLib -L${DIY_LIB} -ldiy -lstdc++ ${NETCDF_LFLAGS}\"")
 

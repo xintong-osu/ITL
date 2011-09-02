@@ -48,10 +48,6 @@
 
 	char szGlobalEntropyLogPathFilename[1024];
 
-	// DEL-BY-LEETEN 07/31/2011-BEGIN
-		// const int iNrOfBins = 360;
-	// DEL-BY-LEETEN 07/31/2011-END
-
 	ITLRandomField *pcBoundRandomField;
 
 	// ADD-BY-LEETEN 08/05/2011-BEGIN
@@ -234,65 +230,9 @@ void
 
 	// Initialize histogram
 	// "!" means the default patch file
-	// MOD-BY-LEETEN 07/31/2011-FROM:
-		// ITL_histogram::ITL_init_histogram( "!", iNrOfBins );
-	// TO:
 	ITL_histogram::ITL_init_histogram( "!" );
-	// MOD-BY-LEETEN 07/31/2011-END
 
 	// create a folder to hold the tmp. dumpped result
-	#if	0	// MOD-BY-LEETEN 08/06/2011-FROM:
-		if( 0 == iRank )
-		{
-			#if	0	// MOD-BY-LEETEN 07/22/2011-FROM:
-				system("mkdir dump");
-				system("rm dump/*");
-			#else	// MOD-BY-LEETEN 07/22/2011-TO:
-			#if 0 	// MOD-BY-LEETEN 08/05/2011-FROM:
-				system("rm -r dump");
-				system("mkdir dump");
-			#else	// MOD-BY-LEETEN 08/05/2011-TO:
-			system("mkdir dump");
-			if( iNameLength <= 0 )
-			  sprintf(::szDumpPath, "%s", DEFAULT_DUMP_PATH);
-			else
-			{
-			  char *szTemp = new char[iNameLength];
-			  strncpy(szTemp, szName, iNameLength);
-			  for(int i = 0; i < iNameLength; i++)
-				if(! ( ('0' <= szTemp[i] && szTemp[i] <= '9') ||
-				   ('a' <= szTemp[i] && szTemp[i] <= 'z') ||
-				   ('A' <= szTemp[i] && szTemp[i] <= 'Z') ||
-				   '-' == szTemp[i] ||
-				   '_' == szTemp[i] ) )
-				  {
-				  szTemp[i] = '\0';
-				  break;
-				  }
-
-			  sprintf(::szDumpPath, "%s/%s", DEFAULT_DUMP_PATH, szTemp);
-			}
-
-			// LOG_VAR_TO_ERROR(::szDumpPath);
-			// exit(0);
-
-			sprintf(::szCommand, "rm -r %s", ::szDumpPath);
-			system(::szCommand);
-
-			sprintf(::szCommand, "mkdir %s", ::szDumpPath);
-			system(::szCommand);
-
-			MPI_Bcast(&::szDumpPath, sizeof(::szDumpPath), MPI_CHAR, 0, MPI_COMM_WORLD);
-			#endif	// MOD-BY-LEETEN 08/05/2011-END
-			#endif	// MOD-BY-LEETEN 07/22/2011-END
-		}
-		// ADD-BY-LEETEN 08/05/2011-BEGIN
-		else
-		  {
-			MPI_Bcast(&::szDumpPath, sizeof(::szDumpPath), MPI_CHAR, 0, MPI_COMM_WORLD);
-		  }
-		// ADD-BY-LEETEN 08/05/2011-END
-	#else	// MOD-BY-LEETEN 08/06/2011-TO:
 	strcpy(::szName, SZConvert2CStr(szName));
 
 	if( iNameLength <= 0 )
@@ -315,7 +255,6 @@ void
 		sprintf(::szCommand, "mkdir %s", ::szDumpPath);
 		system(::szCommand);
 	}
-	#endif	// MOD-BY-LEETEN 08/06/2011-END
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
@@ -1057,22 +996,14 @@ ITL_random_varable_set_feature_vector
 (
 	const int iFeatureLength,
 	const int piFeatureVector[],
-	// MOD-BY-LEETEN 07/22/2011-FROM:
-		// const bool bIsUsingOrientation
-	// TO:
 	const int iFeatureMapping
-	// MOD-BY-LEETEN 07/22/2011-END
 )
 {
 	pcBoundRandomField->_SetFeatureVector
 	(
 		iFeatureLength,
 		piFeatureVector,
-		// MOD-BY-LEETEN 07/22/2011-FROM:
-			// bIsUsingOrientation
-		// TO:
 		iFeatureMapping
-		// MOD-BY-LEETEN 07/22/2011-END
 	);
 }
 
@@ -1101,13 +1032,9 @@ itl_random_varable_set_feature_vector_
 	(
 		iFeatureLength,
 		&piFeatureVector_0based[0],
-		// MOD-BY-LEETEN 07/22/2011-FROM:
-			// (*piIsUsingOrientation)?true:false
-		// TO:
 		(*piIsUsingOrientation)?
 				ITLRandomField::CRandomVariable::FEATURE_ORIENTATION:
 				ITLRandomField::CRandomVariable::FEATURE_MAGNITUDE
-		// MOD-BY-LEETEN 07/22/2011-END
 	);
 }
 
@@ -1120,12 +1047,8 @@ extern "C"
 void
 itl_random_varable_as_scalar_
 (
-	// MOD-BY-LEETEN 07/22/2011-FROM:
-		// int *piScalar
-	// TO:
 	int *piScalar,
 	char* szFeatureMapping
-	// MOD-BY-LEETEN 07/22/2011-END
 )
 {
 	int piFeatureVector[1];
@@ -1134,11 +1057,7 @@ itl_random_varable_as_scalar_
 	(
 		sizeof(piFeatureVector)/sizeof(piFeatureVector[0]),
 		piFeatureVector,
-		// MOD-BY-LEETEN 07/22/2011-FROM:
-			// false
-		// TO:
 		ITLRandomField::CRandomVariable::IConvertStringToFeatureMapping(szFeatureMapping)
-		// MOD-BY-LEETEN 07/22/2011-END
 	);
 }
 
@@ -1156,11 +1075,7 @@ itl_random_varable_as_vector3_
 	int *piU,
 	int *piV,
 	int *piW,
-	// MOD-BY-LEETEM 07/23/2011-FROM:
-	// int *piIsUsingOrientation
-	// TO:
 	char *szFeatureMapping
-	// MOD-BY-LEETEM 07/23/2011-END
 )
 {
 	int piFeatureVector[3];
@@ -1171,18 +1086,7 @@ itl_random_varable_as_vector3_
 	(
 		sizeof(piFeatureVector)/sizeof(piFeatureVector[0]),
 		piFeatureVector,
-		// MOD-BY-LEETEN 07/22/2011-FROM:
-			// (*piIsUsingOrientation)?true:false
-		// TO:
-		
-                #if 0 // MOD-BY-LEETEM 07/23/2011-FROM:
-		(*piIsUsingOrientation)?
-				ITLRandomField::CRandomVariable::FEATURE_ORIENTATION:
-				ITLRandomField::CRandomVariable::FEATURE_MAGNITUDE
-                #else // MOD-BY-LEETEM 07/23/2011-TO:
 		ITLRandomField::CRandomVariable::IConvertStringToFeatureMapping(szFeatureMapping)
-                #endif // MOD-BY-LEETEM 07/23/2011-END
-		// MOD-BY-LEETEN 07/22/2011-END
 	);
 }
 

@@ -12,14 +12,15 @@
 #----------------------------------------------------------------------------
 
 #HDF5_PATH = /soft/apps/hdf5-1.6.7
-HDF5_PATH = /homes/tpeterka/hdf5-install
+HDF5_PATH = /usr/local/hdf5
 ZLIB_PATH =
 
 HPM_PATH =
 PNG_PATH = 
 
-NCMPI_PATH = 
-MPI_PATH = /usr
+NCMPI_PATH = /usr/local
+
+MPI_PATH = 
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -36,8 +37,8 @@ LIB_MPI =
 endif
 
 FCOMP   = mpif90
-CCOMP   = mpicc -I${MPI_PATH}/include
-CPPCOMP = mpif90 -I${MPI_PATH}/include
+CCOMP   = mpicc -I/include
+CPPCOMP = mpif90 -I/include
 LINK    = mpif90
 
 #CONFIG_LIB = -L/bgl/BlueLight/ppcfloor/bglsys/lib -lmpich.rts -lmsglayer.rts -ldevices.rts -lrts.rts -ldevices.rts
@@ -58,7 +59,7 @@ LINK    = mpif90
 #  combinations of compiler flags particular to your individual system.
 #----------------------------------------------------------------------------
                
-FFLAGS_OPT   = -L${HDF5_PATH}/lib -lhdf5 -g -c -O3 -fdefault-real-8 -DH5_USE_16_API
+FFLAGS_OPT   = -L/usr/local/hdf5/lib -lhdf5 -g -c -O3 -fdefault-real-8 -DH5_USE_16_API
 
                
                
@@ -74,13 +75,13 @@ f90FLAGS     =
 
 # if we are using HDF5, we need to specify the path to the include files
 
-CFLAGS_OPT   = -L${HDF5_PATH}/lib -lhdf5 -O3 -D_LARGEFILE64_SOURCE -c -DH5_USE_16_API
+CFLAGS_OPT   = -L/usr/local/hdf5/lib -lhdf5 -O3 -D_LARGEFILE64_SOURCE -c -DH5_USE_16_API
 CFLAGS_TEST  = -g -O4 -DNOUNDERSCORE -c \
                -qarch=450 -qtune=auto -qcache=auto -qmaxmem=16384 -D_FILE_OFFSET_BITS=64
 CFLAGS_DEBUG = -g  -DNOUNDERSCORE -c \
                -qarch=450 -qmaxmem=16384 -D_FILE_OFFSET_BITS=64
 
-CFLAGS_HDF5  = -I${HDF5_PATH}/include
+CFLAGS_HDF5  = -I/usr/local/hdf5/include
 CFLAGS_NCMPI = -I$(NCMPI_PATH)/include
 
 MDEFS =
@@ -111,14 +112,14 @@ LFLAGS_DEBUG = -g -o
 
 
 LIB_MPI   = 
-LIB_HDF5  = -L${HDF5_PATH}/lib -lhdf5 -lz
+LIB_HDF5  = -L/usr/local/hdf5/lib -lhdf5 -lz
 LIB_NCMPI = -L$(NCMPI_PATH)/lib -lpnetcdf
 
 LIB_MATH  = 
 
 # TEST-MOD-FROM: LIB_OPT   = -L/homes/tpeterka/itl/lib -litl -L/homes/tpeterka/diy/lib -ldiy -lstdc++
 # TO:
-LIB_OPT   = -L/homes/leeten/workspace/itl/lib -lITLib -L/homes/leeten/workspace/diy/trunk/lib -ldiy -lstdc++ -lnetcdf
+LIB_OPT = -L/home/leeten/workspace/itl/trunk/lib -lITLib -L/home/leeten/workspace/diy/lib -ldiy -lstdc++ -L/usr/local/lib -lpnetcdf
 # TEST-MOD-END
 
 LIB_DEBUG =
@@ -152,14 +153,14 @@ ifeq ($(FLASHBINARY),true)
 # subroutine which essentiall alias each other (maybe a pointer?).  One is changed within the code but the other isn't.
 #  Hence the compiler gets confused.  The -qalias=nostd is the trick that tells -O4 that this is a nonstandard implementation
 local_tree_module.mod local_tree.mod local_tree.o : local_tree.F90
-	${FCOMP} ${FFLAGS} -qalias=nostd ${F90FLAGS} ${FDEFINES} $<
+	  -qalias=nostd   $<
 
 # Previous things that didn't work with full optimization but have since been fixed
 #runtime_parameters.o : runtime_parameters.F90
-#	${FCOMP} ${FFLAGS_TEST}  $(F90FLAGS) $<
+#	   $(F90FLAGS) $<
 
 #amr_%.o : amr_%.F90
-#	${FCOMP} ${FFLAGS_OPT_NOIPA} ${F90FLAGS} ${FDEFINES} $<
+#	    $<
 
 
 Simulation += io_meminfoMallinfo.o io_memory_usage_mallinfo.o

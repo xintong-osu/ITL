@@ -13,8 +13,6 @@ CC="mpicc"
 
 # pre-processor symbol list 
 # (set PPLIST=? to get a list of available symbols)
-#PPLIST="?" 
-#PPLIST="MOAB" # to test MOAB, please add MOAB to PPLIST
 PPLIST=""
 
 # plug-in list
@@ -33,11 +31,7 @@ PLUGIN_LIST=""
 #USR="foo.o"
 
 # linking flags
-# MOD-BY-LEETEN 08/06/2011-FROM:
-	# USR_LFLAGS="-L/homes/leeten/workspace/itl/lib -lITLib -L/homes/leeten/workspace/diy/trunk/lib -ldiy -lstdc++"
-# TO:
-USR_LFLAGS="-L/homes/leeten/workspace/itl/lib -lITLib -L/homes/leeten/workspace/diy/trunk/lib -ldiy -lstdc++ -lnetcdf"
-# MOD-BY-LEETEN 08/06/2011-END
+USR_LFLAGS="-L/home/leeten/workspace/itl/trunk/lib -lITLib -L/home/leeten/workspace/diy/lib -ldiy -lstdc++ -L/usr/local/lib -lpnetcdf"
 
 # generic compiler flags
 #G="-g"
@@ -55,7 +49,7 @@ USR_LFLAGS="-L/homes/leeten/workspace/itl/lib -lITLib -L/homes/leeten/workspace/
  
 # MOAB/iMESH path
 #MOAB_DIR="$HOME/moab"
-MOAB_DIR=/homes/leeten/bin/moab-4.1.0pre # only effective when PPLIST includes MOAB
+MOAB_DIR=
 
 
 ###############################################################################

@@ -12,17 +12,14 @@
 #----------------------------------------------------------------------------
 
 #HDF5_PATH = /soft/apps/hdf5-1.6.7
-# TEST-MOD-FROM:	HDF5_PATH = /homes/tpeterka/hdf5-install
 HDF5_PATH = @HDF5_DIR@
 ZLIB_PATH =
 
 HPM_PATH =
 PNG_PATH = 
 
-# TEST-MOD-FROM:	NCMPI_PATH = 
 NCMPI_PATH = @NCMPI_PATH@
 
-# TEST-MOD-FROM:	MPI_PATH = /usr
 MPI_PATH = @MPI_DIR@
 
 #----------------------------------------------------------------------------

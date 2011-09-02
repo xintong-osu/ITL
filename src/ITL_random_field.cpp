@@ -5,10 +5,6 @@
  *      Author: leeten
  */
 
-	// ADD-BY-LEETEN 08/06/2011-BEGIN
-	// DEL-BY-LEETNE 08/12/2011	#include <netcdf.h>
-	// ADD-BY-LEETEN 08/06/2011-END
-
 	#include "ITL_header.h"
 	#include "ITL_base.h"
 	#include "ITL_ioutil.h"
@@ -61,7 +57,11 @@ ITLRandomField::_MapBlock2GlobalId
 	if( 0 == iRank )
 		ASSERT_OR_LOG(MPI_SUCCESS == MPI_Bcast(&iNrOfGlobalBlocks, 1, MPI_INT, 0, MPI_COMM_WORLD), "");
 #else   // MOD-BY-LEETEN 08/29/2011-TO:
-	ASSERT_OR_LOG(MPI_SUCCESS == MPI_Allreduce(MPI_IN_PLACE, &iNrOfGlobalBlocks, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD), "");
+	// MOD-BY-LEETEN 09/01/2011-FROM:
+		// ASSERT_OR_LOG(MPI_SUCCESS == MPI_Allreduce(MPI_IN_PLACE, &iNrOfGlobalBlocks, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD), "");
+	// TO:
+	ASSERT_OR_LOG(MPI_SUCCESS == MPI_Allreduce(&iMaxGlobalId, &iNrOfGlobalBlocks, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD), "");
+	// MOD-BY-LEETEN 09/01/2011-END
 #endif  // MOD-BY-LEETEN 08/29/2011-END
 }
 // ADD-BY-LEETEN 08/12/2011-END
@@ -74,9 +74,6 @@ ITLRandomField::_UseDomainRange
 )
 {
 	CRandomVariable& cRandomVariable = CGetRandomVariable(iRandomVariable);
-	// DEL-BY-LEETEN 08/06/2011-BEGIN
-		// const int iFeatureLength = cRandomVariable.piFeatureVector.USize();
-	// DEL-BY-LEETEN 08/06/2011-END
 
 	// scan through all block to find the maximal value
 	float fLocalMin = +HUGE_VALF;
@@ -104,25 +101,12 @@ ITLRandomField::_UseDomainRange
 		}
 	}
 
-	#if	0	// DEL-BY-LEETEN 08/12/2011-BEGIN
-		int iRank;
-		MPI_Comm_rank(MPI_COMM_WORLD, &iRank);
-	#endif	// DEL-BY-LEETEN 08/12/2011-END
-
 #if	0	// MOD-BY-LEETEN 08/29/2011-FROM:
 	float fDomainMax;
 	MPI_Reduce(&fLocalMax, &fDomainMax, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
 
 	float fDomainMin;
 	MPI_Reduce(&fLocalMin, &fDomainMin, 1, MPI_FLOAT, MPI_MIN, 0, MPI_COMM_WORLD);
-
-	#if 0	// DEL-BY-LEETEN 08/06/2011-BEGIN
-		if( 0 == iRank )
-		{
-			LOG_VAR_TO_ERROR(fDomainMin);
-			LOG_VAR_TO_ERROR(fDomainMax);
-		}
-	#endif	// DEL-BY-LEETEN 08/06/2011-END
 
 	MPI_Bcast(&fDomainMin, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 	MPI_Bcast(&fDomainMax, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
@@ -157,6 +141,38 @@ ITLRandomField::_AddTimeStamp(
 		int iTimeStamp
 		)
 {
+	// ADD-BY-LEETEN 09/01/2011-BEGIN
+	if( iNcId >= 0 )
+	{
+		// write the time stamp
+		#ifndef	WITH_PNETCDF		// ADD-BY-LEETEN 08/12/2011
+	        size_t uStart = viTimeStamps.size();
+		size_t uCount = 1;
+		ASSERT_NETCDF(nc_put_vara_int(
+				iNcId,
+				iNcTimeVarId,
+				&uStart,
+				&uCount,
+				&iTimeStamp));
+
+		// ADD-BY-LEETEN 08/12/2011-BEGIN
+		#else	// #ifndef	WITH_PNETCDF
+		MPI_Offset uStart = viTimeStamps.size();
+		MPI_Offset uCount = 1;
+
+		ASSERT_NETCDF(ncmpi_begin_indep_data(iNcId));
+		if( 0 == iRank )
+			ASSERT_NETCDF(ncmpi_put_vara_int(
+					iNcId,
+					iNcTimeVarId,
+					&uStart,
+					&uCount,
+					&iTimeStamp));
+		ASSERT_NETCDF(ncmpi_end_indep_data(iNcId));
+		#endif	// #ifndef	WITH_PNETCDF
+		// ADD-BY-LEETEN 08/12/2011-END
+	}
+	// ADD-BY-LEETEN 09/01/2011-END
 	viTimeStamps.push_back(iTimeStamp);
 }
 
@@ -348,11 +364,7 @@ ITLRandomField::_AddRandomVariable
 )
 {
 	int iRvId = vcRandomVariables.size();
-	// MOD-BY-LEETEN 07/22/2011-FROM:
-		// vcRandomVariables.push_back(CRandomVariable());
-	// TO:
 	vcRandomVariables.push_back(new CRandomVariable());
-	// MOD-BY-LEETEN 07/22/2011-END
 	*piRvId = iRvId;
 
 }
@@ -383,11 +395,7 @@ ITLRandomField::CGetRandomVariable
 	const int iRandomVariable
 )
 {
-	// MOD-BY-LEETEN 07/22/2011-FROM:
-		// return vcRandomVariables[iRandomVariable];
-	// TO:
 	return *vcRandomVariables[iRandomVariable];
-	// MOD-BY-LEETEN 07/22/2011-END
 }
 
 const ITLRandomField::CRandomVariable&
@@ -396,11 +404,7 @@ ITLRandomField::CGetRandomVariable
 	const int iRandomVariable
 ) const
 {
-	// MOD-BY-LEETEN 07/22/2011-FROM:
-		// return vcRandomVariables[iRandomVariable];
-	// TO:
 	return *vcRandomVariables[iRandomVariable];
-	// MOD-BY-LEETEN 07/22/2011-END
 }
 
 ITLRandomField::CRandomVariable&
@@ -425,22 +429,10 @@ ITLRandomField::_SetFeatureVector
 (
 	const int iFeatureLength,
 	const int piFeatureVector[],
-	// MOD-BY-LEETEN 07/22/2011-FROM:
-		// const bool bIsUsingOrientation
-	// TO:
 	const int iFeatureMapping
-	// MOD-BY-LEETEN 07/22/2011-END
 )
 {
-#if	0	// MOD-BY-LEETEN 07/21/2011-FROM:
-	CRandomVariable& cBoundRandomVariable = CGetBoundRandomVariable();
-	cBoundRandomVariable.bIsUsingOrientation = bIsUsingOrientation;
-	cBoundRandomVariable.piFeatureVector.alloc(iFeatureLength);
-	for(int f = 0; f < iFeatureLength; f++)
-		cBoundRandomVariable.piFeatureVector[f] = piFeatureVector[f];
-#else
 	CGetBoundRandomVariable()._Set(iFeatureLength, piFeatureVector, iFeatureMapping);
-#endif
 }
 
 void
@@ -572,16 +564,12 @@ ITLRandomField::_CollectRandomSamplesInBlock
 			pdFeatureVector[f] = cDataComponent.cRange.DClamp(dValue);
 		}
 		double dSample = cRandomVariable.DGetRandomVariable(&pdFeatureVector[0]);
-		// MOD-BY-LEETEN 07/31/2011-FROM:
-			// pfRandomSamples[c] = (float)cRandomVariable.cRange.DClamp(dSample);
-		// TO:
 		dSample = cRandomVariable.cRange.DClamp(dSample);
 		if( bIsMappingToBins )
 		  {
 		    dSample = cRandomVariable.DMapToBin(dSample);
 		  }
 		pfRandomSamples[c] = (float)dSample;
-		// MOD-BY-LEETEN 07/31/2011-END
 	}
 }
 // ADD-BY-LEETEN 07/22/2011-END
@@ -599,11 +587,7 @@ ITLRandomField::_Create
 	this->pcBlockInfo.alloc(iNrOfBlocks);
 
 	ASSERT_OR_LOG(iNrOfDataComponents, fprintf(stderr, "%d: invalide #data-components.", iNrOfDataComponents));
-	// MOD-BY-LEETEN 07/18/2011-FROM:
-		// this->pcDataComponentInfo.alloc(iNrOfDataComponents);
-	// TO:
 	this->pcDataComponentInfo.New(iNrOfDataComponents);
-	// MOD-BY-LEETEN 07/18/2011-END
 
 	this->p2DcBlockData.alloc(iNrOfBlocks, iNrOfDataComponents);
 
@@ -870,7 +854,11 @@ ITLRandomField::_CloseNetCdf
 (
 )
 {
-	if( iNcId > 0 )
+	// MOD-BY-LEETEN 09/01/2011-FROM:
+		// if( iNcId > 0 )
+	// TO:
+	if( iNcId >= 0 )
+	// MOD-BY-LEETEN 09/01/2011-END
 	{
 		// write the time stamp
 		TBuffer<int> piTemp;
@@ -879,38 +867,48 @@ ITLRandomField::_CloseNetCdf
 			piTemp[t] = this->viTimeStamps[t];
 
 		#ifndef	WITH_PNETCDF		// ADD-BY-LEETEN 08/12/2011
-		size_t uStart = 0;
-		size_t uCount = piTemp.USize();
-		ASSERT_NETCDF(nc_put_vara_int(
-				iNcId,
-				iNcTimeVarId,
-				&uStart,
-				&uCount,
-				&piTemp[0]));
-        /* Close the file. */
-	    ASSERT_NETCDF(nc_close(iNcId));
-
-		// ADD-BY-LEETEN 08/12/2011-BEGIN
-		#else	// #ifndef	WITH_PNETCDF
-	    MPI_Offset uStart = 0;
-	    MPI_Offset uCount = piTemp.USize();
-
-		ASSERT_NETCDF(ncmpi_begin_indep_data(iNcId));
-	    if( 0 == iRank )
-			ASSERT_NETCDF(ncmpi_put_vara_int(
+		#if 0 // DEL-BY-LEETEN 09/01/2011-BEGIN
+			// since the time step wil lbe written earlier, this part can be removed
+			size_t uStart = 0;
+			size_t uCount = piTemp.USize();
+			ASSERT_NETCDF(nc_put_vara_int(
 					iNcId,
 					iNcTimeVarId,
 					&uStart,
 					&uCount,
 					&piTemp[0]));
-		ASSERT_NETCDF(ncmpi_end_indep_data(iNcId));
+		#endif	// DEL-BY-LEETEN 09/01/2011-END
+        /* Close the file. */
+	    ASSERT_NETCDF(nc_close(iNcId));
+
+		// ADD-BY-LEETEN 08/12/2011-BEGIN
+		#else	// #ifndef	WITH_PNETCDF
+
+	    #if 0 // DEL-BY-LEETEN 09/01/2011-BEGIN
+			MPI_Offset uStart = 0;
+			MPI_Offset uCount = piTemp.USize();
+
+			ASSERT_NETCDF(ncmpi_begin_indep_data(iNcId));
+			if( 0 == iRank )
+				ASSERT_NETCDF(ncmpi_put_vara_int(
+						iNcId,
+						iNcTimeVarId,
+						&uStart,
+						&uCount,
+						&piTemp[0]));
+			ASSERT_NETCDF(ncmpi_end_indep_data(iNcId));
+		#endif	// DEL-BY-LEETEN 09/01/2011-END
 
         /* Close the file. */
 	    ASSERT_NETCDF(ncmpi_close(iNcId));
 		#endif	// #ifndef	WITH_PNETCDF
 		// ADD-BY-LEETEN 08/12/2011-END
 
-	    iNcId = 0;
+	    // MOD-BY-LEETEN 09/01/2011-FROM:
+	    	// iNcId = 0;
+		// TO:
+	    iNcId = -1;
+	    // MOD-BY-LEETEN 09/01/2011-END
 	}
 };
 
@@ -924,15 +922,32 @@ ITLRandomField::_DumpBlockGeometry2NetCdf
        and longitudes of our data grid into the netCDF file. */
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
 	{
+		#ifndef WITH_PNETCDF		// ADD-BY-LEETEN 09/01/2011
 		size_t puStart[3];
 		size_t puCount[3];
+
+		// ADD-BY-LEETEN 09/01/2011-BEGIN
+		#else	// #ifndef WITH_PNETCDF
+		MPI_Offset puStart[3];
+		MPI_Offset puCount[3];
+		MPI_Offset puStride[3];
+		for(int i = 0; i < sizeof(puStride)/sizeof(puStride[0]); i++)
+			puStride[i] = 1;
+		#endif	// #ifndef WITH_PNETCDF
+		// ADD-BY-LEETEN 09/01/2011-END
 
 		// time
 		puStart[0] = this->IGetNrOfTimeStamps() - 1;
 		puCount[0] = 1;
 
 		// block
+		#ifndef WITH_PNETCDF	// ADD-BY-LEETEN 09/01/2011
 		puStart[1] = (size_t)iBlockId;
+		// ADD-BY-LEETEN 09/01/2011-BEGIN
+		#else	// #ifndef WITH_PNETCDF
+		puStart[1] = (size_t)CGetBlock(iBlockId).iGlobalId;
+		#endif	// #ifndef WITH_PNETCDF
+		// ADD-BY-LEETEN 09/01/2011-END
 		puCount[1] = 1;
 
 		// spatial
@@ -943,8 +958,16 @@ ITLRandomField::_DumpBlockGeometry2NetCdf
 						d,
 						iNcId,
 						piNcDimVarIds[d],
+						#ifndef WITH_PNETCDF	// ADD-BY-LEETEN 09/01/2011
 						puStart,
 						puCount);
+						// ADD-BY-LEETEN 09/01/2011-BEGIN
+						#else	// #ifndef WITH_PNETCDF
+						puStart,
+						puCount,
+						puStride);
+						#endif	// #ifndef WITH_PNETCDF
+						// ADD-BY-LEETEN 09/01/2011-END
 	}
 }
 
@@ -963,14 +986,31 @@ ITLRandomField::_DumpData2NetCdf
       TBuffer<double> pdTemp;
       pdTemp.alloc(iNrOfCells);
 
+		#ifndef WITH_PNETCDF	// ADD-BY-LEETEN 09/01/2011
       size_t puStart[6];
       size_t puCount[6];
+      // ADD-BY-LEETEN 09/01/2011-BEGIN
+      #else	// #ifndef WITH_PNETCDF
+      MPI_Offset puStart[6];
+      MPI_Offset puCount[6];
+      MPI_Offset puStride[6];
+      for(int d = 0; d < sizeof(puStride)/sizeof(puStride[0]); d ++)
+    	  puStride[d] = 1;
+		#endif	// #ifndef WITH_PNETCDF
+      // ADD-BY-LEETEN 09/01/2011-END
+
       // time
       puStart[0] = this->IGetNrOfTimeStamps() - 1;
       puCount[0] = 1;
 
       // block
+		#ifndef WITH_PNETCDF	// ADD-BY-LEETEN 09/01/2011
       puStart[1] = (size_t)b;
+      // ADD-BY-LEETEN 09/01/2011-BEGIN
+      #else	// #ifndef WITH_PNETCDF
+      puStart[1] = (size_t)CGetBlock(b).iGlobalId;
+	  #endif	// #ifndef WITH_PNETCDF
+      // ADD-BY-LEETEN 09/01/2011-END
       puCount[1] = 1;
 
       for(int d = 0; d < CBlock::MAX_DIM; d++)
@@ -1004,7 +1044,17 @@ ITLRandomField::_DumpData2NetCdf
 
 		// ADD-BY-LEETEN 08/12/2011-BEGIN
 		#else	// #ifndef	WITH_PNETCDF
-		LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
+	  	// MOD-BY-LEETEN 09/01/2011-FROM:
+			// LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
+		// TO:
+		ASSERT_NETCDF(ncmpi_put_vars_double_all(
+					   iNcId,
+					   cDataComponent.iVarId,
+					   puStart,
+					   puCount,
+					   puStride,
+					   &pdTemp[0]));
+		// MOD-BY-LEETEN 09/01/2011-END
 		#endif	// #ifndef	WITH_PNETCDF
 		// ADD-BY-LEETEN 08/12/2011-END
 	}
@@ -1027,15 +1077,32 @@ ITLRandomField::_DumpRandomSamples2NetCdf
       TBuffer<float> pfTemp;
       pfTemp.alloc(iNrOfCells);
 
+	  #ifndef WITH_PNETCDF	// ADD-BY-LEETEN 09/01/2011
       size_t puStart[6];
       size_t puCount[6];
+
+      // ADD-BY-LEETEN 09/01/2011-BEGIN
+      #else	// #ifndef WITH_PNETCDF
+      MPI_Offset puStart[6];
+      MPI_Offset puCount[6];
+      MPI_Offset puStride[6];
+      for(int d = 0; d < sizeof(puStride)/sizeof(puStride[0]); d ++)
+    	  puStride[d] = 1;
+	  #endif	// #ifndef WITH_PNETCDF
+      // ADD-BY-LEETEN 09/01/2011-END
 
       // time
       puStart[0] = this->IGetNrOfTimeStamps() - 1;
       puCount[0] = 1;
 
       // block
+	  #ifndef WITH_PNETCDF	// ADD-BY-LEETEN 09/01/2011
       puStart[1] = (size_t)b;
+      // ADD-BY-LEETEN 09/01/2011-BEGIN
+      #else	// #ifndef WITH_PNETCDF
+      puStart[1] = (size_t)CGetBlock(b).iGlobalId;
+	  #endif	// #ifndef WITH_PNETCDF
+      // ADD-BY-LEETEN 09/01/2011-END
       puCount[1] = 1;
 
       for(int d = 0; d < CBlock::MAX_DIM; d++)
@@ -1056,7 +1123,17 @@ ITLRandomField::_DumpRandomSamples2NetCdf
 				      &pfTemp[0]));
 		// ADD-BY-LEETEN 08/12/2011-BEGIN
 		#else	// #ifndef	WITH_PNETCDF
-		LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
+      	// MOD-BY-LEETEN 09/01/2011-FROM:
+			// LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
+		// TO:
+		ASSERT_NETCDF(ncmpi_put_vars_float_all(
+					  iNcId,
+					  CGetRandomVariable(iRandomVariable).iVarId,
+					  puStart,
+					  puCount,
+					  puStride,
+					  &pfTemp[0]));
+		// MOD-BY-LEETEN 09/01/2011-END
 		#endif	// #ifndef	WITH_PNETCDF
 		// ADD-BY-LEETEN 08/12/2011-END
     }
@@ -1093,9 +1170,6 @@ ITLRandomField::_ComputeEntorpyInBoundBlock
 	int	piLowPad[CBlock::MAX_DIM];
 	int piHighPad[CBlock::MAX_DIM];
 	int piNeighborhood[CBlock::MAX_DIM];
-	// DEL-BY-LEETEN 07/31/2011-BEGIN
-		// int iDefaultNrOfBins = 360;
-	// DEL-BY-LEETEN 07/31/2011-END
 
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
 	{
@@ -1106,106 +1180,6 @@ ITLRandomField::_ComputeEntorpyInBoundBlock
 		piNeighborhood[d] = 0;
 	}
 
-	#if	0	// MOD-BY-LEETEN 07/22/2011-FROM:
-		float fEntropy;
-		switch(iFeatureLength)
-		{
-		case 1:
-		{
-			TBuffer3D<float> p3DfFeatureScalars;
-
-			p3DfFeatureScalars.alloc(
-				cBoundBlock.piDimLengths[0],
-				cBoundBlock.piDimLengths[1],
-				cBoundBlock.piDimLengths[2]
-				);
-
-			for(int f = 0; f < iFeatureLength; f++)
-			{
-				int iDataComponent = cRandomVariable.piFeatureVector[f];
-				CDataComponent& cDataComponent = this->CGetDataComponent(iDataComponent);
-
-				const CArray &cArray = this->CGetArray(iBoundBlock, iDataComponent);
-				const double *pdData = cArray.pdData;
-				int iBase = cArray.iBase;
-				int iStep = cArray.iStep;
-				for(int c = 0;	c < iNrOfCells; c++)
-				{
-					double dValue = (float)pdData[iBase + c * iStep];
-					p3DfFeatureScalars[c] = cDataComponent.cRange.DClamp(dValue);
-				}
-			}
-
-			ITL_field_regular<SCALAR> *scalarField = new ITL_field_regular<SCALAR>(
-				&p3DfFeatureScalars[0],
-				3,
-				pfBlockDimLow,
-				pfBlockDimUp,
-				piLowPad,
-				piHighPad,
-				piNeighborhood );
-
-			ITL_globalentropy<SCALAR> *globalEntropyComputerForScalar = new ITL_globalentropy<SCALAR>( scalarField );
-
-			// convert each vector into bin index
-			globalEntropyComputerForScalar->computeHistogramBinField("scalar", iDefaultNrOfBins);
-
-			// compute the entropy
-			globalEntropyComputerForScalar->computeGlobalEntropyOfField(iDefaultNrOfBins, false);
-
-			// save the block-wise entropy
-			fEntropy = globalEntropyComputerForScalar->getGlobalEntropy();
-
-			delete globalEntropyComputerForScalar;
-		} break;
-
-		case 3:
-		{
-			TBuffer3D<VECTOR3> p3DfFeatureVectors;
-
-			p3DfFeatureVectors.alloc(
-				cBoundBlock.piDimLengths[0],
-				cBoundBlock.piDimLengths[1],
-				cBoundBlock.piDimLengths[2]
-				);
-
-			for(int f = 0; f < iFeatureLength; f++)
-			{
-				const CArray &cArray = this->CGetArray(iBoundBlock, cRandomVariable.piFeatureVector[f]);
-				const double *pdData = cArray.pdData;
-				int iBase = cArray.iBase;
-				int iStep = cArray.iStep;
-				for(int c = 0;	c < iNrOfCells; c++)
-				{
-					p3DfFeatureVectors[c][f] = (float)pdData[iBase + c * iStep];
-				}
-			}
-
-			// create a vector field by passing the pointer to the data represented by p3dv3Data
-			ITL_field_regular<VECTOR3> *vectorField = new ITL_field_regular<VECTOR3>(
-				&p3DfFeatureVectors[0],
-				3,
-				pfBlockDimLow,
-				pfBlockDimUp,
-				piLowPad,
-				piHighPad,
-				piNeighborhood );
-
-			ITL_globalentropy<VECTOR3> *globalEntropyComputerForVector = new ITL_globalentropy<VECTOR3>( vectorField );
-
-			// convert each vector into bin index
-			globalEntropyComputerForVector->computeHistogramBinField("vector", iDefaultNrOfBins);
-
-			// compute the entropy
-			globalEntropyComputerForVector->computeGlobalEntropyOfField(iDefaultNrOfBins, false);
-
-			// save the block-wise entropy
-			fEntropy = globalEntropyComputerForVector->getGlobalEntropy();
-
-			delete globalEntropyComputerForVector;
-		} break;
-		}
-	#else	// MOD-BY-LEETEN 07/22/2011-TO:
 	TBuffer3D<float> p3DfFeatureScalars;
 
 	p3DfFeatureScalars.alloc(
@@ -1232,33 +1206,17 @@ ITLRandomField::_ComputeEntorpyInBoundBlock
 	ITL_globalentropy<SCALAR> *globalEntropyComputerForScalar = new ITL_globalentropy<SCALAR>( scalarField );
 
 	// obtain the default range of the random variable, which is especially useful for orientation
-	#if 0 // MOD-BY-LEETEN 07/31/2011-FROM:
-		double dDefaultMin, dDefaultMax;
-		cRandomVariable._GetDefaultRange(dDefaultMin, dDefaultMax);
-		double dHistMin, dHistMax;
-		dHistMin = max(cRandomVariable.cRange.dMin, dDefaultMin);
-		dHistMax = min(cRandomVariable.cRange.dMax, dDefaultMax);
-		globalEntropyComputerForScalar->setHistogramRange(dHistMin, dHistMax);
-
-		// convert each vector into bin index
-		globalEntropyComputerForScalar->computeHistogramBinField("scalar", iDefaultNrOfBins);
-
-		// compute the entropy
-		globalEntropyComputerForScalar->computeGlobalEntropyOfField(iDefaultNrOfBins, false);
-	#else	// MOD-BY-LEETEN 07/31/2011-TO:
 	int iNrOfBins = cRandomVariable.IGetNrOfBins();
 	globalEntropyComputerForScalar->setHistogramRange(0, iNrOfBins);
 	globalEntropyComputerForScalar->computeHistogramBinField("scalar", iNrOfBins);
 
 	// compute the entropy
 	globalEntropyComputerForScalar->computeGlobalEntropyOfField(ITL_histogram::DEFAULT_NR_OF_BINS, false);
-	#endif	// MOD-BY-LEETEN 07/31/2011-END
 
 	// save the block-wise entropy
 	float fEntropy = globalEntropyComputerForScalar->getGlobalEntropy();
 
 	delete globalEntropyComputerForScalar;
-	#endif	// MOD-BY-LEETEN 07/22/2011-END
 
 	// save the computed entropy...
 	if( NULL != szEntropyLogPathFilename )
@@ -1282,9 +1240,6 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	const CBlock& cBoundBlock = CGetBoundBlock();
 
 	CRandomVariable& cRandomVariable = CGetRandomVariable(iRandomVariable);
-	// DEL-BY-LEETEN 08/06/2011-BEGIN
-		// const int iFeatureLength = cRandomVariable.piFeatureVector.USize();
-	// DEL-BY-LEETEN 08/06/2011-END
 
 	// compute the #cells
 	int iNrOfCells = 1;
@@ -1299,9 +1254,6 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	int	piLowPad[CBlock::MAX_DIM];
 	int piHighPad[CBlock::MAX_DIM];
 	int piNeighborhood[CBlock::MAX_DIM];
-	// DEL-BY-LEETEN 07/31/2011-BEGIN
-		// int iDefaultNrOfBins = 360;
-	// DEL-BY-LEETEN 07/31/2011-END
 
 	for(int d = 0; d < CBlock::MAX_DIM; d++)
 	{
@@ -1312,118 +1264,6 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 		piNeighborhood[d] = (d < iDim)?(int)pdLocalNeighborhood[d]:0;
 	}
 
-	#if	0	// MOD-BY-LEETEN 07/22/2011-FROM:
-		switch(iFeatureLength)
-		{
-		case 1:
-		{
-			TBuffer3D<float> p3DfFeatureScalars;
-
-			p3DfFeatureScalars.alloc(
-				cBoundBlock.piDimLengths[0],
-				cBoundBlock.piDimLengths[1],
-				cBoundBlock.piDimLengths[2]
-				);
-
-			for(int f = 0; f < iFeatureLength; f++)
-			{
-				int iDataComponent = cRandomVariable.piFeatureVector[f];
-				CDataComponent& cDataComponent = this->CGetDataComponent(iDataComponent);
-
-				const CArray &cArray = this->CGetArray(iBoundBlock, iDataComponent);
-				const double *pdData = cArray.pdData;
-				int iBase = cArray.iBase;
-				int iStep = cArray.iStep;
-				for(int c = 0;	c < iNrOfCells; c++)
-				{
-					double dValue = (float)pdData[iBase + c * iStep];
-					p3DfFeatureScalars[c] = cDataComponent.cRange.DClamp(dValue);
-				}
-			}
-
-			ITL_field_regular<SCALAR> *scalarField = new ITL_field_regular<SCALAR>(
-				&p3DfFeatureScalars[0],
-				3,
-				pfBlockDimLow,
-				pfBlockDimUp,
-				piLowPad,
-				piHighPad,
-				piNeighborhood );
-
-			ITL_localentropy<SCALAR> *localEntropyComputerForScalar = new ITL_localentropy<SCALAR>( scalarField );
-
-			// convert each vector into bin index
-			localEntropyComputerForScalar->computeHistogramBinField("scalar", iDefaultNrOfBins);
-
-			// compute the entropy
-			localEntropyComputerForScalar->computeEntropyOfField( iDefaultNrOfBins, false);
-
-			if( NULL != szEntropyPathPrefix )
-			{
-				ITL_field_regular<float>* entropyField = localEntropyComputerForScalar->getEntropyField();
-				ITL_ioutil<float>::writeFieldBinarySerial(
-						entropyField->getDataFull(),
-						szEntropyPathPrefix,
-						entropyField->grid->dim,
-						3 );
-			}
-
-			delete localEntropyComputerForScalar;
-		} break;
-
-		case 3:
-		{
-			TBuffer3D<VECTOR3> p3DfFeatureVectors;
-
-			p3DfFeatureVectors.alloc(
-				cBoundBlock.piDimLengths[0],
-				cBoundBlock.piDimLengths[1],
-				cBoundBlock.piDimLengths[2]
-				);
-
-			for(int f = 0; f < iFeatureLength; f++)
-			{
-				const CArray &cArray = this->CGetArray(iBoundBlock, cRandomVariable.piFeatureVector[f]);
-				const double *pdData = cArray.pdData;
-				int iBase = cArray.iBase;
-				int iStep = cArray.iStep;
-				for(int c = 0;	c < iNrOfCells; c++)
-				{
-					p3DfFeatureVectors[c][f] = (float)pdData[iBase + c * iStep];
-				}
-			}
-
-			// create a vector field by passing the pointer to the data represented by p3dv3Data
-			ITL_field_regular<VECTOR3> *vectorField = new ITL_field_regular<VECTOR3>(
-				&p3DfFeatureVectors[0],
-				3,
-				pfBlockDimLow,
-				pfBlockDimUp,
-				piLowPad,
-				piHighPad,
-				piNeighborhood );
-
-			ITL_localentropy<VECTOR3> *localEntropyComputerForVector = new ITL_localentropy<VECTOR3>( vectorField );
-
-			// convert each vector into bin index
-			localEntropyComputerForVector->computeHistogramBinField("vector", iDefaultNrOfBins);
-
-			// compute the entropy
-			localEntropyComputerForVector->computeEntropyOfField( iDefaultNrOfBins, false);
-
-			if( NULL != szEntropyPathPrefix )
-			{
-				ITL_field_regular<float>* entropyField = localEntropyComputerForVector->getEntropyField();
-				ITL_ioutil<float>::writeFieldBinarySerial(
-						entropyField->getDataFull(),
-						szEntropyPathPrefix,
-						entropyField->grid->dim,
-						3 );
-			}
-			delete localEntropyComputerForVector;
-		} break;
-		}
-	#else	// MOD-BY-LEETEN 07/22/2011-TO:
 	TBuffer3D<float> p3DfFeatureScalars;
 
 	p3DfFeatureScalars.alloc(
@@ -1450,20 +1290,6 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	ITL_localentropy<SCALAR> *localEntropyComputerForScalar = new ITL_localentropy<SCALAR>( scalarField );
 
 	// obtain the default range of the random variable, which is especially useful for orientation
-	#if 0 // MOD-BY-LEETEN 07/31/2011-FROM:
-		double dDefaultMin, dDefaultMax;
-		cRandomVariable._GetDefaultRange(dDefaultMin, dDefaultMax);
-		double dHistMin, dHistMax;
-		dHistMin = max(cRandomVariable.cRange.dMin, dDefaultMin);
-		dHistMax = min(cRandomVariable.cRange.dMax, dDefaultMax);
-		localEntropyComputerForScalar->setHistogramRange(dHistMin, dHistMax);
-
-		// convert each vector into bin index
-		localEntropyComputerForScalar->computeHistogramBinField("scalar", iDefaultNrOfBins);
-
-		// compute the entropy
-		localEntropyComputerForScalar->computeEntropyOfField( iDefaultNrOfBins, false);
-	#else	// MOD-BY-LEETEN 07/31/2011-TO:
 	int iNrOfBins = cRandomVariable.IGetNrOfBins();
 	localEntropyComputerForScalar->setHistogramRange(0, iNrOfBins);
 
@@ -1472,7 +1298,6 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 
 	// compute the entropy
 	localEntropyComputerForScalar->computeEntropyOfField( ITL_histogram::DEFAULT_NR_OF_BINS, false);
-	#endif	// MOD-BY-LEETEN 07/31/2011-END
 
 	if( NULL != szEntropyPathPrefix )
 	{
@@ -1485,7 +1310,6 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	}
 
 	delete localEntropyComputerForScalar;
-	#endif	// MOD-BY-LEETEN 07/22/2011-END
 }
 
 // ADD-BY-LEETEN 07/31/2011-BEGIN
@@ -1594,7 +1418,11 @@ ITLRandomField::ITLRandomField() {
 	this->iBoundDataComponent = -1;
 	this->iBoundRandomVariable = -1;
 	// ADD-BY-LEETEN 08/06/2011-BEGIN
-	iNcId = 0;
+	// MOD-BY-LEETEN 09/01/2011-FROM:
+		// iNcId = 0;
+	// TO:
+	iNcId = -1;
+	// MOD-BY-LEETEN 09/01/2011-END
 	iRank = -1;
 	memset(piNcDimIds, 0, sizeof(piNcDimIds));
 	memset(piNcDimVarIds, 0, sizeof(piNcDimVarIds));

@@ -6,11 +6,13 @@ project (itl-flash-examples)
 
 find_package(MPI REQUIRED)
 
-if ( ${WITH_PNETCDF} )
-	SET(NETCDF_LFLAGS	"-L${PNETCDF_LIB} -lpnetcdf")
-else()
-	SET(NETCDF_LFLAGS	"-lnetcdf")
-endif()
+# DEL-BY-LEETEN 09/01/2011-BEGIN
+# if ( ${WITH_PNETCDF} )
+#	SET(NETCDF_LFLAGS	"-L${PNETCDF_LIB} -lpnetcdf")
+# else()
+#	SET(NETCDF_LFLAGS	"-lnetcdf")
+# endif()
+# DEL-BY-LEETEN 09/01/2011-END
 
 SET(MPI_PATH ${MPI_DIR})
 SET(HDF5_PATH ${HDF5_DIR})

@@ -277,6 +277,7 @@ c-----------------------------------------------------------------------
   1         format(3f9.3,f9.4,3f8.1,' rayleigh')
 
             if (nid.eq.0) write(6,2) i12,i23,t12,t23
+            call ITL_end() ! ADD-BY-LEETEN 09/01/2011
   2         format(2i8,2f9.4,' transitions')
             call exitti('Done in userchk.$',istep)
 

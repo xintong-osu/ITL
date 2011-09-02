@@ -34,9 +34,6 @@ using namespace std;
 #include "libbuf2d.h"
 #include "libbuf3d.h"
 
-#if	0	// DEL-BY-LEETEN 07/22/2011-BEGIN
-#endif	// DEL-BY-LEETEN 07/22/2011-END
-
 // ADD-BY-LEETEN 08/06/2011-BEGIN
 #ifndef	WITH_PNETCDF	// ADD-BY-LEETEN 08/12/2011
 	#define ASSERT_NETCDF(nc_stmt)	\
@@ -208,8 +205,16 @@ class ITLRandomField
 				int iDim,
 				int iNcId,
 				int iVarId,
+#ifndef WITH_PNETCDF	// ADD-BY-LEETEN 09/01/2011
 				const size_t puStart[],
 				const size_t puCount[]
+// ADD-BY-LEETEN 09/01/2011-BEGIN
+#else	// #ifndef WITH_PNETCDF	
+   				const MPI_Offset puStart[],
+   				const MPI_Offset puCount[],
+   				const MPI_Offset puStride[]
+#endif	// ifndef WITH_PNETCDF
+// ADD-BY-LEETEN 09/01/2011-END
 		)
 		{
 			ASSERT_OR_LOG(
@@ -245,7 +250,17 @@ class ITLRandomField
 
 				// ADD-BY-LEETEN 08/12/2011-BEGIN
 				#else	// #ifndef	WITH_PNETCDF
-				LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
+				// MOD-BY-LEETEN 09/01/2011-FROM:
+				// LOG_ERROR(fprintf(stderr, "PNetCDF is not fully supported yet."))
+				// TO:
+				ASSERT_NETCDF(ncmpi_put_vars_double_all(
+						iNcId,
+						iVarId,
+						puStart,
+						puCount,
+						puStride,
+						&pdTemp[0]));
+				// MOD-BY-LEETEN 09/01/2011-END
 				#endif	// #ifndef	WITH_PNETCDF
 				// ADD-BY-LEETEN 08/12/2011-END
 			}
@@ -333,10 +348,6 @@ public:
 
 		TBuffer<int> piFeatureVector;
 		CRange cRange;
-		#if	0	// MOD-BY-LEETEN 07/22/2011-FROM:
-			//! A flag whether the orientation of the feature vector is used as the random variable, which only can be true for 2D or 3D
-			bool bIsUsingOrientation;
-		#else	// MOD-BY-LEETEN 07/22/2011-TO:
 		int iFeatureMapping;
 
 
@@ -418,11 +429,7 @@ public:
 				if( FEATURE_ORIENTATION == iFeatureMapping )
 				{
 					// TEST only...
-				    // MOD-BY-LEETEN 07/23/2011-FROM:
-						// dSample = (double)(rand()%360);
-				    // TO:
 					dSample = (double)cSphereSpace.IMapVectorToPatch(pdFeatureVector);
-					// MOD-BY-LEETEN 07/23/2011-END
 					break;
 				}
 				// otherwise, enter the following part...
@@ -442,16 +449,8 @@ public:
 				dSample = sqrt(dSample);
 
 				if( FEATURE_MAGNITUDE_SCALE == iFeatureMapping )
-					// MOD-BY-LEETEN 08/05/2011-FROM:
-						// dSample = log(dSample);
-					// TO:
 					dSample = log10(dSample);
-					// MOD-BY-LEETEN 08/05/2011-END
 			}
-                        #if 0  // DEL-BY-LEETEN 07/23/2011-BEGIN
-			if( FEATURE_MAGNITUDE_SCALE == iFeatureMapping )
-				dSample = log(dSample);
-                        #endif // DEL-BY-LEETEN 07/23/2011-END
 			return dSample;
 		}
 
@@ -461,30 +460,11 @@ public:
 		(
 				double& dMin,
 				double& dMax
-		// MOD-BY-LEETEN 07/31/2011-FROM:
-			// )
-		// TO:
 		  ) const
-		// MOD-BY-LEETEN 07/31/2011-END
 		{
 			dMin = -HUGE_VAL;
 			dMax = +HUGE_VAL;
 			int iFeatureLength = this->piFeatureVector.USize();
-			#if 0 // MOD-BY-LEETEN 07/31/2011-FROM:
-				if(FEATURE_ORIENTATION == iFeatureMapping)
-				{
-					switch(iFeatureLength)
-					{
-					case 2:	dMin = -M_PI;	dMax = +M_PI;	break;
-
-					// MOD-BY-LEETEN 07/23/2011-FROM:
-					// case 3:	dMin = 0.0;		dMax = 360;		break;	// the range is from 0 to the number of patches on the semi-sphere
-					// TO:
-					case 3: dMin = 0.0; dMax = cSphereSpace.IGetNrOfPatches(); break;
-					// MOD-BY-LEETEN 07/23/2011-END
-					}
-				}
-			#else	// MOD-BY-LEETEN 07/31/2011-TO:
 			switch(iFeatureMapping)
 			  {
 			  case FEATURE_ORIENTATION:
@@ -499,9 +479,7 @@ public:
 			    dMax = HUGE_VAL;
 			    break;
 			  }
-			#endif	// MOD-BY-LEETEN 07/31/2011-END
 		}
-		#endif	// MOD-BY-LEETEN 07/22/2011-END
 
 		// ADD-BY-LEETEN 07/31/2011-BEGIN
 		int iNrOfBins;
@@ -557,11 +535,7 @@ public:
 
 		CRandomVariable()
 		{
-			// MOD-BY-LEETEN 07/22/2011-FROM:
-				// bIsUsingOrientation = false;
-			// TO:
 			iFeatureMapping = DEFAULT_FEATURE_MAPPING;
-			// MOD-BY-LEETEN 07/22/2011-END
 
 			// ADD-BY-LEETEN 07/23/2011-BEGIN
 			cSphereSpace._CopyDefaultMapping();
@@ -578,11 +552,7 @@ public:
 			// ADD-BY-LEETEN 08/06/2011-END
 		}
 	};
-	// MOD-BY-LEETEN 07/22/2011-FROM:
-		// vector<CRandomVariable> vcRandomVariables;
-	// TO:
 	vector<CRandomVariable*> vcRandomVariables;
-	// MOD-BY-LEETEN 07/22/2011-END
 	int iBoundRandomVariable;
 public:
 	int iNrOfGlobalBlocks;	// ADD-BY-LEETEN 08/12/2011
@@ -834,11 +804,7 @@ public:
 	(
 		const int iFeatureLength,
 		const int piFeatureVector[],
-		// MOD-BY-LEETEN 07/22/2011-FROM:
-			// const bool bIsUsingOrientation
-		// TO:
 		const int iFeatureMapping
-		// MOD-BY-LEETEN 07/22/2011-END
 	);
 
 	// ADD-BY-LEETEN 07/22/2011-BEGIN

@@ -12,6 +12,15 @@ set(WITH_PNETCDF OFF CACHE BOOL "whether PNETCDF is used")
 set(PNETCDF_DIR  "/usr/local/parallel-netcdf" CACHE PATH "installed path of PNETCDF")
 # MOD-BY-LEETEN 08/29/2011-END	
 
+# ADD-BY-LEETEN 09/01/2011-BEGIN
+set(PNETCDF_LIB	${PNETCDF_DIR}/lib)
+set(PNETCDF_INC	${PNETCDF_DIR}/include)
+
+set(NETCDF_DIR  "/usr/local/netcdf" CACHE PATH "installed path of NETCDF")
+set(NETCDF_INC  "${NETCDF_DIR}/include")
+set(NETCDF_LIB  "${NETCDF_DIR}/lib")
+# ADD-BY-LEETEN 09/01/2011-END
+
 # ADD-BY-LEETEN 08/29/2011-BEGIN
 set(HDF5_DIR 	"/usr/local/hdf5" CACHE PATH "The path to HDF5")
 set(DIY_DIR 	"/usr/local/diy" CACHE PATH "The path to DIY")
@@ -30,16 +39,31 @@ set(ITL_LIB "${ITL_DIR}/lib")
 if( ${WITH_PNETCDF} )
   add_definitions(-DWITH_PNETCDF)
   # specify the path to the headers
-  include_directories(
-    ${PNETCDF_DIR}/include
+  # MOD-BY-LEETEN 09/01/2011-FROM:
+    # include_directories(
+      # ${PNETCDF_DIR}/include
+    # )
+  # MOD-BY-LEETEN 09/01/2011-TO:
+    include_directories(
+      ${PNETCDF_INC}
     )
+    set(NETCDF_LFLAGS "-L${PNETCDF_LIB} -lpnetcdf")
+  else()
+    # specify the path to the headers
+    include_directories(
+      ${NETCDF_INC}
+      )
+    set(NETCDF_LFLAGS "-L${NETCDF_LIB} -lnetcdf")
+  # MOD-BY-LEETEN 09/01/2011-END
 endif()
 # ADD-BY-LEETEN 08/15/2011-END
 
-# ADD-BY-LEETEN 08/29/2011-BEGIN
-set(PNETCDF_LIB	${PNETCDF_DIR}/lib)
-set(PNETCDF_INC	${PNETCDF_DIR}/include)
-# ADD-BY-LEETEN 08/29/2011-END
+# DEL-BY-LEETEN 09/01/2011-BEGIN
+# # ADD-BY-LEETEN 08/29/2011-BEGIN
+# set(PNETCDF_LIB	${PNETCDF_DIR}/lib)
+# set(PNETCDF_INC	${PNETCDF_DIR}/include)
+# # ADD-BY-LEETEN 08/29/2011-END
+# DEL-BY-LEETEN 09/01/2011-END
 
 # Recurse into the "src" subdirectory. This does not actually
 # cause another cmake executable to run. The same process will walk through
