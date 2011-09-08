@@ -1,30 +1,33 @@
-# Input vector field. Use raw file without any header when DIY is being used.
-inputField /home/chaudhua/Data/Flowdata/Plume/plume.vec
+# Input scalar field. Use raw file without any header when DIY is being used.
+inputField ../../sampledata/fuel.raw
 
 # Type of the field. 0 for scalar, 1 for vector.
-fieldType 1 
+fieldType 0
 
 # Output file which stores blockwise entropies in binary format.
-outFile plume_en.out
+outFile fuel_en_blockwise.out
 
-# Number of dimensions of input vector field.
+# Number of dimensions of input scalar field.
 nDim 3
-
-# If patch file is empty (denoted by !), then the default mapping is used.
-patchFile !
 
 # Number of bins of the histogram.
 nBin 100
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
 
 # 1 if DIY is to be used, 0 for manual partitioning.
 # In both cases, adjacent partitions share a common layer.
 useDIY 1
 
 # Size of input scalar field.
-nX 126
-nY 126
-nZ 512
+nX 64
+nY 64
+nZ 64
 
 # Total number of blocks across all processors.
 # Required only if DIY is being used.
 nBlock 64
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1 
