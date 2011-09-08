@@ -1,13 +1,10 @@
-functionType 4
+functionType 1
 
-# Input vector field. 
+# Input vector field
 vectorField ../../sampledata/source.vec
 
-# Output file which stores local entropy field in binary format.
-outField source_en.vol
-
 # If patch file is empty (denoted by !), then the default mapping is used.
-patchFile patch.txt
+patchFile !
 
 # Number of dimensions of input vector field.
 nDim 3
@@ -15,16 +12,11 @@ nDim 3
 # Number of bins of the histogram.
 nBin 360
 
-neighborhoodSize 6
-neighborhoodSizeX 6
-neighborhoodSizeY 6
-neighborhoodSizeZ 6
-
 # Number of blocks to be created along each dimension. 
 # One processor will process one block. So total number blocks should be equal to number of processors.
-nBlockX 2
+nBlockX 1
 nBlockY 2
-nBlockZ 1
+nBlockZ 2
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
 verbose 0

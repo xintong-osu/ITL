@@ -1,24 +1,19 @@
-functionType 4
+functionType 1
 
-# Input vector field. 
-vectorField ../../sampledata/source.vec
-
-# Output file which stores local entropy field in binary format.
-outField source_en.vol
-
-# If patch file is empty (denoted by !), then the default mapping is used.
-patchFile patch.txt
+# Input scalar field.
+scalarField ../../sampledata/fuel.vol 
 
 # Number of dimensions of input vector field.
 nDim 3
 
 # Number of bins of the histogram.
-nBin 360
+nBin 10
 
-neighborhoodSize 6
-neighborhoodSizeX 6
-neighborhoodSizeY 6
-neighborhoodSizeZ 6
+#Lower and upper limits of the histogram range
+histLow 0
+histHigh 255
+
+method 0
 
 # Number of blocks to be created along each dimension. 
 # One processor will process one block. So total number blocks should be equal to number of processors.
@@ -28,3 +23,6 @@ nBlockZ 1
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
 verbose 0
+
+
+

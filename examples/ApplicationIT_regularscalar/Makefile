@@ -10,20 +10,18 @@ include ../../user_defs.mk
 #LIBS += -lITLib 
 
 # Davinci
+#CC = mpicxx
+#CCFLAGS = -O0 -g
+#INCLUDES += -I../../include -I./include
+#LIBDIRS += -L../../lib
+#LIBS += -lITLib -lmpich -lmpichcxx
+
+# Exavis
 CC = mpicxx
 CCFLAGS = -O0 -g
 INCLUDES += -I../../include -I./include
 LIBDIRS += -L../../lib
-LIBS += -lITLib -lmpich -lmpichcxx
-
-# Exavis
-#CC = mpicxx
-#CCFLAGS = -O0 -g
-#INCLUDES += -I../../headers -I../../headers/datastore -I../../headers/field \
-	    -I../../headers/grid -I../../headers/metrics -I../../headers/util \
-	    -I./headers
-#LIBDIRS += -L../..
-#LIBS += -lITLib -lmpich -lmpichcxx
+LIBS += -lITLib
 
 SOURCES = ./src/*.cpp
 #      MainIT_regscalar.cpp

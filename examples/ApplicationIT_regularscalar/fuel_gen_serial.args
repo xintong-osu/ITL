@@ -1,14 +1,18 @@
 functionType 2
+
+# Input scalar field.
 scalarField ../../sampledata/fuel.vol 
-outField fuel_en.vol
+
+# Number of dimensions of input vector field.
 nDim 3
-nBin 100
-neighborhoodSizeX 0
-neighborhoodSizeY 0
-neighborhoodSizeZ 0
-nBlockX 4
-nBlockY 2
-nBlockZ 1
+
+# Number of bins of the histogram.
+nBin 10
+
+#Lower and upper limits of the histogram range
+histLow 0
+histHigh 255
+
 method 0
 
 
