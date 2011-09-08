@@ -16,11 +16,6 @@
 class ITL_histogram
 {
 public:
-	// ADD-BY-LEETEN 07/31/2011-BEGIN
-	enum {
-		DEFAULT_NR_OF_BINS = 360
-	};
-  // ADD-BY-LEETEN 07/31/2011-END
 
 	static float* theta;				 /**< Angle variable. Angle related to spherical coordinates. */
 	static float* phi;					 /**< Angle variable. Angle related to spherical coordinates. */
@@ -41,22 +36,14 @@ public:
 	 * @param patchFileName Path of patch file on disc.
 	 * @param nBins Desired number of bins in the histogram.
 	 */
-	// MOD-BY-LEETEN 07/31/2011-FROM:
-		// ITL_histogram( const char* patchFileName, int nBins );
-	// TO:
-	ITL_histogram( const char* patchFileName, int nBins = DEFAULT_NR_OF_BINS);
-	// MOD-BY-LEETEN 07/31/2011-END
+	ITL_histogram( const char* patchFileName, int nBins );
 
 	/**
 	 * Histogram initialization function.
 	 * @param patchFileName Path of patch file on disc.
 	 * @param nBins Desired number of bins in the histogram.
 	 */
-	// MOD-BY-LEETEN 07/31/2011-FROM:
-		// static void ITL_init_histogram( const char* patchFileName, int nBins );
-	// TO:
-	static void ITL_init_histogram( const char* patchFileName, int nBins = DEFAULT_NR_OF_BINS);
-	// MOD-BY-LEETEN 07/31/2011-END
+	static void ITL_init_histogram( const char* patchFileName, int nBins );
 	/**
 	 * Patch header reader. Reads patch information from the in-built header.
 	 * 
@@ -98,6 +85,16 @@ public:
 	 * @param nBins Desired number of bins in the histogram.
 	 */
 	static int get_bin_number_3D(VECTOR3 v, int nBins );
+
+	/**
+	 * 2D Vector-to-bin conversion Routine.
+	 * Function converts the vector from Cartesian coodinates to the patch index
+	 * via the specified lookup table.
+	 * @param v at some Cartesian co-ordinate of the field
+	 * @param nBins Desired number of bins in the histogram.
+	 */
+	static int get_bin_number_2D(VECTOR3 v, int nBins );
+
 
 	/**
 	 * Theta computation.

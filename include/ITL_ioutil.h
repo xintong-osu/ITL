@@ -47,11 +47,11 @@ public:
 		// Read data to 1D array
 		fread( &array[0], sizeof(T), nel, dataFile );
 
-		//#ifdef DEBUG_MODE
+		#ifdef DEBUG_MODE
 		if( nDim == 3 )
 			printf( "NX: %d, NY: %d, NZ: %d\nTotal number of elements: %d\n", dim[0], dim[1], dim[2], nel );
 		printf( "%d values read from file\n", nel );
-		//#endif
+		#endif
 
 		// close file
 		fclose( dataFile );

@@ -32,12 +32,12 @@ ITL_histogram::ITL_init_histogram( const char* patchFileName, int nBins )
 	// Initialize histogram parameters
 	if( patchFileName[0] == '!' )
 	{
-		printf( "Reading default patch file...\n" );
+		//printf( "Reading default patch file...\n" );
 		ITL_histogram::readPatches_header();
 	}
 	else
 	{
-		printf( "Reading patch file ..\n" );		
+		//printf( "Reading patch file ..\n" );		
 		ITL_histogram::readPatches_region( patchFileName );
 	}	
 	// Compute the histogram look up table - once for all
@@ -222,3 +222,15 @@ ITL_histogram::get_bin_number_3D( VECTOR3 v, int nBins )
 	//cout << ITL_histogram::piAngleMap[ iTheta * ITL_histogram::iNrOfPhis + iPhi] << endl;
 	return ITL_histogram::piAngleMap[ iTheta * ITL_histogram::iNrOfPhis + iPhi];
 }
+
+// convert the 2D vector from Cartesian coodinates to the patch index via the specified lookup table
+int
+ITL_histogram::get_bin_number_2D( VECTOR3 v, int nBins )
+{
+	// Convert the vector from Cartesian coodinates to sphercial coordinates;
+	// the magnitude is ignored.
+	float mytheta= getAngle(v.x(), v.y());//0~2pi
+
+	return (int)floor( (mytheta / (2*pi) ) * nBins );
+}
+

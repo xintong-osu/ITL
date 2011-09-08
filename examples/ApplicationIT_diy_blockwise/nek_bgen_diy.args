@@ -1,0 +1,33 @@
+# Input vector field
+# ANL desktop
+inputField /homes/chaudhua/Data/Flowdata/NEK/nek_noheader.vec
+# Franklin
+# inputField /global/homes/c/chaudhua/Data/FlowData/NEK/nek_noheader.vec
+
+# Type of the field. 0 for scalar, 1 for vector.
+fieldType 1 
+
+# Number of dimensions of input vector field.
+nDim 3
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+# Number of bins of the histogram.
+nBin 360
+
+# 1 if DIY is to be used, 0 for manual partitioning.
+# In both cases, adjacent partitions share a common layer.
+useDIY 1
+
+# Size of input scalar field.
+nX 512
+nY 512
+nZ 512
+
+# Total number of blocks across all processors.
+# Required only if DIY is being used.
+nBlock 1024
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 0

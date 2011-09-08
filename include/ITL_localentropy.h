@@ -129,6 +129,7 @@ public:
 					// Obtain the binID corresponding to the value at this location
 					binId = (int)floor( ( nextV - minValue ) / binWidth  );
 					binId = ITL_util<int>::clamp( binId, 0, nBin-1 );
+					//if( binId != 0 ) cout << binId << endl;
 					this->binData->setDataAt( index1d, binId );
 
 					// increment to the next grid vertex
@@ -294,14 +295,15 @@ public:
 		}
 
 		// Compute entropy
-		int* localFreqList = NULL;
+		int* localFreqList = new int[nBins];
 		float entropy = ITL_entropycore::computeEntropy_HistogramBased( binArray, localFreqList, nNeighbors, nBins, toNormalize );
+		if( entropy > 0 ) cout << entropy << endl;
 
 		// Store entropy
 		this->entropyField->setDataAt( entropyFieldIndex, entropy );
 
-		delete [] localFreqList;
-		delete binArray;
+		if( localFreqList != NULL ) delete [] localFreqList;
+		delete [] binArray;
 
 	}// end function
 

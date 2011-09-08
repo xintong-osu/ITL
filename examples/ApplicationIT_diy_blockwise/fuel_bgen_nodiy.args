@@ -1,0 +1,30 @@
+# Input scalar field. Use .vol file when DIY is NOT being used.
+inputField ../../sampledata/fuel.vol
+
+# Number of dimensions of input scalar field.
+nDim 3
+
+# Number of bins of the histogram.
+nBin 100
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+# 1 if DIY is to be used, 0 for manual partitioning.
+# In both cases, adjacent partitions share a common layer.
+useDIY 0
+
+# Size of input scalar field.
+nX 64
+nY 64
+nZ 64
+
+# Number of blocks along each dimension.
+# Required only when DIY is NOT being used.
+nPartX 4
+nPartY 4
+nPartZ 4
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1 
+

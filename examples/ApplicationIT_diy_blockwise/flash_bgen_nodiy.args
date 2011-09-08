@@ -1,0 +1,31 @@
+# Input scalar field. Use file with header when DIY is NOT being used.
+inputField /home/chaudhua/Data/flash/rs.rank_0_blk_0.f.b3d 
+
+# Number of dimensions of input scalar field.
+nDim 3
+
+# Number of bins of the histogram.
+nBin 100
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+#Lower and upper limits of the histogram range
+histLow 1.85E-30
+histHigh 6.1E-30
+
+# 1 if DIY is to be used, 0 for manual partitioning.
+# In both cases, adjacent partitions share a common layer.
+useDIY 0
+
+# Size of input scalar field.
+nX 64
+nY 64
+nZ 64
+
+# Number of blocks along each dimension.
+# Required only when DIY is NOT being used.
+nPartX 4
+nPartY 4
+nPartZ 4
+

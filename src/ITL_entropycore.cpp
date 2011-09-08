@@ -1,10 +1,40 @@
 #include "ITL_entropycore.h"
 
+float ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint, int nBin, bool toNormalize )
+{
+	// Initialize frequency and probability array
+	float probArray[nBin];
+
+	//for( int i=0; i<nBin; i++ )
+	//	probArray[i] = 0;
+
+	// Turn count into probabilities
+	for( int i=0; i<nBin; i++ )
+		probArray[i] = freqArray[i] / (float)nPoint;
+
+	// Compute negative entropy
+	float entropy = 0;
+	for( int i = 0; i<nBin; i++ )
+	{
+		entropy += ( probArray[i] * ( probArray[i] == 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
+	}
+
+	// Change sign
+	entropy = -entropy;
+	
+	// Normalize, if required
+	if( toNormalize )
+		entropy /= ( log( (float)nBin ) / log( 2.0f ) );
+
+	return entropy;
+	
+}// End function
+
 float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArray, int nPoint, int nBin, bool toNormalize )
 {
 	// Initialize frequency and probability array
-	if( freqArray == NULL ) freqArray = new int[nBin];
-	float* probArray = new float[nBin];
+	float probArray[nBin];
+
 	for( int i=0; i<nBin; i++ )
 	{
 		freqArray[i] = 0;
@@ -31,10 +61,7 @@ float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArra
 	
 	// Normalize, if required
 	if( toNormalize )
-		entropy /= ( log( nBin ) / log( 2.0f ) );
-
-	// Free temporary resources
-	delete [] probArray;
+		entropy /= ( log( (float)nBin ) / log( 2.0f ) );
 
 	return entropy;
 	
@@ -48,7 +75,7 @@ float ITL_entropycore::computeEntropy_KDEBased( float* data, int nPoint, float h
 	printf( "Mean and variance of the field: %f %f\n", mu, var );
 	
 	// Initialize probability array
-	float* probArray = new float[nPoint];
+	float probArray[nPoint];
 	for( int i=0; i<nPoint; i++ )
 		probArray[i] = 0;
 	
@@ -80,10 +107,7 @@ float ITL_entropycore::computeEntropy_KDEBased( float* data, int nPoint, float h
 	
 	// Normalize, if required
 	if( toNormalize )
-		entropy /= ( log( nPoint ) / log( 2.0f ) );
-
-	// Free temporary resources
-	delete [] probArray;
+		entropy /= ( log( (float)nPoint ) / log( 2.0f ) );
 
 	return entropy;
 	

@@ -25,6 +25,14 @@ public:
 	{
 		this->nDim = ndim;
 		this->dim = NULL;
+		this->low = NULL;
+		this->high = NULL;	
+		this->lowInt = NULL;
+		this->highInt = NULL;	
+		this->lowPad = NULL;
+		this->highPad = NULL;
+		this->lowIntWithPad = NULL;
+		this->highIntWithPad = NULL;
 	}
 
 	/**
@@ -42,6 +50,8 @@ public:
 
 		// Set the neighborhood size to 0 (No pad required)
 		this->neighborhoodSize = 0;
+		this->neighborhoodSizeArray = new int[3];
+		this->neighborhoodSizeArray[0] = this->neighborhoodSizeArray[1] = this->neighborhoodSizeArray[2] = 0;
 
 		// Set field size and bounding box in terms of grid vertex
 		this->dim = new int[this->nDim];

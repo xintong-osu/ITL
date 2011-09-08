@@ -1,0 +1,32 @@
+# Input vector field. Use raw file without any header when DIY is being used.
+inputField ../../sampledata/source.vec
+
+# Type of the field. 0 for scalar, 1 for vector.
+fieldType 1 
+
+# Output file which stores blockwise entropies in binary format.
+outFile source_en.out
+
+# Number of dimensions of input vector field.
+nDim 3
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+# Number of bins of the histogram.
+nBin 100
+
+# 1 if DIY is to be used, 0 for manual partitioning.
+# In both cases, adjacent partitions share a common layer.
+useDIY 0
+
+# Size of input scalar field.
+nX 64
+nY 64
+nZ 64
+
+# Number of blocks along each dimension.
+# Required only when DIY is NOT being used.
+nPartX 4
+nPartY 4
+nPartZ 4

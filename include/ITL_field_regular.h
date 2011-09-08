@@ -29,7 +29,71 @@ public:
 	}
 
 	/**
-	 * Constructor type 2.
+	 * Constructor. 
+	 * @param ndim Dimensionality of field.
+	 * @param l Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension.
+	 * @param h Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension.
+	 */
+	ITL_field_regular( int ndim, float* l, float* h )
+	{
+		// Initialize grid
+		this->grid = new ITL_grid_regular<T>( ndim );
+
+		// set grid bounds
+		this->setBounds( l, h );
+
+		// Initialize datastore
+		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
+
+	}// constructor
+
+	/**
+	 * Constructor.
+	 * @param ndim Dimensionality of field.
+	 * @param l Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension.
+	 * @param h Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension.
+	 * @param lPad Pointer to array containing ghost layer span along each dimension on the lower end.
+	 * @param hPad Pointer to array containing ghost layer span along each dimension on the upper end.
+	 * @param neighborhoodsize Neighborhood length for each point.
+	 */
+	ITL_field_regular( int ndim, float* l, float* h, int* lPad, int* hPad, int neighborhoodsize )
+	{
+		// Initialize grid
+		this->grid = new ITL_grid_regular<T>( ndim );
+
+		// set grid bounds
+		this->setBounds( l, h, lPad, hPad, neighborhoodsize );
+
+		// Initialize datastore
+		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
+
+	}// Constructor
+
+	/**
+	 * Constructor.
+	 * @param ndim Dimensionality of field.
+	 * @param dim Length of field along each dimension.
+	 * @param l Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension.
+	 * @param h Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension.
+	 * @param lPad Pointer to array containing ghost layer span along each dimension on the lower end.
+	 * @param hPad Pointer to array containing ghost layer span along each dimension on the upper end.
+	 * @param neighborhoodsizearray Neighborhood length for each dimension.
+	 */
+	ITL_field_regular( int ndim, float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
+	{
+		// Initialize grid
+		this->grid = new ITL_grid_regular<T>( ndim );
+
+		// set grid bounds
+		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
+
+		// Initialize datastore
+		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
+
+	}// Constructor
+
+	/**
+	 * Constructor.
 	 * @param data pointer to 1D array of elements.
 	 * @param ndim Dimensionality of field.
 	 * @param dim Length of field along each dimension.
@@ -55,7 +119,26 @@ public:
 	}// constructor 1
 
 	/**
-	 * Constructor type 3.
+	 * Constructor. 
+	 * @param ndim Dimensionality of field.
+	 * @param l Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension.
+	 * @param h Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension.
+	 */
+	ITL_field_regular( T* data, int ndim, float* l, float* h )
+	{
+		// Initialize grid
+		this->grid = new ITL_grid_regular<T>( ndim );
+
+		// set grid bounds
+		this->setBounds( l, h );
+
+		// Initialize datastore
+		this->datastore = new ITL_datastore<T>( data );
+
+	}// constructor
+
+	/**
+	 * Constructor.
 	 * @param data pointer to 1D array of elements.
 	 * @param ndim Dimensionality of field.
 	 * @param dim Length of field along each dimension.
@@ -78,6 +161,17 @@ public:
 
 	}// Constructor
 
+	/**
+	 * Constructor.
+	 * @param data pointer to 1D array of elements.
+	 * @param ndim Dimensionality of field.
+	 * @param dim Length of field along each dimension.
+	 * @param l Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension.
+	 * @param h Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension.
+	 * @param lPad Pointer to array containing ghost layer span along each dimension on the lower end.
+	 * @param hPad Pointer to array containing ghost layer span along each dimension on the upper end.
+	 * @param neighborhoodsizearray Neighborhood length for each dimension.
+	 */
 	ITL_field_regular( T* data, int ndim, float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
 	{
 		// Initialize grid
@@ -91,59 +185,8 @@ public:
 
 	}// Constructor
 
-	/**
-	 * Constructor type 3.
-	 * @param ndim Dimensionality of field.
-	 * @param l Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension.
-	 * @param h Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension.
-	 */
-	ITL_field_regular( int ndim, float* l, float* h )
-	{
-		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
 
-		// set grid bounds
-		this->setBounds( l, h );
 
-		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
-
-	}// constructor
-
-	/**
-	 * Constructor type 4.
-	 * @param ndim Dimensionality of field.
-	 * @param l Pointer to array containing lower grid (associated to the field) bounds in continuous space along each dimension.
-	 * @param h Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension.
-	 * @param lPad Pointer to array containing ghost layer span along each dimension on the lower end.
-	 * @param hPad Pointer to array containing ghost layer span along each dimension on the upper end.
-	 * @param neighborhoodsize Neighborhood length for each point.
-	 */
-	ITL_field_regular( int ndim, float* l, float* h, int* lPad, int* hPad, int neighborhoodsize )
-	{
-		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
-
-		// set grid bounds
-		this->setBounds( l, h, lPad, hPad, neighborhoodsize );
-
-		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
-
-	}// Constructor
-
-	ITL_field_regular( int ndim, float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
-	{
-		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
-
-		// set grid bounds
-		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
-
-		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
-
-	}// Constructor
 
 
 	/**

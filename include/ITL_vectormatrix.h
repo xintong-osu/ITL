@@ -66,6 +66,7 @@ private :
 public :
 	// constructor 
 	VECTOR3() {Zero();} 
+	VECTOR3(const float x) {vec[0] = x; vec[1] = x; vec[2] = x;}	
 	VECTOR3(const float x0, const float x1, const float x2) {vec[0] = x0; vec[1] = x1; vec[2] = x2;}
 	
 	operator SCALAR(){

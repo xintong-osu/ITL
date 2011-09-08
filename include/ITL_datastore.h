@@ -80,7 +80,7 @@ public:
 	 */
 	~ITL_datastore()
 	{
-		if( this->array != NULL ) delete this->array;
+		if( this->array != NULL ) delete [] this->array;
 	}// end destructor
 
 };
