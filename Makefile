@@ -7,8 +7,9 @@ INCLUDES += -I./include
 SOURCES = ./src/*.cpp
 #      ITL_base.cpp ITL_entropycore.cpp\
 #      ITL_vectormatrix.cpp ITL_histogram.cpp
+#      ITL_spacetreenode.cpp
 
-OBJECTS = ITL_base.o ITL_vectormatrix.o ITL_histogram.o ITL_entropycore.o
+OBJECTS = ITL_base.o ITL_vectormatrix.o ITL_histogram.o ITL_entropycore.o ITL_spacetreenode.o
 
 # --- Make targets ---
 
