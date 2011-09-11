@@ -24,15 +24,15 @@ public:
 	ITL_grid_regular( int ndim )
 	{
 		this->nDim = ndim;
-		this->dim = NULL;
-		this->low = NULL;
-		this->high = NULL;	
-		this->lowInt = NULL;
-		this->highInt = NULL;	
-		this->lowPad = NULL;
-		this->highPad = NULL;
-		this->lowIntWithPad = NULL;
-		this->highIntWithPad = NULL;
+		//this->dim = NULL;
+		//this->low = NULL;
+		//this->high = NULL;
+		//this->lowInt = NULL;
+		//this->highInt = NULL;
+		//this->lowPad = NULL;
+		//this->highPad = NULL;
+		//this->lowIntWithPad = NULL;
+		//this->highIntWithPad = NULL;
 	}
 
 	/**
@@ -43,25 +43,25 @@ public:
 	void setBounds( float* l, float* h )
 	{
 		// set bounding box in physical space
-		this->low = new float[this->nDim];
-		this->high = new float[this->nDim];
+		//this->low = new float[this->nDim];
+		//this->high = new float[this->nDim];
 		memcpy( this->low, l, this->nDim * sizeof(float) );
 		memcpy( this->high, h, this->nDim * sizeof(float) );
 
 		// Set the neighborhood size to 0 (No pad required)
 		this->neighborhoodSize = 0;
-		this->neighborhoodSizeArray = new int[3];
+		//this->neighborhoodSizeArray = new int[3];
 		this->neighborhoodSizeArray[0] = this->neighborhoodSizeArray[1] = this->neighborhoodSizeArray[2] = 0;
 
 		// Set field size and bounding box in terms of grid vertex
-		this->dim = new int[this->nDim];
-		this->dimWithPad = new int[this->nDim];
-		this->lowInt = new int[this->nDim];
-		this->highInt = new int[this->nDim];
-		this->lowIntWithPad = new int[this->nDim];
-		this->highIntWithPad = new int[this->nDim];
-		this->lowPad = new int[this->nDim];
-		this->highPad = new int[this->nDim];
+		//this->dim = new int[this->nDim];
+		//this->dimWithPad = new int[this->nDim];
+		//this->lowInt = new int[this->nDim];
+		//this->highInt = new int[this->nDim];
+		//this->lowIntWithPad = new int[this->nDim];
+		//this->highIntWithPad = new int[this->nDim];
+		//this->lowPad = new int[this->nDim];
+		//this->highPad = new int[this->nDim];
 
 		// Set the boundary related variables (padding / ghost cell size 0)
 		for( int i=0; i<this->nDim; i++ )
@@ -113,25 +113,25 @@ public:
 	void setBounds( float* l, float* h, int* lPad, int* hPad, int neighborhoodsize )
 	{
 		// set bounding box in physical space
-		this->low = new float[this->nDim];
-		this->high = new float[this->nDim];
+		//this->low = new float[this->nDim];
+		//this->high = new float[this->nDim];
 		memcpy( this->low, l, this->nDim * sizeof(float) );
 		memcpy( this->high, h, this->nDim * sizeof(float) );
 
 		// Set the neighborhood size and vertices in the neighborhood
 		this->neighborhoodSize = neighborhoodsize;
-		this->neighborhoodSizeArray = new int[3];
+		//this->neighborhoodSizeArray = new int[3];
 		this->neighborhoodSizeArray[0] = this->neighborhoodSizeArray[1] = this->neighborhoodSizeArray[2] = this->neighborhoodSize;   
 
 		// Set field size and bounding box in terms of grid vertex
-		this->dim = new int[this->nDim];
-		this->dimWithPad = new int[this->nDim];
-		this->lowInt = new int[this->nDim];
-		this->highInt = new int[this->nDim];
-		this->lowIntWithPad = new int[this->nDim];
-		this->highIntWithPad = new int[this->nDim];
-		this->lowPad = new int[this->nDim];
-		this->highPad = new int[this->nDim];
+		//this->dim = new int[this->nDim];
+		//this->dimWithPad = new int[this->nDim];
+		//this->lowInt = new int[this->nDim];
+		//this->highInt = new int[this->nDim];
+		//this->lowIntWithPad = new int[this->nDim];
+		//this->highIntWithPad = new int[this->nDim];
+		//this->lowPad = new int[this->nDim];
+		//this->highPad = new int[this->nDim];
 
 		// Set the padding / ghost cell size
 		memcpy( this->lowPad, lPad, this->nDim * sizeof(int) );
@@ -176,27 +176,27 @@ public:
 	void setBounds( float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
 	{
 		// set bounding box in physical space
-		this->low = new float[this->nDim];
-		this->high = new float[this->nDim];
+		//this->low = new float[this->nDim];
+		//this->high = new float[this->nDim];
 		memcpy( this->low, l, this->nDim * sizeof(float) );
 		memcpy( this->high, h, this->nDim * sizeof(float) );
 
 		// Set the neighborhood size and vertices in the neighborhood
-		this->neighborhoodSizeArray = new int[3];
+		//this->neighborhoodSizeArray = new int[3];
 		memcpy( this->neighborhoodSizeArray, neighborhoodsizearray, this->nDim * sizeof(int) );
 		//this->neighborhoodSizeArray[0] = neighborhoodsizearray[0];
 		//this->neighborhoodSizeArray[1] = neighborhoodsizearray[1];
 		//this->neighborhoodSizeArray[2] = neighborhoodsizearray[2];
 
 		// Set field size and bounding box in terms of grid vertex
-		this->dim = new int[this->nDim];
-		this->dimWithPad = new int[this->nDim];
-		this->lowInt = new int[this->nDim];
-		this->highInt = new int[this->nDim];
-		this->lowIntWithPad = new int[this->nDim];
-		this->highIntWithPad = new int[this->nDim];
-		this->lowPad = new int[this->nDim];
-		this->highPad = new int[this->nDim];
+		//this->dim = new int[this->nDim];
+		//this->dimWithPad = new int[this->nDim];
+		//this->lowInt = new int[this->nDim];
+		//this->highInt = new int[this->nDim];
+		//this->lowIntWithPad = new int[this->nDim];
+		//this->highIntWithPad = new int[this->nDim];
+		//this->lowPad = new int[this->nDim];
+		//this->highPad = new int[this->nDim];
 
 		// Set the padding / ghost cell size
 		memcpy( this->lowPad, lPad, this->nDim * sizeof(int) );
@@ -267,16 +267,16 @@ public:
 	 */
 	~ITL_grid_regular()
 	{
-		if( this->dim != NULL )		delete this->dim;
-		if( this->dimWithPad != NULL ) 	delete this->dimWithPad;
-		if( this->low != NULL )		delete this->low;
-		if( this->high != NULL )	delete this->high;
-		if( this->lowInt != NULL )	delete this->lowInt;
-		if( this->highInt != NULL )	delete this->highInt;
-		if( this->lowIntWithPad != NULL )	delete  this->lowIntWithPad;
-		if( this->highIntWithPad != NULL )	delete  this->highIntWithPad;
-		if( this->lowPad != NULL )	delete  this->lowPad;
-		if( this->highPad != NULL )	delete  this->highPad;
+		//if( this->dim != NULL )		delete this->dim;
+		//if( this->dimWithPad != NULL ) 	delete this->dimWithPad;
+		//if( this->low != NULL )		delete this->low;
+		//if( this->high != NULL )	delete this->high;
+		//if( this->lowInt != NULL )	delete this->lowInt;
+		//if( this->highInt != NULL )	delete this->highInt;
+		//if( this->lowIntWithPad != NULL )	delete  this->lowIntWithPad;
+		//if( this->highIntWithPad != NULL )	delete  this->highIntWithPad;
+		//if( this->lowPad != NULL )	delete  this->lowPad;
+		//if( this->highPad != NULL )	delete  this->highPad;
 	}// end destructor
 };
 

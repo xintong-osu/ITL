@@ -18,21 +18,21 @@ class ITL_grid
 public:
 
 	int nDim;			/**< Number of dimensions */
-	int* dim;			/**< Array for length of each dimension */
-	int* dimWithPad;		/**< Array for length of each dimension along with ghost layers (if any) */
+	int dim[4];			/**< Array for length of each dimension */
+	int dimWithPad[4];		/**< Array for length of each dimension along with ghost layers (if any) */
 	int nVertices;			/**< Number of vertices in Cartesian space. */
 	int nVerticesWithPad;		/**< Number of vertices along with ghost layers (if any) in Cartesian space. */
-	float* low;			/**< Lower bound of field in continuous Cartesian space. Limit may not coincide with a grid vertex */
-	float* high;			/**< Upper bound of field in continuous Cartesian space. Limit may not coincide with a grid vertex */
-	int* lowInt;			/**< Lower bound of field in discrete Cartesian space (nearest grid vertex containing the lower bound). */
-	int* highInt;			/**< Upper bound of field in discrete Cartesian space (nearest grid vertex containing the upper bound). */
-	int* lowIntWithPad;		/**< Lower bound of field in discrete Cartesian space along with ghost layers (if any) */
-	int* highIntWithPad;		/**< Upper bound of field in discrete Cartesian space along with ghost layers (if any) */
+	float low[4];			/**< Lower bound of field in continuous Cartesian space. Limit may not coincide with a grid vertex */
+	float high[4];			/**< Upper bound of field in continuous Cartesian space. Limit may not coincide with a grid vertex */
+	int lowInt[4];			/**< Lower bound of field in discrete Cartesian space (nearest grid vertex containing the lower bound). */
+	int highInt[4];			/**< Upper bound of field in discrete Cartesian space (nearest grid vertex containing the upper bound). */
+	int lowIntWithPad[4];		/**< Lower bound of field in discrete Cartesian space along with ghost layers (if any) */
+	int highIntWithPad[4];		/**< Upper bound of field in discrete Cartesian space along with ghost layers (if any) */
 
 	int neighborhoodSize;   	/**< Neighborhood length for each point. Helps to determine span of ghost layers */
-	int* lowPad;			/**< Span of ghost layers beyond lower end. */
-	int* highPad;			/**< Span of ghost layers beyond upper end. */
-	int* neighborhoodSizeArray;
+	int lowPad[4];			/**< Span of ghost layers beyond lower end. */
+	int highPad[4];			/**< Span of ghost layers beyond upper end. */
+	int neighborhoodSizeArray[4];
 
 public:
 
@@ -47,7 +47,7 @@ public:
 	 */
 	ITL_grid( int ndim )
 	{
-		this->dim = NULL;
+		//this->dim = NULL;
 		this->nDim = ndim;
 	}
 

@@ -136,7 +136,7 @@ int main( int argc, char** argv )
 
 	// Initialize histogram
 	ITL_histogram::ITL_init_histogram( patchFile, nBin );
-		
+
 	switch( functionType )
 	{
 	case 0:
@@ -202,7 +202,7 @@ void compute_globalentropy_serial()
 	highF[0] = dataDim[0]-1.0f;
 	highF[1] = dataDim[1]-1.0f;
 	highF[2] = dataDim[2]-1.0f;
-	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF, lowPad, highPad, sizeNeighborhoodArray );
+	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );//, lowPad, highPad, sizeNeighborhoodArray );
 
 	// Initialize class that can compute entropy
 	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField );
@@ -211,6 +211,13 @@ void compute_globalentropy_serial()
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	globalEntropyComputer->computeHistogramBinField( "vector", nBin );
+
+	//int freqList[360];
+	//globalEntropyComputer->computeHistogramFrequencies( 360 );
+	//globalEntropyComputer->getHistogramFrequencies( 360, freqList );
+	//for( int i=0; i<360; i++ )
+	//	printf( "%d\n", freqList[i] );
+	//exit(0);
 
 	// Global entropy Computation
 	if( verboseMode == 1 ) printf( "Computing entropy at each point of the vector field ...\n" );

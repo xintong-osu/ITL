@@ -434,7 +434,7 @@ public:
 	{
 		assert( this->freqList != NULL );
 
-		// Allocate memorry for the bin frequencies
+		// Allocate memory for the bin frequencies
 		if( freqlist == NULL ) freqlist = new int[nBin];
 
 		// Copy frequency

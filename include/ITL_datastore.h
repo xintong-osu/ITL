@@ -38,9 +38,11 @@ public:
 	 * Constructor.
 	 * @param data pointer to template array conaining data.
 	 */
-	ITL_datastore( T* data )
+	ITL_datastore( T* data, int nData )
 	{
-		this->array = data;
+		//this->array = data;
+		this->array = new T[nData];
+		memcpy( this->array, data, sizeof(T)*nData );
 		this->datafile = NULL;
 
 	}// end constructor 1

@@ -43,7 +43,7 @@ public:
 		this->setBounds( l, h );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
+		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// constructor
 
@@ -65,7 +65,7 @@ public:
 		this->setBounds( l, h, lPad, hPad, neighborhoodsize );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
+		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// Constructor
 
@@ -88,7 +88,7 @@ public:
 		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( this->grid->dimWithPad, this->grid->nDim ) );
+		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// Constructor
 
@@ -114,7 +114,7 @@ public:
 		this->setBounds( lowEnd, highEnd );
 
 		// Initialize data store
-		this->datastore = new ITL_datastore<T>( data );
+		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// constructor 1
 
@@ -133,7 +133,7 @@ public:
 		this->setBounds( l, h );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( data );
+		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// constructor
 
@@ -157,7 +157,7 @@ public:
 		this->setBounds( l, h, lPad, hPad, neighborhoodsize );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( data );
+		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// Constructor
 
@@ -181,7 +181,7 @@ public:
 		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( data );
+		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// Constructor
 
@@ -458,8 +458,10 @@ public:
 	 */
 	~ITL_field_regular()
 	{
-		if( this->grid != NULL )	delete this->grid;
-		if( this->datastore != NULL )	delete this->datastore;
+		//if( this->grid != NULL )	delete this->grid;
+		//if( this->datastore != NULL )	delete this->datastore;
+		//delete grid;
+		//delete datastore;
 	}
 };
 

@@ -19,8 +19,8 @@ class ITL_field
 {
 public:
 
-	ITL_grid<T>* grid;			/**< Grid associated to the field. */
-	ITL_datastore<T>* datastore;		/**< Data store associated to the field. */
+	ITL_grid<T> *grid;			/**< Grid associated to the field. */
+	ITL_datastore<T> *datastore;		/**< Data store associated to the field. */
 	//ITL_field<T>* subfieldArray;		/**< An array of sub fields (also referred to as blocks). This can be potentially useful for recursive subdivision of field. */
 	//int* nPartition;			/**< Number of subfields along each dimension. */
 
