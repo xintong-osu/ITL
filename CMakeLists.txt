@@ -4,6 +4,8 @@
 cmake_minimum_required (VERSION 2.8)
 project (ITL)
 
+set(WITH_ITL_API OFF CACHE BOOL "whether ITL API is compiled") # TEST-ADD
+
 # ADD-BY-LEETEN 08/15/2011-BEGIN
 set(MYLIB_DIR 	"/homes/leeten/mylib" CACHE PATH "The path to MYLIB")
 set(WITH_PNETCDF OFF CACHE BOOL "whether PNETCDF is used")
@@ -70,12 +72,16 @@ endif()
 # the project's entire directory structure.
 add_subdirectory (src)
 
+add_subdirectory (include) # ADD-BY-LEETEN 09/07/2011 
+
 add_subdirectory (examples/ApplicationIT_regularvector)
 add_subdirectory (examples/ApplicationIT_regularscalar)
 
 # ADD-BY-LEETEN 08/29/2011-BEGIN
-add_subdirectory (examples/nek5000)
-add_subdirectory (examples/flash)
+if( $WITH_ITL_API ) # TEST-ADD
+  add_subdirectory (examples/nek5000)
+  add_subdirectory (examples/flash)
+endif() 			# TEST-ADD
 # ADD-BY-LEETEN 08/29/2011-END
 
 #

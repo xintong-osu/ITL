@@ -19,20 +19,35 @@
 //--------------------------------------------------------------------------
 // functions
 
-//! The C and C++ API to initialize ITL
+#if	0	// MOD-BY-LEETEN 09/07/2011-FROM:
+	//! The C and C++ API to initialize ITL
+	/*!
+	 *
+	*/
+	void
+	// MOD-BY-LEETEN 08/05/2011-FROM:
+		// ITL_begin();
+	// TO:
+	ITL_begin
+	(
+	 const char *szName
+	 );
+	// MOD-BY-LEETEN 08/05/2011-END
+#else	// MOD-BY-LEETEN 09/07/2011-TO:
+//! The C/C++ API to initialize ITL
 /*!
  *
+ *\sa iNameLength	Length of the given string szName
+ *\sa szName		Name of the current random field
+ *\sa
 */
 void
-// MOD-BY-LEETEN 08/05/2011-FROM:
-	// ITL_begin();
-// TO:
 ITL_begin
 (
- const char *szName
- );
-// MOD-BY-LEETEN 08/05/2011-END
-
+	const int iNameLength,
+	const char* szName
+);
+#endif	// MOD-BY-LEETEN 09/07/2011-END
 
 //! The Fortran API to initialize ITL
 /*!
@@ -556,6 +571,312 @@ itl_geom_rect_dim_coord_
 );
 
 #endif	// DEL-BY-LEETEN 07/18/2011-END
+
+// ADD-BY-LEETEN 09/07/2011-BEGIN
+/////////////////////////////////////////////////////////////////////
+//! The C/C++ API to create the NetCDF file
+/*!
+*/
+void
+ITL_nc_create
+(
+);
+
+//! The C/C++ API to dump the geometry of the bound block to the NetCDF file
+/*!
+\param	szGeomPathFilename path/filename of the file
+*/
+void
+ITL_nc_wr_geom
+(
+);
+
+//! The C/C++ API to dump the data of all blocks
+/*!
+*/
+void
+ITL_nc_wr_data
+(
+);
+
+//! The C/C++ API to dump the data of all blocks
+/*!
+*/
+void
+ITL_nc_wr_rv
+(
+ const int iRvId
+);
+
+//! The C/C++ API to specify the mapping between global and local block IDs
+/*!
+\sa	int iNrOfGlobalBlocks,
+\sa	const int piLocal2GlobalMapping[],
+ *
+*/
+void
+ITL_set_local2global_mapping
+(
+	const int piLocal2GlobalMapping[],
+	const bool bIs1Based
+);
+
+//! The C/C++ API to specify the time stamp
+/*!
+ * \sa iTimeStamp	the specified time stamp
+*/
+void
+ITL_set_time_stamp
+(
+	const int iTimeStamp
+);
+
+//! The C/C++ API to automatically decide a random variable's range
+/*!
+ * \sa iRandomVariable	ID (0-based) of the random variable
+*/
+void
+ITL_use_domain_range
+(
+	const int iRandomVariable
+);
+
+//! The C/C++ API to add a random field
+/*!
+\param	iNrOfBlocks				#blocks of the current process
+\param	iNrOfDataComponents		#data components to be used for entropy computation
+\param	piRfId					Pointer to the ID (0-based) of the created random field
+*/
+void
+ITL_add_random_field
+(
+	const int iNrOfBlocks,
+	const int iNrOfDataComponents,
+	int *piRfId
+);
+
+//! The C/C++ API to bind a random field
+/*!
+\param	iRfId	ID (0-based) of the random field
+*/
+void
+ITL_bind_random_field
+(
+	const int iRfId
+);
+
+//! The C/C++ API to bind a block.
+/*!
+\param iBlockId 	ID (0-based) of the block
+*/
+void
+ITL_bind_block
+(
+	const int iBlockId
+);
+
+//! The C/C++ API to specify the block size
+/*!
+\param iDim 		Dimension of the block
+\param pikDimLengths
+					The length of each dimension. The size should be
+					equal to iDim. If length is large than CBlock::MAX_DIM,
+					those elements exceed CBlock::MAX_DIM will be ignored.
+\sa   CBlock::MAX_DIM
+*/
+void
+ITL_block_size
+(
+	const int iDim,
+	const int piDimLengths[]
+);
+
+//! The C/C++ API to bind a data component
+/*!
+\param iBlockId 	ID (0-based) of the data component
+*/
+void
+ITL_bind_data_component
+(
+	const int iDataComponent
+);
+
+//! The C/C++ API to specify the name of the bound data component
+void
+ITL_data_name
+(
+		const char *szName
+);
+
+//! The C/C++ API to specify the range of the bound data component
+/*!
+\param dMin
+\param dMax
+*/
+void
+ITL_data_range
+(
+	const double dMin,
+	const double dMax
+);
+
+//! The C/C++ API to specify the data source of the bound data component
+/*!
+\param	pdData		The array of the data
+\param	iBase		The ID (0-based) of the 1st element
+\param	iStep		The distance between consecutive elements
+*/
+void
+ITL_data_source
+(
+	const double pdData[],
+	const int iBase,
+	const int iStep
+);
+
+//! The C/C++ API to specify the coordinates along one dim. for regular grid
+/*!
+ * \param iDimId	ID (0-based) of the block dimension
+ * \param pdCoord	the array of the coordinates along the specified block dim
+ * \param iBase		the 1st element (0-based) in the pool
+ * \param iStep		the difference between the consecutive elements
+*/
+void
+ITL_geom_rect_dim_coord
+(
+	const int iDimId,
+	double *pdCoord,
+	const int iBase,
+	const int iStep
+);
+
+//! The C/C++ API to add a random variable
+/*!
+ * \param	piRvId		ID (0-based) of the new created random variable
+*/
+void
+ITL_add_random_variable
+(
+	int *piRvId
+);
+
+//! The C/C++ API to bind a random variable
+/*!
+ * \param	iRvId		ID (0-based) of the random variable
+*/
+void
+ITL_bind_random_variable
+(
+	const int iRvId
+);
+
+//! The C/C++ API to set the name of the bound random variable
+/*!
+ * \param	piRvId		ID (0-based) of the new created random variable
+*/
+void
+ITL_rv_name
+(
+	const char* szName
+);
+
+//! The C/C++ API to bind a random variable
+/*!
+ * \param	iRvId		ID (0-based) of the random variable
+*/
+void
+ITL_set_random_variable_range
+(
+	const double dMin,
+	const double dMax
+);
+
+//! The C/C++ API to specify the #bins of the bound random variable
+/*!
+ * \param	iNrOfBins	#bins
+*/
+void
+ITL_set_n_bins
+(
+	const int iNrOfBins
+);
+
+//! The C/C++ API to set up the feature vector of the current random variable
+/*!
+\param	iFeatureLength			Length of the feature vector
+\param	piFeatureVector			The array of indices (0-based) to the data components
+\param	bIsUsingOrientation		A flag whether the vector orientation is used as the random variable (true) or the magnitude (false)
+*/
+void
+ITL_random_varable_set_feature_vector
+(
+	const int iFeatureLength,
+	const int piFeatureVector[],
+	const int iFeatureMapping
+);
+
+//! The C/C++ API to dump the geometry of the bound block to a file
+/*!
+\param	szGeomPathFilename path/filename of the file
+*/
+void
+ITL_dump_bound_block_geom
+(
+	const char* szGeomPathFilename
+);
+
+//! The C/C++ API to dump the feature vector of a specified random variable to a file
+/*!
+\param	iRvId	ID (0-based) of the random variable
+\param	szFeatureVectorPathFilename	Path/filename of the file
+*/
+void
+ITL_dump_bound_block_feature_vector_
+(
+	const int iRvId,
+	const char* szFeatureVectorPathFilename
+);
+
+//! The C/C++ API to compute and dump the global entropy of the bound block to a file
+/*!
+\param	iRvId							ID (0-based) of the random variable
+\param	szGlobalEntropyLogPathFilename	Path/filename of the file
+*/
+void
+ITL_dump_bound_block_global_entropy
+(
+	const int iRvId,
+	const char* szGlobalEntropyLogPathFilename
+);
+
+//! The C/C++ API to compute and dump the local entropy of the bound block to a file
+/*!
+\param	iRvId							ID (0-based) of the random variable
+\param	szGlobalEntropyLogPathFilename	Path/filename of the file
+*/
+void
+ITL_dump_bound_block_local_entropy
+(
+	const int iRvId,
+	const int iDim,
+	const double pdNeighborhood[],
+	const char* szLocalEntropyLogPathFilename
+);
+
+//! The C/C++ API to compute and dump the global joint entropy of the bound block to a file
+/*!
+\param	iRvId1	ID (0-based) of the 1st random variable
+\param	iRvId2	ID (0-based) of the 2nd random variable
+\param	szGlobalEntropyLogPathFilename	Path/filename of the file
+*/
+void
+ITL_dump_bound_block_global_jentropy
+(
+	const int iRvId1,
+	const int iRvId2,
+	const char* szGlobalEntropyLogPathFilename
+);
+// ADD-BY-LEETEN 09/07/2011-END
 
 #endif	// #ifndef _ITL
 

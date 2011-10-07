@@ -42,11 +42,19 @@ AUX_SOURCE_DIRECTORY ("." 	SRC_FILES)
 # build the project as a library
 add_library(${PROJECT_NAME} ${SRC_FILES})
 
-# output the library to the lib/ folder
-# MOD-BY-LEETEN 08/29/2011-FROM:	set(LIBRARY_OUTPUT_PATH "../lib")
-# TO:
-set(LIBRARY_OUTPUT_PATH ${ITL_LIB})
-# MOD-BY-LEETEN 08/29/2011-END
+# MOD-BY-LEETEN 09/07/2011-FROM:
+	# # output the library to the lib/ folder
+	# # MOD-BY-LEETEN 08/29/2011-FROM:	set(LIBRARY_OUTPUT_PATH "../lib")
+	# # TO:
+	# set(LIBRARY_OUTPUT_PATH ${ITL_LIB})
+	# # MOD-BY-LEETEN 08/29/2011-END
+# MOD-BY-LEETEN 09/07/2011-TO:
+	
+install(
+	TARGETS ${PROJECT_NAME}
+	DESTINATION lib)
+	
+# MOD-BY-LEETEN 09/07/2011-END
 
 #
 # $Log$
