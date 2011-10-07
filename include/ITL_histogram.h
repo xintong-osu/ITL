@@ -16,6 +16,11 @@
 class ITL_histogram
 {
 public:
+	// ADD-BY-LEETEN 10/07/2011-BEGIN
+	enum {
+		DEFAULT_NR_OF_BINS = 360
+	};
+	// ADD-BY-LEETEN 10/07/2011-END
 
 	static float* theta;				 /**< Angle variable. Angle related to spherical coordinates. */
 	static float* phi;					 /**< Angle variable. Angle related to spherical coordinates. */
