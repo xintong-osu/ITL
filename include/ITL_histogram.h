@@ -41,14 +41,23 @@ public:
 	 * @param patchFileName Path of patch file on disc.
 	 * @param nBins Desired number of bins in the histogram.
 	 */
-	ITL_histogram( const char* patchFileName, int nBins );
+	// MOD-BY-LEETEN 10/07/2011-FROM:
+		// ITL_histogram( const char* patchFileName, int nBins );
+	// TO:
+	ITL_histogram( const char* patchFileName, int nBins = DEFAULT_NR_OF_BINS);
+	// MOD-BY-LEETEN 10/07/2011-END
 
 	/**
 	 * Histogram initialization function.
 	 * @param patchFileName Path of patch file on disc.
 	 * @param nBins Desired number of bins in the histogram.
 	 */
-	static void ITL_init_histogram( const char* patchFileName, int nBins );
+	// MOD-BY-LEETEN 10/07/2011-FROM:
+		// static void ITL_init_histogram( const char* patchFileName, int nBins );
+	// TO:
+	static void ITL_init_histogram( const char* patchFileName, int nBins = DEFAULT_NR_OF_BINS);
+	// MOD-BY-LEETEN 10/07/2011-END
+
 	/**
 	 * Patch header reader. Reads patch information from the in-built header.
 	 * 
