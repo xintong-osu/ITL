@@ -774,7 +774,7 @@ public:
 
 		// Read header from input file
 		char buffer[4];
-		int dim[nDim];
+		int dim[4];
 		for( int i=0; i<nDim; i++ )
 		{
 			fread( buffer, 1, 4, inFile );

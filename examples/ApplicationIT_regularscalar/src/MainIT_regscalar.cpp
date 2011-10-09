@@ -273,7 +273,13 @@ void compute_globalentropy_parallel()
 	globalEntropyComputer->computeHistogramFrequencies( nBin );
 	
 	// Get histogram frequencies
-	int freqList[nBin];
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		int* freqList = new int[nBin];
+	#endif
+	#if defined( _LINUX )
+		int freqList[nBin];
+	#endif
+
 	globalEntropyComputer->getHistogramFrequencies( nBin, freqList );
 	if( verboseMode == 1 ) 
 	{	
@@ -284,7 +290,12 @@ void compute_globalentropy_parallel()
 	// Sync with all processors and and sum up all histogram frequencies to processor 0
 	MPI_Barrier( MPI_COMM_WORLD );
 
-	int reducedFreqList[nBin];
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		int* reducedFreqList = new int[nBin];
+	#endif
+	#if defined( _LINUX )
+		int reducedFreqList[nBin];
+	#endif
 	MPI_Reduce( freqList, reducedFreqList, nBin, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );  
 
 	// Compute and print global entropy at processor 0	
@@ -303,6 +314,11 @@ void compute_globalentropy_parallel()
 	// Runtime
 	if( verboseMode == 1 ) 	printf( "%d: Read/Computation Time: %f, %f seconds\n", myId, execTime[0], execTime[1] );
 	else 			printf( "%d, %f, %f\n", myId, execTime[0], execTime[1] );
+
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		delete [] freqList;
+		delete [] reducedFreqList;
+	#endif
 	
 }// end function
 

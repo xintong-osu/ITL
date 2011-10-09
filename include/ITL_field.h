@@ -57,11 +57,11 @@ public:
 	/**
 	 * Data accessor function type 1.
 	 */
-	virtual T getDataAt( int id ){}
+	virtual T getDataAt( int id ){ return (T)0.0f; }
 	/**
 	 * Data accessor function type 2.
 	 */
-	virtual T getDataAt( int x, int y, int z ){}
+	virtual T getDataAt( int x, int y, int z ){ return (T)0.0f; }
 	/**
 	 * Data accessor function type 3.
 	 */

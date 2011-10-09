@@ -295,14 +295,20 @@ public:
 			computeHistogramFrequencies( nBin );
 			
 			// Compute entropy from frequency list			
-			globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( freqList, binData->grid->nVertices, nBin, toNormalize );		
-		
+			globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( freqList,
+										binData->grid->nVertices, nBin, toNormalize );	
+	
 		}		
 		else
-			//globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( this->binData->datastore->array, this->binData->grid->nVertices, nBin, toNormalize );		
-			globalEntropy = ITL_entropycore::computeEntropy_KDEBased( this->dataField->datastore->array, this->dataField->grid->nVertices, 0.0, toNormalize );
-	
-	}
+			//globalEntropy = ITL_entropycore::computeEntropy_HistogramBased(
+			//								this->binData->datastore->array,
+			//								this->binData->grid->nVertices,
+			//								nBin, toNormalize );		
+			globalEntropy = ITL_entropycore::computeEntropy_KDEBased(
+											this->dataField->datastore->array,
+											this->dataField->grid->nVertices,
+											0.0, toNormalize );
+	}// End function
 
 	/**
 	  * Cross-validation function.
@@ -399,7 +405,7 @@ public:
 	void computeHistogramFrequencies( int nBin )
 	{
 		// Scan through bin Ids and keep count
-		if( this->freqList == NULL ) freqList = new int[nBin];
+		if( freqList == NULL ) freqList = new int[nBin];
 		for( int i=0; i<nBin; i++ )
 			freqList[i] = 0;
 		for( int i=0; i<binData->grid->nVertices; i++ )
@@ -433,14 +439,29 @@ public:
 	void getHistogramFrequencies( int nBin, int *freqlist )
 	{
 		assert( this->freqList != NULL );
+		assert( freqlist != NULL );
 
-		// Allocate memory for the bin frequencies
-		if( freqlist == NULL ) freqlist = new int[nBin];
+		// Copy frequency for each bin
+		memcpy( freqlist, this->freqList, sizeof( int ) * nBin );	
 
-		// Copy frequency
-		memcpy( freqlist, this->freqList, sizeof( int ) * nBin );
-		
-	
+	}// end function
+
+	/**
+	 * Histogram frequency data accessor function.
+	 * Returns pointer to integer array storing the histogram freqencies.
+	 */
+	void getHistogramFrequencies( int nBin, float *freqlist )
+	{
+		assert( this->freqList != NULL );
+		assert( freqlist != NULL );
+		float *tempFreqList = new float[nBin];
+		for( int i=0; i<nBin; i++ )
+			tempFreqList[i] = freqList[i] / (float)this->binData->grid->nVertices;
+
+		// Copy frequency for each bin
+		memcpy( freqlist, tempFreqList, sizeof( float ) * nBin );
+
+		delete [] tempFreqList;
 
 	}// end function
 

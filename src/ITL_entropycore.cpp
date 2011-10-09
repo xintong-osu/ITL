@@ -2,9 +2,14 @@
 
 float ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint, int nBin, bool toNormalize )
 {
-	// Initialize frequency and probability array
-	float probArray[nBin];
-
+	// Initialize probability array
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		float* probArray = new float[nBin];
+	#endif
+	#if defined( _LINUX )
+		float probArray[nBin];
+	#endif
+		
 	//for( int i=0; i<nBin; i++ )
 	//	probArray[i] = 0;
 
@@ -26,14 +31,23 @@ float ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint
 	if( toNormalize )
 		entropy /= ( log( (float)nBin ) / log( 2.0f ) );
 
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		delete [] probArray;
+	#endif
+
 	return entropy;
 	
 }// End function
 
 float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArray, int nPoint, int nBin, bool toNormalize )
 {
-	// Initialize frequency and probability array
-	float probArray[nBin];
+	// Initialize probability array
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		float* probArray = new float[nBin];
+	#endif
+	#if defined( _LINUX )
+		float probArray[nBin];
+	#endif
 
 	for( int i=0; i<nBin; i++ )
 	{
@@ -63,6 +77,10 @@ float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArra
 	if( toNormalize )
 		entropy /= ( log( (float)nBin ) / log( 2.0f ) );
 
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		delete [] probArray;
+	#endif
+
 	return entropy;
 	
 }// End function
@@ -75,7 +93,12 @@ float ITL_entropycore::computeEntropy_KDEBased( float* data, int nPoint, float h
 	printf( "Mean and variance of the field: %f %f\n", mu, var );
 	
 	// Initialize probability array
-	float probArray[nPoint];
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		float* probArray = new float[nPoint];
+	#endif
+	#if defined( _LINUX )
+		float probArray[nPoint];
+	#endif
 	for( int i=0; i<nPoint; i++ )
 		probArray[i] = 0;
 	
@@ -108,6 +131,10 @@ float ITL_entropycore::computeEntropy_KDEBased( float* data, int nPoint, float h
 	// Normalize, if required
 	if( toNormalize )
 		entropy /= ( log( (float)nPoint ) / log( 2.0f ) );
+
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		delete [] probArray;
+	#endif
 
 	return entropy;
 	

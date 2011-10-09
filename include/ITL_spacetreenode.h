@@ -12,12 +12,16 @@
 
 class ITL_spacetreenode
 {
+	int globalID;
+
 	int level;
 	int nDim;
 	
 	float low[4];
 	float high[4];
 
+	int nBin;
+	float freqList[720];
 	float globalEntropy;
 	
 	int nChild;
@@ -39,12 +43,17 @@ public:
 	/**
 	 * Constructor
 	 */
-	ITL_spacetreenode( int ndim, int lev, float *l, float *h );
+	ITL_spacetreenode( int ndim, int lev, float *l, float *h, int nbin = 360 );
 
 	/**
 	 * Destructor
 	*/
 	~ITL_spacetreenode();
+
+	/**
+	 * 
+	 */
+	void setGlobalID( int id );
 
 	/**
 	 * 
@@ -73,8 +82,23 @@ public:
 
 	/**
 	 *
+ 	 */
+	void setFrequencyList( int nbin, float *freqlist );
+
+	/**
+	 *
 	 */
 	void setEntropy( float ge );
+
+	/**
+	 *
+	 */
+	int getGlobalID();
+
+	/**
+	 *
+	 */
+	int getNumBin();
 
 	/**
 	 *
@@ -113,6 +137,11 @@ public:
 
 	/**
 	 *
+ 	 */
+	float* getFrequencyList();
+
+	/**
+	 *
 	 */
 	float getEntropy();
 
@@ -129,7 +158,7 @@ public:
 	/**
 	 *
 	 */
-	void saveNode( FILE *outFile );
+	void saveNode( FILE *outFile, int nChildTree );
 };
 #endif
 /* ITL_SPACETREENODE_H_ */
