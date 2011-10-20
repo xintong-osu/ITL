@@ -5,8 +5,7 @@ float ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint
 	// Initialize probability array
 	#if defined( _WIN32 ) || defined( _WIN64 )
 		float* probArray = new float[nBin];
-	#endif
-	#if defined( _LINUX )
+	#else
 		float probArray[nBin];
 	#endif
 		
@@ -44,8 +43,7 @@ float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArra
 	// Initialize probability array
 	#if defined( _WIN32 ) || defined( _WIN64 )
 		float* probArray = new float[nBin];
-	#endif
-	#if defined( _LINUX )
+	#else
 		float probArray[nBin];
 	#endif
 
@@ -95,8 +93,7 @@ float ITL_entropycore::computeEntropy_KDEBased( float* data, int nPoint, float h
 	// Initialize probability array
 	#if defined( _WIN32 ) || defined( _WIN64 )
 		float* probArray = new float[nPoint];
-	#endif
-	#if defined( _LINUX )
+	#else
 		float probArray[nPoint];
 	#endif
 	for( int i=0; i<nPoint; i++ )
