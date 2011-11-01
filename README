@@ -19,19 +19,61 @@ make install
 
 -------------------
 
-Building itl via CMake:
+[Building itl via CMake]
 
-Also, cmake can be used to configure and to compile ITL. 
+Also, cmake can be used to configure and to compile ITL. The following sections describe how to use cmake.
 
-For gcc users, once entering the folder of itl, type the command 'CMake -G "Unix Makefiles".
+<Command line usage of Cmake>
 
-For Eclipse users, once entering the folder of itl, type the command 'make -G "Eclipse CDT4 - Unix Makeifles". 
+If the ITL is first time checked out, please properly set up the variables. The meaning of variables is explained in the next section.
+
+- Windows: 
+	Launch the GUI-version of cmake (cmake-gui) and then setup the variables.
+
+- Linux: 
+	Enter the itl folder and then launch the menu-versuion of cmake (ccmake). The command should be as follows:
+	
+		ccmake..
+
+<Support generators>
+
+When first use cmake to configure itl, it will be required to setup the using compiler (eg. gcc). The following ones have been testsd
+- MSVC 2005 
+- MSVC 2008
+- GCC:
+Entering the folder of itl, and then type the following commands:
+
+	ccmake -G "Unix Makefiles"
+
+- Eclipse:
+CMake can also create projects for Eclipse, which requires more steps. First, entering the folder of itl, and then type the following command:
+
+	ccmake -G "Eclipse CDT4 - Unix Makeifles"
+	
 Then, please follow the instruction in the following URL to add itl to Eclipse:
 
 http://www.cmake.org/Wiki/CMake:Eclipse_UNIX_Tutorial#Option_2:_UNIX_Makefile_Generator
 
--------------------
-autofonf versus CMake:
+<Variables in CMake>
+When using CMake, the following variables should be configured. To enter the wizard mode, the '-i' switch can be used with cmaje
+
+- DIY_DIR: 		
+	Path where DIY is installed.
+
+- WITH_ITL_API:	
+	The flag whether the ITL API for Fortran is built. Currently this value should be OFF. If it is ON, the following variables should be configured too.
+	* HDF5_DIR: 	
+		Path where HDF5 is installed.
+	* MYLIB_DIR: 	
+		Path to our own internal libraries, which is only used when WITH_ITL_API is ON.
+	* NETCDF_DIR:	
+		Path where NETCDF is installed.
+	* PNERCDF_DIR:	
+		Path where PNETCDF is installed.
+	* WITH_PNETCDF:	
+		The flag whether PNETCDF (ON) or NETCDF (OFF) is used.
+
+<autofonf versus CMake>
 
 It will be up to the user to user either autoconf or CMake to build ITL. However, it is RECOMMENDED to use only one of them. 
 
