@@ -38,6 +38,8 @@ char* patchFile = NULL;
 SCALAR *scalarFieldData = NULL;
 VECTOR3 *vectorFieldData = NULL;
 
+ITL_histogram *histogram = NULL;
+
 ITL_field_regular<SCALAR> *enhancedScalarField = NULL;
 //ITL_field_regular<VECTOR3> *vectorField = NULL;
 ITL_field_regular<SCALAR> *scalarFieldBlockArray = NULL;
@@ -45,6 +47,7 @@ ITL_field_regular<SCALAR> *scalarFieldBlockArray = NULL;
 ITL_localentropy<SCALAR> *localEntropyComputer_scalar = NULL;
 //ITL_localentropy<VECTOR3> *localEntropyComputer_vector = NULL;
 
+int dataSize[3];
 int tot_blocks = 512;
 
 double execTime[3];
@@ -120,7 +123,7 @@ int main( int argc, char** argv )
 	ITL_base::ITL_init();
 
 	// Initialize histogram
-	ITL_histogram::ITL_init_histogram( patchFile, nBin );
+	histogram = new ITL_histogram( patchFile, nBin );
 
 	// Allocate memory for pointers that will hold block data
 	//MPI_Datatype complex;
@@ -211,7 +214,7 @@ int main( int argc, char** argv )
 		{
 
 			// exchange neighbors
-	   	 	DIY_Exchange_neighbors( &receivedItems, 1.0, &RecvItemType, &SendItemType );
+	   	 	DIY_Exchange_neighbors( &receivedItems, 0, 1.0, &RecvItemType, &SendItemType );
 
 			// Expand block data with ghost layers
 			expandBlockData( data[k], lowF, highF, (float**)receivedItems,
@@ -220,13 +223,13 @@ int main( int argc, char** argv )
    		 	// flush any remaining messages
   		  	// if multiple rounds of compute / exchange neighbors, call FlushNeighbors
   		  	// once for each time block, after the rounds complete
- 		   	DIY_Flush_neighbors(&receivedItems, &RecvItemType );
+ 		   	DIY_Flush_neighbors( &receivedItems, 0, &RecvItemType );
 
 			// Initialize ITL scalar field with block data
 			scalarField = new ITL_field_regular<SCALAR>( enhancedData[k], nDim, lowF, highF );
 
 			// Initialize class that can compute entropy
-			localEntropyComputer_scalar = new ITL_localentropy<SCALAR>( scalarField );
+			localEntropyComputer_scalar = new ITL_localentropy<SCALAR>( scalarField, histogram );
 
 			// Create bin field
 			localEntropyComputer_scalar->computeHistogramBinField( "scalar", nBin );
@@ -965,10 +968,19 @@ int getRegionType( int x, int y, int z, int *enhancedSize, int neighborhoodSize 
 //
 MPI_Datatype* RecvItemType(int *cts) {
 
+  //MPI_Datatype *dtype = new MPI_Datatype;
+  //MPI_Type_contiguous(4, MPI_FLOAT, dtype);
+
+  //return dtype;
   MPI_Datatype *dtype = new MPI_Datatype;
-  MPI_Type_contiguous(4, MPI_FLOAT, dtype);
+
+  struct map_block_t map[1] = {
+    {MPI_FLOAT, OFST, 4, 0, 1 },
+  };
+  DIY_Create_datatype(0, 1, map, dtype);
 
   return dtype;
+
 
 }
 //
@@ -984,10 +996,15 @@ MPI_Datatype* RecvItemType(int *cts) {
 //
 MPI_Datatype* SendItemType(int *cts, char** pts) {
 
+  //MPI_Datatype *dtype = new MPI_Datatype; // datatype for one point
+  //MPI_Type_contiguous(4, MPI_FLOAT, dtype);
   MPI_Datatype *dtype = new MPI_Datatype; // datatype for one point
-  MPI_Type_contiguous(4, MPI_FLOAT, dtype);
+
+  struct map_block_t map[1] = {
+    {MPI_FLOAT, OFST, 4, 0, 1 },
+  };
+  DIY_Create_datatype(0, 1, map, dtype);
 
   return dtype;
-
 }
 

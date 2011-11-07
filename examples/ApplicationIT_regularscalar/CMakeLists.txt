@@ -20,11 +20,11 @@ include_directories(
 		. 
 		./include
 		${ITL_DIR}/include
-		${ITL_DIR}/include/datastore
-		${ITL_DIR}/include/field
-		${ITL_DIR}/include/grid
-		${ITL_DIR}/include/metrics
-		${ITL_DIR}/include/util
+		# ${ITL_DIR}/include/datastore
+		# ${ITL_DIR}/include/field
+		# ${ITL_DIR}/include/grid
+		# ${ITL_DIR}/include/metrics
+		# ${ITL_DIR}/include/util
 	)
 
 link_directories(

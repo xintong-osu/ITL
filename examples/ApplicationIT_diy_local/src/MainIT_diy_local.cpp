@@ -35,6 +35,8 @@ char* inputFieldFile = NULL;
 char* outFile = NULL;
 char* patchFile = NULL;
 
+ITL_histogram *histogram = NULL;
+
 SCALAR *scalarFieldData = NULL;
 VECTOR3 *vectorFieldData = NULL;
 
@@ -44,10 +46,35 @@ ITL_field_regular<VECTOR3> *vectorField = NULL;
 ITL_localentropy<SCALAR> *localEntropyComputer_scalar = NULL;
 ITL_localentropy<VECTOR3> *localEntropyComputer_vector = NULL;
 
+int dataSize[3];
 int tot_blocks = 512;
 
 double execTime[3];
 clock_t starttime, endtime;
+
+//
+// user-defined callback function for creating an MPI datatype for the
+//   received item
+//
+// item: pointer to the item
+// char * is used as a generic pointers to bytes, not necessarily to strings
+// abs_addr: whether offsets in the MPI datatype are absolutely addressed via
+//  MPI_BOTTOM, or relatively addressed via the start of the item
+//  true: uses absolute addressing, false: uses relative addressing
+//
+// side effects: creates & commits the MPI datatype
+//
+// returns: pointer to the datatype
+//
+void *CreateType(void *item, MPI_Datatype *dtype) {
+
+  struct map_block_t map[1] = {
+	{MPI_FLOAT, OFST, dataSize[0]*dataSize[1]*dataSize[2]+6, 0, 1},
+  };	
+  DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
+  
+  return MPI_BOTTOM;
+}
 
 /**
  * Main function.
@@ -66,7 +93,6 @@ int main( int argc, char** argv )
 	int nDim;
 	int nBin;
 	
-	int dataSize[3];
 	int given[3] = {0, 0, 0};
 
 	int fieldType = -1;
@@ -105,7 +131,7 @@ int main( int argc, char** argv )
 	ITL_base::ITL_init();
 
 	// Initialize histogram
-	ITL_histogram::ITL_init_histogram( patchFile, nBin );
+	histogram = new ITL_histogram( patchFile, nBin );
 
 	// Allocate memory for pointers that will hold block data
 	MPI_Datatype complex;
@@ -173,9 +199,9 @@ int main( int argc, char** argv )
 	for( int k=0; k<nblocks; k++ )
 	{
 
-		lowF[0] = 0; 		highF[0] = diy_max[3*k] - diy_min[3*k];
-		lowF[1] = 0; 		highF[1] = diy_max[3*k+1] - diy_min[3*k+1];
-		lowF[2] = 0; 		highF[2] = diy_max[3*k+2] - diy_min[3*k+2];
+		lowF[0] = 0; 	highF[0] = diy_max[3*k] - diy_min[3*k];
+		lowF[1] = 0; 	highF[1] = diy_max[3*k+1] - diy_min[3*k+1];
+		lowF[2] = 0; 	highF[2] = diy_max[3*k+2] - diy_min[3*k+2];
 
 		if( fieldType == 0 )
 		{
@@ -184,9 +210,7 @@ int main( int argc, char** argv )
 			scalarField = new ITL_field_regular<SCALAR>( data[k], nDim, lowF, highF );
 	
 			// Initialize class that can compute entropy
-			localEntropyComputer_scalar = new ITL_localentropy<SCALAR>( scalarField );
-
-			localEntropyComputer_scalar->setHistogramRange( 0.0f, 255.0f );
+			localEntropyComputer_scalar = new ITL_localentropy<SCALAR>( scalarField, histogram );
 
 			// Create bin field
 			localEntropyComputer_scalar->computeHistogramBinField( "scalar", nBin );
@@ -196,7 +220,7 @@ int main( int argc, char** argv )
 
 			// Save local entropy field
 			//localEntropyList[k] = new float[scalarField->grid->nVertices + 6];
-			localEntropyList[k] = new float[dataSize[0]*dataSize[1]*dataSize[2]];
+			localEntropyList[k] = new float[dataSize[0]*dataSize[1]*dataSize[2]+6];
 			localEntropyList[k][0] = diy_min[3*k];
 			localEntropyList[k][1] = diy_min[3*k+1];
 			localEntropyList[k][2] = diy_min[3*k+2];
@@ -204,22 +228,23 @@ int main( int argc, char** argv )
 			localEntropyList[k][4] = diy_max[3*k+1];
 			localEntropyList[k][5] = diy_max[3*k+2];
 			memcpy( localEntropyList[k]+6, localEntropyComputer_scalar->getEntropyField(), sizeof(SCALAR)*scalarField->grid->nVertices );
-			if( verboseMode == 1 ) printf( "Block Limits: %d, %d, %d, %d, %d, %d, local entropy computed.\n", scalarField->grid->lowInt[0],
-															scalarField->grid->highInt[0],
-															scalarField->grid->lowInt[1],
-															scalarField->grid->highInt[1],
-															scalarField->grid->lowInt[2],
-															scalarField->grid->highInt[2] );
+			if( verboseMode == 1 ) printf( "Block Limits: %d, %d, %d, %d, %d, %d, local entropy computed.\n",
+											scalarField->grid->lowInt[0],
+											scalarField->grid->highInt[0],
+											scalarField->grid->lowInt[1],
+											scalarField->grid->highInt[1],
+											scalarField->grid->lowInt[2],
+											scalarField->grid->highInt[2] );
 
-			float max = -100000;
-			float min = 100000;
+			float max = -100000.0f;
+			float min = 100000.0f;
 			for( int i=0; i<scalarField->grid->nVertices; i++ )
 			{
 				if( localEntropyList[k][i+6] > max ) max = localEntropyList[k][i+6];
 				if( localEntropyList[k][i+6] < min ) min = localEntropyList[k][i+6];
 			}
 
-			printf( "%f %f\n", min, max );
+			printf( "%g %g\n", min, max );
 
 			// Clear up
 			delete localEntropyComputer_scalar;
@@ -232,7 +257,7 @@ int main( int argc, char** argv )
 			vectorField = new ITL_field_regular<VECTOR3>( vectordata[k], nDim, lowF, highF );
 
 			// Initialize class that can compute entropy
-			localEntropyComputer_vector = new ITL_localentropy<VECTOR3>( vectorField );
+			localEntropyComputer_vector = new ITL_localentropy<VECTOR3>( vectorField, histogram );
 
 			// Create bin field
 			localEntropyComputer_vector->computeHistogramBinField( "vector", nBin );
@@ -262,10 +287,10 @@ int main( int argc, char** argv )
 	// Write local entropy field 
 	if( verboseMode == 1 ) printf( "Writing local entropy field ...\n" );
 	starttime = ITL_util<float>::startTimer();	
-	MPI_Datatype *dtype = new MPI_Datatype; // datatype for output
-	MPI_Type_contiguous( dataSize[0]*dataSize[1]*dataSize[2], MPI_FLOAT, dtype );
-	MPI_Type_commit( dtype );
-	MPI_Barrier( MPI_COMM_WORLD ); // everyone synchronizes again
+	//MPI_Datatype *dtype = new MPI_Datatype; // datatype for output
+	//MPI_Type_contiguous( dataSize[0]*dataSize[1]*dataSize[2]+6, MPI_FLOAT, dtype );
+	//MPI_Type_commit( dtype );
+	//MPI_Barrier( MPI_COMM_WORLD ); // everyone synchronizes again
 		
 	float **listptr = new float*[nblocks];
 	for( int i=0; i<nblocks; i++ )
@@ -274,7 +299,7 @@ int main( int argc, char** argv )
 	}
 
 	DIY_Write_open_all( outFile, 0 );
-	DIY_Write_blocks_all( (void **)listptr, nblocks, dtype );
+	DIY_Write_blocks_all( (void **)listptr, nblocks, NULL, 0, &CreateType );
 	DIY_Write_close_all();
 	execTime[2] = ITL_util<float>::endTimer( starttime );
 	

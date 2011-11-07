@@ -28,30 +28,34 @@ public:
 
 	float globalEntropy;				/**< Value of computed global entropy of the field. */
 	float* probarray;   				/**< Probability array used in entropy computation. */
+	
+	ITL_histogram *histogram;			// ADD-BY-ABON 11/07/2011
 
 public:
 
 	/**
 	 * Constructor Type 1.
 	 */
-	ITL_globalentropy( ITL_field_regular<T> *f )
+	ITL_globalentropy( ITL_field_regular<T> *f, ITL_histogram *hist )
 	{
 		dataField = f;
 		binData = NULL;
 		freqList = NULL;
 		histogramRangeSet = false;
+		histogram = hist;
 
 	}// End constructor
 
 	/**
 	 * Constructor Type 2.
 	 */
-	ITL_globalentropy( ITL_field_regular<T> *dataF, ITL_field_regular<int> *binF  )
+	ITL_globalentropy( ITL_field_regular<T> *dataF, ITL_field_regular<int> *binF, ITL_histogram *hist  )
 	{
 		dataField = dataF;
 		binData = binF;
 		freqList = NULL;
 		histogramRangeSet = false;
+		histogram = hist;
 
 	}// End constructor
 
@@ -74,7 +78,7 @@ public:
 			// Determine number of bins, if not specified already
 			if( nBin == 0 )		nBin = 360;
 			
-			computeHistogramBinField_Vector( nBin, binMapFile );
+			computeHistogramBinField_Vector( nBin, 0, binMapFile );
 		}
 		else if( strcmp(fieldType, "vector2" ) == 0 )
 		{
@@ -167,7 +171,7 @@ public:
 	 * Creates a scalar field of histogram at each grid vertex.
 	 * @param nBins Number of bins to use in histogram computation.
 	 */
-	void computeHistogramBinField_Vector( int nBin, char* binMapFile = NULL )
+	void computeHistogramBinField_Vector( int nBin, int iRes = 0, char* binMapFile = NULL )
 	{
 		assert( this->dataField->datastore->array != NULL );
 		VECTOR3 nextV;
@@ -206,7 +210,7 @@ public:
 					nextV = (VECTOR3)this->dataField->datastore->array[index1d];
 										
 					// Obtain the binID corresponding to the value at this location
-					this->binData->setDataAt( index1d, ITL_histogram::get_bin_number_3D( nextV, nBin ) );
+					this->binData->setDataAt( index1d, histogram->get_bin_number_3D( nextV, iRes ) );
 
 					// increment to the next grid vertex
 					index1d += 1;
@@ -263,7 +267,7 @@ public:
 					*nextV = this->dataField->datastore->array[index1d];
 
 					// Obtain the binID corresponding to the value at this location
-					this->binData->setDataAt( index1d, ITL_histogram::get_bin_number_2D( *nextV, nBin ) );
+					this->binData->setDataAt( index1d, histogram->get_bin_number_2D( *nextV, nBin ) );
 
 					// increment to the next grid vertex
 					index1d += 1;

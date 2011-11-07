@@ -50,6 +50,8 @@ float histogramHighEnd = 0;
 SCALAR *scalarFieldData = NULL;
 SCALAR *scalarFieldData2 = NULL;
 
+ITL_histogram *histogram = NULL;
+
 ITL_field_regular<SCALAR> *scalarField = NULL;
 ITL_field_regular<SCALAR> *scalarField2 = NULL;
 
@@ -125,6 +127,12 @@ int main( int argc, char** argv )
 	histogramHighEnd = (float)atof( ITL_util<float>::getArgWithName( "histHigh", &argNames, &argValues ) );
 	verboseMode = atoi( ITL_util<float>::getArgWithName( "verbose", &argNames, &argValues ) );
 
+	// Initialize ITL
+	ITL_base::ITL_init();
+
+	// Initialize histogram
+	histogram = new ITL_histogram( "!" );
+
 	switch( functionType )
 	{
 	case 0:
@@ -181,7 +189,7 @@ void compute_globalentropy_serial()
 	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF, lowPad, highPad, sizeNeighborhoodArray );
 
 	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<SCALAR>( scalarField );
+	globalEntropyComputer = new ITL_globalentropy<SCALAR>( scalarField, histogram );
 
 	// Global entropy computation using different methods
 	// 0: Histogram based
@@ -258,7 +266,7 @@ void compute_globalentropy_parallel()
 	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF );
 
 	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<SCALAR>( scalarField );
+	globalEntropyComputer = new ITL_globalentropy<SCALAR>( scalarField, histogram );
 
 	if( histogramLowEnd != histogramHighEnd )
 		globalEntropyComputer->setHistogramRange( histogramLowEnd, histogramHighEnd );				
@@ -275,8 +283,7 @@ void compute_globalentropy_parallel()
 	// Get histogram frequencies
 	#if defined( _WIN32 ) || defined( _WIN64 )
 		int* freqList = new int[nBin];
-	#endif
-	#if defined( _LINUX )
+	#else
 		int freqList[nBin];
 	#endif
 
@@ -292,8 +299,7 @@ void compute_globalentropy_parallel()
 
 	#if defined( _WIN32 ) || defined( _WIN64 )
 		int* reducedFreqList = new int[nBin];
-	#endif
-	#if defined( _LINUX )
+	#else
 		int reducedFreqList[nBin];
 	#endif
 	MPI_Reduce( freqList, reducedFreqList, nBin, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );  
@@ -342,7 +348,7 @@ void compute_blockwiseglobalentropy_parallel()
 	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF );
 
 	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<SCALAR>( scalarField );
+	globalEntropyComputer = new ITL_globalentropy<SCALAR>( scalarField, histogram );
 
 	if( histogramLowEnd != histogramHighEnd )
 		globalEntropyComputer->setHistogramRange( histogramLowEnd, histogramHighEnd );				
@@ -392,7 +398,7 @@ void compute_localentropy_regularfield_serial()
 							sizeNeighborhoodArray );
 
 	// Initialize class that can compute local entropy field
-	localEntropyComputer = new ITL_localentropy<SCALAR>( scalarField );
+	localEntropyComputer = new ITL_localentropy<SCALAR>( scalarField, histogram );
 
 	// Histogram computation
 	printf( "Converting scalars into histogram bins at each point of the scalar field ...\n" );
@@ -449,7 +455,7 @@ void compute_localentropy_parallel()
 	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF, lowPad, highPad, sizeNeighborhoodArray  );
 
 	// Initialize class that can compute entropy
-	localEntropyComputer = new ITL_localentropy<SCALAR>( scalarField );
+	localEntropyComputer = new ITL_localentropy<SCALAR>( scalarField, histogram );
 
 	if(verboseMode == 1 )	printf( "%d: Computing histogram at each point of the scalar field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
@@ -496,7 +502,7 @@ void compute_globaljointentropy_regularfield_serial()
 	scalarField2 = new ITL_field_regular<SCALAR>( scalarFieldData2, nDim, lowF, highF, lowPad, highPad, sizeNeighborhood );
 
 	// Initialize class that can compute global joint entropy
-	globalJointEntropyComputer = new ITL_globaljointentropy<SCALAR>( scalarField, scalarField2 );
+	globalJointEntropyComputer = new ITL_globaljointentropy<SCALAR>( scalarField, scalarField2, histogram );
 
 	// Histogram computation
 	printf( "Converting scalars into joint histogram bins at each point of the scalar field ...\n" );

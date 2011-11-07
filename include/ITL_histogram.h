@@ -22,16 +22,19 @@ public:
 	};
 	// ADD-BY-LEETEN 10/07/2011-END
 
-	static float* theta;				 /**< Angle variable. Angle related to spherical coordinates. */
-	static float* phi;					 /**< Angle variable. Angle related to spherical coordinates. */
+	float* theta[5];					/**< Angle variable. Angle related to spherical coordinates. */
+	float* phi[5];						/**< Angle variable. Angle related to spherical coordinates. */
 
-	static bool bIsAngleMapInitialized;	 /**< Boolean flag. Flag is set if the angle maps have been initialized. */
-	static bool bIsPatchRead;			 /**< Boolean flag. Flag is set if the patch file has been read. */
-	static int iNrOfThetas;				 /**< Histogram parameter. Number of thetas.  */
-	static int iNrOfPhis;				 /**< Histogram parameter. Number of phis.  */
-	static float fNrOfThetas;			 /**< Histogram parameter. Number of phis.  */
-	static float fNrOfPhis;				 /**< Histogram parameter. Number of phis.  */
-	static int* piAngleMap;				 /**< Histogram parameter. Mapping from vector to a region in sperical coordinates.  */
+	bool bIsAngleMapInitialized[5];	/**< Boolean flag. Flag is set if the angle maps have been initialized. */
+	bool bIsPatchRead;				/**< Boolean flag. Flag is set if the patch file has been read. */
+	
+	int nResolution;				/**< Number of histogram resolutions available, maximum 5 available */
+	int nBin[5];					/**< Histogram parameter. Numer of bins. */
+	int iNrOfThetas[5];				/**< Histogram parameter. Number of thetas.  */
+	int iNrOfPhis[5];				/**< Histogram parameter. Number of phis.  */
+	float fNrOfThetas[5];			/**< Histogram parameter. Number of phis.  */
+	float fNrOfPhis[5];				/**< Histogram parameter. Number of phis.  */
+	int* piAngleMap[5];			/**< Histogram parameter. Mapping from vector to a region in sperical coordinates.  */
 
 
 public:
@@ -44,8 +47,17 @@ public:
 	// MOD-BY-LEETEN 10/07/2011-FROM:
 		// ITL_histogram( const char* patchFileName, int nBins );
 	// TO:
-	ITL_histogram( const char* patchFileName, int nBins = DEFAULT_NR_OF_BINS);
+	ITL_histogram( const char* patchFileName, int nbin = DEFAULT_NR_OF_BINS );
 	// MOD-BY-LEETEN 10/07/2011-END
+	
+	/**
+	 * Constructor.
+	 * @param patchfilename Path of patch file on disc.
+	 * @param nbin Desired number of bins in the histogram.
+	 * @param nresoltion Number of resolutions of the historgam.
+	 */	
+	ITL_histogram( const char** patchfilename, int *nbin, int nresolution );
+	
 
 	/**
 	 * Histogram initialization function.
@@ -55,25 +67,30 @@ public:
 	// MOD-BY-LEETEN 10/07/2011-FROM:
 		// static void ITL_init_histogram( const char* patchFileName, int nBins );
 	// TO:
-	static void ITL_init_histogram( const char* patchFileName, int nBins = DEFAULT_NR_OF_BINS);
+	void ITL_init_histogram( const char* patchFileName, int iRes = 0 );
 	// MOD-BY-LEETEN 10/07/2011-END
 
 	/**
 	 * Patch header reader. Reads patch information from the in-built header.
 	 * 
 	 */
-	static void readPatches_header();
+	void readPatches_header();
 	/**
 	 * Patch file reader.
 	 * @param patchFileName Path of patch file on disc.
 	 *
 	 */
-	static void readPatches_region( const char* patchFileName );
+	void readPatches_region( const char* patchFileName, int iRes = 0 );
 	/**
 	 * Actual angle map computation doen here.
 	 * @param nBins Desired number of bins in the histogram.
 	 */
-	static void ITL_compute_table( int nBins );
+	void ITL_compute_table();
+	/**
+	 * Actual angle map computation doen here.
+	 * @param nBins Desired number of bins in the histogram.
+	 */
+	void ITL_compute_table( int iRes );
 
 	/**
 	 * Actual angle map computation done here.
@@ -81,7 +98,7 @@ public:
 	 * @param myphi phi corresponding to the local vector.
 	 * @param binnum Desired number of bins in the histogram.
 	 */
-	static int get_bin_by_angle(float mytheta, float myphi, int binnum );
+	int get_bin_by_angle(float mytheta, float myphi, int binnum, int iRes = 0 );
 
 	/**
 	 * Scala-to-bin conversion Routine.
@@ -89,7 +106,7 @@ public:
 	 * @param v at some Cartesian co-ordinate of the field
 	 * @param nBins Desired number of bins in the histogram.
 	 */
-	static int get_bin_number_3D(SCALAR v, int nBins );
+	int get_bin_number_3D(SCALAR v, int nBins );
 	
 	/**
 	 * Vector-to-bin conversion Routine.
@@ -98,7 +115,7 @@ public:
 	 * @param v at some Cartesian co-ordinate of the field
 	 * @param nBins Desired number of bins in the histogram.
 	 */
-	static int get_bin_number_3D(VECTOR3 v, int nBins );
+	int get_bin_number_3D(VECTOR3 v, int iRes = 0 );
 
 	/**
 	 * 2D Vector-to-bin conversion Routine.
@@ -107,7 +124,7 @@ public:
 	 * @param v at some Cartesian co-ordinate of the field
 	 * @param nBins Desired number of bins in the histogram.
 	 */
-	static int get_bin_number_2D(VECTOR3 v, int nBins );
+	int get_bin_number_2D(VECTOR3 v, int nbin );
 
 
 	/**
@@ -116,7 +133,7 @@ public:
 	 * @param y y-computation of vector
 	 * @return Theta
 	 */
-	static float getAngle(float x, float y);
+	float getAngle(float x, float y);
 
 	/**
 	 * Phi computation.
@@ -124,7 +141,7 @@ public:
 	 * @param y y-computation of vector
 	 * @return Phi
 	 */
-	static float getAngle2(float x, float y);
+	float getAngle2(float x, float y);
 
 };
 

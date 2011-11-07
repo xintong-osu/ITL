@@ -43,6 +43,8 @@ SCALAR *globalEntropyList = NULL;
 SCALAR *scalarFieldData = NULL;
 VECTOR3 *vectorFieldData = NULL;
 
+ITL_histogram *histogram = NULL;
+
 ITL_field_regular<SCALAR> *scalarField = NULL;
 ITL_field_regular<VECTOR3> *vectorField = NULL;
 
@@ -54,9 +56,39 @@ ITL_field_regular<VECTOR3> *subVectorFieldArray = NULL;
 
 
 int tot_blocks = 512;
+int nblocks = 0;				// My local number of blocks
 
 double execTime[5];
 clock_t starttime, endtime;
+
+//
+// user-defined callback function for creating an MPI datatype for the
+//   received item
+//
+// item: pointer to the item
+// char * is used as a generic pointers to bytes, not necessarily to strings
+// abs_addr: whether offsets in the MPI datatype are absolutely addressed via
+//  MPI_BOTTOM, or relatively addressed via the start of the item
+//  true: uses absolute addressing, false: uses relative addressing
+//
+// side effects: creates & commits the MPI datatype
+//
+// returns: pointer to the datatype
+//
+void *CreateType(void *item, MPI_Datatype *dtype) {
+
+  //MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
+  //MPI_Type_contiguous(nBin, MPI_INT, dtype);
+  //MPI_Type_commit(dtype); // DIY will free this resource for you
+  //abs_addr = false;
+  //return dtype;
+  struct map_block_t map[1] = {
+	{MPI_FLOAT, OFST, nblocks, 0, 1},
+  };	
+  DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
+  
+  return MPI_BOTTOM;
+}
 
 /**
  * Main function.
@@ -88,9 +120,6 @@ int main( int argc, char** argv )
 	float histogramLowEnd = 0;
 	float histogramHighEnd = 0;
 
-	int nblocks;						// My local number of blocks
-
-
 	// Read file containing all command line arguments
 	ITL_util<float>::getArgs( argv[1], &argNames, &argValues );
 
@@ -117,7 +146,7 @@ int main( int argc, char** argv )
 	ITL_base::ITL_init();
 
 	// Initialize histogram
-	ITL_histogram::ITL_init_histogram( patchFile, nBin );
+	histogram = new ITL_histogram( patchFile, nBin );
 
 	// Open file to dump output only if program running on single processor
 	FILE *dumpFile = NULL;	
@@ -168,7 +197,7 @@ int main( int argc, char** argv )
 			{
 			
 				// Initialize class that can compute entropy
-				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( (subScalarFieldArray+i) );
+				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( (subScalarFieldArray+i), histogram );
 				 
 				// Create bin field (Specify range if required)
 				if( histogramLowEnd != histogramHighEnd )	globalEntropyComputer_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );
@@ -204,7 +233,7 @@ int main( int argc, char** argv )
 			if( fieldType == 1 )
 			{
 				// Initialize class that can compute entropy
-				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( (subVectorFieldArray+i) );
+				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( (subVectorFieldArray+i), histogram );
 				 
 				// Create bin field (Specify range if required)
 				//if( histogramLowEnd != histogramHighEnd )	globalEntropyComputer_vector->setHistogramRange( histogramLowEnd, histogramHighEnd );
@@ -323,7 +352,7 @@ int main( int argc, char** argv )
 				scalarField = new ITL_field_regular<SCALAR>( data[k], nDim, lowF, highF );
 		
 				// Initialize class that can compute entropy
-				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( scalarField );
+				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( scalarField, histogram );
 
 				// Create bin field
 				globalEntropyComputer_scalar->computeHistogramBinField( "scalar", nBin );
@@ -354,7 +383,7 @@ int main( int argc, char** argv )
 				vectorField = new ITL_field_regular<VECTOR3>( vectordata[k], nDim, lowF, highF );
 
 				// Initialize class that can compute entropy
-				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( vectorField );
+				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
 
 				// Create bin field
 				globalEntropyComputer_vector->computeHistogramBinField( "vector", nBin );
@@ -384,11 +413,12 @@ int main( int argc, char** argv )
 	
 		// Write global entropy 
 		if( verboseMode == 1 ) printf( "Writing blockwise global entropy ...\n" );
- 		MPI_Datatype *dtype = new MPI_Datatype; // datatype for output
-  		MPI_Type_contiguous( 1, MPI_FLOAT, dtype );
+ 		//MPI_Datatype *dtype = new MPI_Datatype; // datatype for output
+  		//MPI_Type_contiguous( 1, MPI_FLOAT, dtype );
   		//MPI_Type_contiguous( nblocks, MPI_FLOAT, dtype );
-		MPI_Type_commit( dtype );
-  		MPI_Barrier( MPI_COMM_WORLD ); // everyone synchronizes again
+		//MPI_Type_commit( dtype );
+
+		MPI_Barrier( MPI_COMM_WORLD ); // everyone synchronizes again
   			
 		float **listptr = new float*[nblocks];
 		for( int i=0; i<nblocks; i++ )
@@ -399,7 +429,7 @@ int main( int argc, char** argv )
 		
 		starttime = ITL_util<float>::startTimer();	
 		DIY_Write_open_all( outFile, 0 );
-  		DIY_Write_blocks_all( (void **)listptr, nblocks, dtype );
+  		DIY_Write_blocks_all( (void **)listptr, nblocks, NULL, 0, &CreateType );
   		DIY_Write_close_all();
 		execTime[2] = ITL_util<float>::endTimer( starttime );		
 

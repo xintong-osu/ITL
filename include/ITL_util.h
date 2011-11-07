@@ -139,11 +139,11 @@ public:
 		//double resolution = MPI_Wtick();
 		return ( endTime - startTime );// /  CLOCKS_PER_MS;
 	}// end function
-
+	
 	static void getArgs( const char *argsFileName, list<string> *argNames, list<string> *argValues )
 	{
-		char* argName = "";
-		char* argVal = "";
+		char* argName = NULL;// "";
+		char* argVal = NULL;//"";
 		char nextLine[1000];
 
 		// Open ascii file containing list of arguments

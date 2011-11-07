@@ -5,6 +5,7 @@ cmake_minimum_required (VERSION 2.8)
 project (ITL)
 
 set(WITH_ITL_API OFF CACHE BOOL "whether ITL API is compiled") # TEST-ADD
+set(BUILD_DIY_EXAMPLES OFF CACHE BOOL "whether DIY examples are to be built") # TEST-ADD
 
 # ADD-BY-LEETEN 08/15/2011-BEGIN
 set(MYLIB_DIR 	"/homes/leeten/mylib" CACHE PATH "The path to MYLIB")
@@ -25,11 +26,26 @@ set(NETCDF_LIB  "${NETCDF_DIR}/lib")
 
 # ADD-BY-LEETEN 08/29/2011-BEGIN
 set(HDF5_DIR 	"/usr/local/hdf5" CACHE PATH "The path to HDF5")
+# ADD-BY-ABON 11/07/2011-BEGIN
 set(DIY_DIR 	"/usr/local/diy" CACHE PATH "The path to DIY")
+set(ZLIB_DIR 	"/usr/local/zlib" CACHE PATH "The path to zlib")
+# ADD-BY-ABON 11/07/2011-END
 
 # set the path of DIY files
 set(DIY_INC "${DIY_DIR}/include")  
 set(DIY_LIB "${DIY_DIR}/lib")  
+
+# ADD-BY-ABON 11/07/2011-BEGIN
+# set the path of BIL files
+set(BIL_INC "${DIY_DIR}/src/bil-0.6.0/src")  
+set(BIL_LIB "${DIY_DIR}/src/bil-0.6.0" )
+# ADD-BY-ABON 11/07/2011-END
+
+# ADD-BY-ABON 11/07/2011-BEGIN
+# set the path to zlib
+set(ZLIB_INC "${ZLIB_DIR}/include")  
+set(ZLIB_LIB "${ZLIB_DIR}/lib" )
+# ADD-BY-ABON 11/07/2011-END
 
 # set the path of ITL files
 set(ITL_DIR "${CMAKE_SOURCE_DIR}")
@@ -74,8 +90,16 @@ add_subdirectory (src)
 
 add_subdirectory (include) # ADD-BY-LEETEN 09/07/2011 
 
-add_subdirectory (examples/ApplicationIT_regularvector)
 add_subdirectory (examples/ApplicationIT_regularscalar)
+add_subdirectory (examples/ApplicationIT_regularvector)
+# ADD-BY-ABON 11/07/2011-BEGIN
+if( ${BUILD_DIY_EXAMPLES} )
+	add_subdirectory (examples/ApplicationIT_diy_global)	
+	add_subdirectory (examples/ApplicationIT_diy_blockwise)
+	add_subdirectory (examples/ApplicationIT_diy_local)
+	add_subdirectory (examples/ApplicationIT_diy_local_communication)
+endif()
+# ADD-BY-ABON 11/07/2011-END
 
 # ADD-BY-LEETEN 08/29/2011-BEGIN
 if( $WITH_ITL_API ) # TEST-ADD

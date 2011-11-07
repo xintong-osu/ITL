@@ -23,7 +23,7 @@ nZ 64
 
 # Total number of blocks across all processors.
 # Required only if DIY is being used.
-nBlock 1
+nBlock 9
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
 verbose 1

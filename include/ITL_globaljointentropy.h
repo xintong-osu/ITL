@@ -27,18 +27,21 @@ public:
 	T histogramMin1, histogramMax1, histogramMin2, histogramMax2;
 	bool histogramRangeSet;
 
+	ITL_histogram *histogram;	// ADD-BY-ABON 11/07/2011
+
 public:
 
 	/**
 	 * Default Constructor.
 	 */
-	ITL_globaljointentropy( ITL_field_regular<T> *f1, ITL_field_regular<T> *f2 )
+	ITL_globaljointentropy( ITL_field_regular<T> *f1, ITL_field_regular<T> *f2, ITL_histogram *hist )
 	{
 		this->dataField1 = f1;
 		this->dataField2 = f2;
 		this->binData = NULL;
 		this->jointFreqList = NULL;
 		histogramRangeSet = false;
+		histogram = hist;
 	}
 	
 	/**
@@ -188,8 +191,8 @@ public:
 					*nextVField2 = this->dataField2->datastore->array[index1d];
 
 					// Obtain the binID corresponding to the value at this location from both fields individually
-					int binValue1 = ITL_histogram::get_bin_number_3D( *nextVField1, nBin );
-					int binValue2 = ITL_histogram::get_bin_number_3D( *nextVField2, nBin );
+					int binValue1 = histogram->get_bin_number_3D( *nextVField1, nBin );
+					int binValue2 = histogram->get_bin_number_3D( *nextVField2, nBin );
 
 					// Combine the two bin indices from the two fields
 					int combinedBin = binValue2 * nBin + binValue1;

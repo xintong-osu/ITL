@@ -55,6 +55,8 @@ const char *vectorFieldFile2 = NULL;
 const char *patchFile = NULL;
 const char *outFieldFile = NULL;
 
+ITL_histogram *histogram = NULL;
+
 ITL_field_regular<VECTOR3> *vectorField = NULL;
 ITL_field_regular<VECTOR3> *vectorField2 = NULL;
 
@@ -135,7 +137,7 @@ int main( int argc, char** argv )
 	ITL_base::ITL_init();
 
 	// Initialize histogram
-	ITL_histogram::ITL_init_histogram( patchFile, nBin );
+	histogram = new ITL_histogram( patchFile, nBin );
 
 	switch( functionType )
 	{
@@ -205,7 +207,7 @@ void compute_globalentropy_serial()
 	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );//, lowPad, highPad, sizeNeighborhoodArray );
 
 	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField );
+	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
 
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" );
@@ -254,7 +256,7 @@ void compute_globalentropy_parallel()
 	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );
 
 	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField );
+	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
 
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" ); 
@@ -267,8 +269,7 @@ void compute_globalentropy_parallel()
 	// Get histogram frequencies
 	#if defined( _WIN32 ) || defined( _WIN64 )
 		int* freqList = new int[nBin];
-	#endif
-	#if defined( _LINUX )
+	#else
 		int freqList[nBin];
 	#endif
 	globalEntropyComputer->getHistogramFrequencies( nBin, freqList );
@@ -278,8 +279,7 @@ void compute_globalentropy_parallel()
 
 	#if defined( _WIN32 ) || defined( _WIN64 )
 		int* reducedFreqList = new int[nBin];
-	#endif
-	#if defined( _LINUX )
+	#else
 		int reducedFreqList[nBin];
 	#endif
 	MPI_Reduce( freqList, reducedFreqList, nBin, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );  
@@ -328,7 +328,7 @@ void compute_blockwiseglobalentropy_parallel()
 	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );
 
 	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField );
+	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
 
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" ); 
@@ -365,7 +365,7 @@ void compute_localentropy_serial()
 										   sizeNeighborhoodArray );
 
 	// Initialize class that can compute entropy
-	localEntropyComputer = new ITL_localentropy<VECTOR3>( vectorField );
+	localEntropyComputer = new ITL_localentropy<VECTOR3>( vectorField, histogram );
 
 	// Histogram computation
 	printf( "Converting vectors into histogram bins at each point of the vector field ...\n" );
@@ -426,7 +426,7 @@ void compute_localentropy_parallel()
 							sizeNeighborhoodArray  );
 
 	// Initialize class that can compute entropy
-	localEntropyComputer = new ITL_localentropy<VECTOR3>( vectorField );
+	localEntropyComputer = new ITL_localentropy<VECTOR3>( vectorField, histogram );
 
 	if(verboseMode == 1 ) printf( "%d: Computing histogram at each point of the vector field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
@@ -476,7 +476,7 @@ void compute_jointlocalentropy_serial()
 											sizeNeighborhood );
 
 	// Initialize class that can compute entropy
-	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( vectorField, vectorField2 );
+	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( vectorField, vectorField2, histogram );
 
 	// Histogram computation
 	printf( "Converting vectors into joint histogram bins at each point of the vector field ...\n" );
@@ -539,7 +539,7 @@ void compute_jointlocalentropy_parallel()
 											sizeNeighborhoodArray );
 
 	// Initialize class that can compute entropy
-	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( vectorField, vectorField2 );
+	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( vectorField, vectorField2, histogram );
 
 	// Histogram computation
 	printf( "Converting vectors into joint histogram bins at each point of the vector field ...\n" );

@@ -181,12 +181,21 @@ public:
 		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// Constructor
 
+	void initialize( int ndim, float *l, float *h )
+	{
+		// Initialize grid
+		this->grid = new ITL_grid_regular<T>( ndim );
 
+		// set grid bounds
+		this->setBounds( l, h );
 
+		// Initialize datastore
+		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dim[0], ndim ) );	
+	}
 
 
 	/**
@@ -196,7 +205,7 @@ public:
 	 * @param h Pointer to array containing upper grid (associated to the field) bounds in continuous space along each dimension.
 	 */
 	void setBounds( float* l, float* h )
-	{
+	{	
 		// call same method of the grid
 		this->grid->setBounds( l, h );
 
@@ -400,6 +409,51 @@ public:
 		return retData;
 
 	}// end function
+	
+	virtual void getDataBetween2( float* lowBoundary, float* highBoundary, T* retData )
+	{
+		int lowBoundaryInt[this->grid->nDim];
+		int highBoundaryInt[this->grid->nDim];
+
+		for( int i=0; i<this->grid->nDim; i++ )
+		{
+			lowBoundaryInt[i] = (int)floor( lowBoundary[i] );
+			highBoundaryInt[i] = (int)ceil( highBoundary[i] );
+		}
+
+		this->getDataBetween2( lowBoundaryInt, highBoundaryInt, retData );
+		
+	}// end function
+
+	/**
+	 * Data accessor function type 4.
+	 * Returns chunk of data within specified bound.
+	 * @param lowBoundary Lower bound along each dimension.
+	 * @param highBoundary Higher bound along each dimension.
+	 * @return pointer to field value.
+	 */
+	virtual void getDataBetween2( int* lowBoundary, int* highBoundary, T* retData )
+	{
+		// Count number of vertices requested
+		int* dimLength = ITL_util<int>::subtractArrays( highBoundary, lowBoundary, this->grid->nDim );
+		ITL_util<int>::addArrayScalar( dimLength, 1, this->grid->nDim );
+		int nV = ITL_util<int>::prod( dimLength, this->grid->nDim );
+
+		int globalOffset = 0;
+		int localOffset = 0;
+		for( int z=0; z<dimLength[2]; z++ )
+		{
+			for( int y=0; y<dimLength[1]; y++ )
+			{
+				globalOffset = this->grid->convert3DIndex( lowBoundary[0], lowBoundary[1]+y, lowBoundary[2]+z );
+
+				memcpy( (T*)(retData + localOffset ) , (T*)(this->datastore->array + globalOffset ) , dimLength[0] * sizeof( T ) );
+				localOffset += dimLength[0];
+			}
+		}
+
+	}// end function
+	
 
 	/**
 	 * Data accessor function type 5.

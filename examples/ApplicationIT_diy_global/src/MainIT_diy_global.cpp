@@ -38,6 +38,8 @@ char* patchFile = NULL;
 SCALAR *scalarFieldData = NULL;
 VECTOR3 *vectorFieldData = NULL;
 
+ITL_histogram *histogram = NULL;
+
 ITL_field_regular<SCALAR> *scalarField = NULL;
 ITL_field_regular<VECTOR3> *vectorField = NULL;
 
@@ -126,14 +128,19 @@ void DeleteItem(char *item) {
 //
 // returns: pointer to the datatype
 //
-MPI_Datatype *CreateType(char *item, bool *abs_addr) {
+void *CreateType(void *item, MPI_Datatype *dtype) {
 
-  MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
-  MPI_Type_contiguous(nBin, MPI_INT, dtype);
-  MPI_Type_commit(dtype); // DIY will free this resource for you
-  abs_addr = false;
-  return dtype;
-
+  //MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
+  //MPI_Type_contiguous(nBin, MPI_INT, dtype);
+  //MPI_Type_commit(dtype); // DIY will free this resource for you
+  //abs_addr = false;
+  //return dtype;
+  struct map_block_t map[1] = {
+	{MPI_INT, OFST, nBin, 0, 1},
+   };	
+  DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
+  
+  return MPI_BOTTOM;
 }
 
 /**
@@ -191,7 +198,7 @@ int main( int argc, char** argv )
 	ITL_base::ITL_init();
 
 	// Initialize histogram
-	ITL_histogram::ITL_init_histogram( patchFile, nBin );
+	histogram = new ITL_histogram( patchFile, nBin );
 
 	// Initialize DIY after initializing MPI
 	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
@@ -279,7 +286,7 @@ int main( int argc, char** argv )
 			scalarField = new ITL_field_regular<SCALAR>( data[k], nDim, lowF, highF );
 	
 			// Initialize class that can compute entropy
-			globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( scalarField );
+			globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( scalarField, histogram );
 
 			if( histogramLowEnd != histogramHighEnd )
 				globalEntropyComputer_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );				
@@ -307,7 +314,7 @@ int main( int argc, char** argv )
 			vectorField = new ITL_field_regular<VECTOR3>( vectordata[k], nDim, lowF, highF );
 
 			// Initialize class that can compute entropy
-			globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( vectorField );
+			globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
 
 			// Create bin field (local analysis)
 			globalEntropyComputer_vector->computeHistogramBinField( "vector", nBin );

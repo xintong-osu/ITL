@@ -30,17 +30,21 @@ public:
 
 	float globalEntropy;				/**< Value of computed entropy at a specified point in the field. */
 	float* probarray;   				/**< Probability array used in emtropy computation. */
+
+	ITL_histogram *histogram;			// ADD-BY-ABON 11/07/2011
+
 public:
 
 	/**
 	 * Default Constructor.
 	 */
-	ITL_localentropy( ITL_field_regular<T> *f )
+	ITL_localentropy( ITL_field_regular<T> *f, ITL_histogram *hist )
 	{
 		this->dataField = f;
 		this->binData = NULL;
 		this->entropyField = NULL;
 		histogramRangeSet = false;		// ADD-BY-ABON 07/19/2011
+		histogram = hist;			// ADD-BY-ABON 11/07/2011
 	}// End constructor
 	
 	/**
@@ -190,7 +194,7 @@ public:
 					*nextV = this->dataField->datastore->array[index1d];
 
 					// Obtain the binID corresponding to the value at this location
-					this->binData->setDataAt( index1d, ITL_histogram::get_bin_number_3D( *nextV, nBin ) );
+					this->binData->setDataAt( index1d, histogram->get_bin_number_3D( *nextV, nBin ) );
 
 					// increment to the next grid vertex
 					index1d += 1;
