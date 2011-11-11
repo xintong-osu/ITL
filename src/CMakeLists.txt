@@ -37,7 +37,27 @@ include_directories(
 	)
 
 # grab all the source codes
-AUX_SOURCE_DIRECTORY ("." 	SRC_FILES)
+# MOD-BY-LEETEN 11/10/2011-FROM:
+	# AUX_SOURCE_DIRECTORY ("." 	SRC_FILES)
+# TO:
+list(APPEND SRC_FILES
+	ITL_entropycore.cpp   
+	ITL_vectormatrix.cpp
+	ITL_histogram.cpp
+	ITL_base.cpp         
+	ITL_spacetreenode.cpp
+	ITL_SphereSpace.cpp
+)
+
+if( ${WITH_ITL_API} )
+	list(APPEND SRC_FILES
+		itl.cpp              
+		ITL_random_field.cpp
+	)
+endif()
+# MOD-BY-LEETEN 11/10/2011-END
+
+
 
 # build the project as a library
 add_library(${PROJECT_NAME} ${SRC_FILES})

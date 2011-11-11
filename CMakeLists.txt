@@ -102,10 +102,10 @@ endif()
 # ADD-BY-ABON 11/07/2011-END
 
 # ADD-BY-LEETEN 08/29/2011-BEGIN
-if( $WITH_ITL_API ) # TEST-ADD
+if( ${WITH_ITL_API} ) # MOD-BY-LEETEN 11/10/2011-FROM:	if( $WITH_ITL_API ) # TEST-ADD
   add_subdirectory (examples/nek5000)
   add_subdirectory (examples/flash)
-endif() 			# TEST-ADD
+endif() 			
 # ADD-BY-LEETEN 08/29/2011-END
 
 #
