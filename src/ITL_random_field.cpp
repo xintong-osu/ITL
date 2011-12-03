@@ -1194,16 +1194,28 @@ ITLRandomField::_ComputeEntorpyInBoundBlock
 	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable, &p3DfFeatureScalars[0], true);
 	// MOD-BY-LEETEN 07/31/2011-END
 
+	#if	0	// MOD-BY-LEETEN 12/02/2011-FROM:
+		ITL_field_regular<SCALAR> *scalarField = new ITL_field_regular<SCALAR>(
+			&p3DfFeatureScalars[0],
+			3,
+			pfBlockDimLow,
+			pfBlockDimUp,
+			piLowPad,
+			piHighPad,
+			piNeighborhood );
+	#else	// MOD-BY-LEETEN 12/02/2011-TO:
 	ITL_field_regular<SCALAR> *scalarField = new ITL_field_regular<SCALAR>(
 		&p3DfFeatureScalars[0],
 		3,
 		pfBlockDimLow,
-		pfBlockDimUp,
-		piLowPad,
-		piHighPad,
-		piNeighborhood );
+		pfBlockDimUp);
+	#endif	// MOD-BY-LEETEN 12/02/2011-END
 
-	ITL_globalentropy<SCALAR> *globalEntropyComputerForScalar = new ITL_globalentropy<SCALAR>( scalarField );
+	// MOD-BY-LEETEN 12/02/2011-FROM:
+		// ITL_globalentropy<SCALAR> *globalEntropyComputerForScalar = new ITL_globalentropy<SCALAR>( scalarField );
+	// TO:
+	ITL_globalentropy<SCALAR> *globalEntropyComputerForScalar = new ITL_globalentropy<SCALAR>( scalarField, pcHistogram);
+	// MOD-BY-LEETEN 12/02/2011-END
 
 	// obtain the default range of the random variable, which is especially useful for orientation
 	int iNrOfBins = cRandomVariable.IGetNrOfBins();
@@ -1278,16 +1290,28 @@ ITLRandomField::_ComputeEntorpyFieldInBoundBlock
 	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable, &p3DfFeatureScalars[0], true);
 	// MOD-BY-LEETEN 07/31/2011-END
 
+	#if	0	// MOD-BY-LEETEN 12/02/2011-FROM:
+		ITL_field_regular<SCALAR> *scalarField = new ITL_field_regular<SCALAR>(
+			&p3DfFeatureScalars[0],
+			3,
+			pfBlockDimLow,
+			pfBlockDimUp,
+			piLowPad,
+			piHighPad,
+			piNeighborhood );
+	#else	// MOD-BY-LEETEN 12/02/2011-TO:
 	ITL_field_regular<SCALAR> *scalarField = new ITL_field_regular<SCALAR>(
 		&p3DfFeatureScalars[0],
 		3,
 		pfBlockDimLow,
-		pfBlockDimUp,
-		piLowPad,
-		piHighPad,
-		piNeighborhood );
+		pfBlockDimUp);
+	#endif	// MOD-BY-LEETEN 12/02/2011-END
 
-	ITL_localentropy<SCALAR> *localEntropyComputerForScalar = new ITL_localentropy<SCALAR>( scalarField );
+	// MOD-BY-LEETEN 12/02/2011-FROM:
+		// ITL_localentropy<SCALAR> *localEntropyComputerForScalar = new ITL_localentropy<SCALAR>( scalarField );
+	// TO:
+	ITL_localentropy<SCALAR> *localEntropyComputerForScalar = new ITL_localentropy<SCALAR>( scalarField, pcHistogram );
+	// MOD-BY-LEETEN 12/02/2011-END
 
 	// obtain the default range of the random variable, which is especially useful for orientation
 	int iNrOfBins = cRandomVariable.IGetNrOfBins();
@@ -1359,14 +1383,22 @@ ITLRandomField::_ComputeJointEntorpyInBoundBlock
 		);
 	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable1, &p3DfFeatureScalars1[0], true);
 
+	#if	0	// MOD-BY-LEETEN 12/02/2011-FROM:
+		ITL_field_regular<SCALAR> *scalarField1 = new ITL_field_regular<SCALAR>(
+			&p3DfFeatureScalars1[0],
+			3,
+			pfBlockDimLow,
+			pfBlockDimUp,
+			piLowPad,
+			piHighPad,
+			piNeighborhood );
+	#else	// MOD-BY-LEETEN 12/02/2011-TO:
 	ITL_field_regular<SCALAR> *scalarField1 = new ITL_field_regular<SCALAR>(
 		&p3DfFeatureScalars1[0],
 		3,
 		pfBlockDimLow,
-		pfBlockDimUp,
-		piLowPad,
-		piHighPad,
-		piNeighborhood );
+		pfBlockDimUp);
+	#endif	// MOD-BY-LEETEN 12/02/2011-END
 
 	TBuffer3D<float> p3DfFeatureScalars2;
 	p3DfFeatureScalars2.alloc(
@@ -1376,17 +1408,29 @@ ITLRandomField::_ComputeJointEntorpyInBoundBlock
 		);
 	_CollectRandomSamplesInBlock(iBoundBlock, iRandomVariable2, &p3DfFeatureScalars2[0], true);
 
+	#if	0	// MOD-BY-LEETEN 12/02/2011-FROM:
+		ITL_field_regular<SCALAR> *scalarField2 = new ITL_field_regular<SCALAR>(
+			&p3DfFeatureScalars2[0],
+			3,
+			pfBlockDimLow,
+			pfBlockDimUp,
+			piLowPad,
+			piHighPad,
+			piNeighborhood );
+	#else	// MOD-BY-LEETEN 12/02/2011-TO:
 	ITL_field_regular<SCALAR> *scalarField2 = new ITL_field_regular<SCALAR>(
 		&p3DfFeatureScalars2[0],
 		3,
 		pfBlockDimLow,
-		pfBlockDimUp,
-		piLowPad,
-		piHighPad,
-		piNeighborhood );
+		pfBlockDimUp);
+	#endif	// MOD-BY-LEETEN 12/02/2011-END
 
 	// Initialize class that can compute global joint entropy
-	ITL_globaljointentropy<SCALAR>* globalJointEntropyComputer = new ITL_globaljointentropy<SCALAR>( scalarField1, scalarField2 );
+	// MOD-BY-LEETEN 12/02/2011-FROM:
+		// ITL_globaljointentropy<SCALAR>* globalJointEntropyComputer = new ITL_globaljointentropy<SCALAR>( scalarField1, scalarField2 );
+	// TO:
+	ITL_globaljointentropy<SCALAR>* globalJointEntropyComputer = new ITL_globaljointentropy<SCALAR>( scalarField1, scalarField2, pcHistogram );
+	// MOD-BY-LEETEN 12/02/2011-END
 
 	int iNrOfBins1 = cRandomVariable1.IGetNrOfBins();
 	int iNrOfBins2 = cRandomVariable2.IGetNrOfBins();
@@ -1430,6 +1474,13 @@ ITLRandomField::ITLRandomField() {
 	viTimeStamps.push_back(GLOBAL_TIME_STAMP);
 	// ADD-BY-LEETEN 08/06/2011-END
 	iNrOfGlobalBlocks = 0;	// ADD-BY-LEETEN 08/12/2011
+
+	// ADD-BY-LEETEN 12/02/2011-BEGIN
+	pcHistogram = NULL;
+
+	// Initialize histogram
+	pcHistogram = new ITL_histogram( "!" );
+	// ADD-BY-LEETEN 12/02/2011-END
 }
 
 ITLRandomField::~ITLRandomField() {
@@ -1444,4 +1495,12 @@ ITLRandomField::~ITLRandomField() {
 		*ivcRandomVariables = NULL;
 	}
   // ADD-BY-LEETEN 07/23/2011-BEGIN
+
+	// ADD-BY-LEETEN 12/02/2011-BEGIN
+  	  if( pcHistogram )
+  	  {
+  		delete pcHistogram;
+  		pcHistogram = NULL;
+  	  }
+	// ADD-BY-LEETEN 12/02/2011-END
 }

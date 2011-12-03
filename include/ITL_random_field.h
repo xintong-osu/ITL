@@ -25,6 +25,8 @@ using namespace std;
 #include "ITL_Range.h"
 // ADd-BY-LEETEN 07/22/2011-END
 
+#include "ITL_histogram.h"	// ADD-BY-LEETEN 12/02/2011
+
 // ADD-BY-LEETEN 07/23/2011-BEGIN
 #include "ITL_SphereSpace.h"
 // ADD-BY-LEETEN 07/23/2011-END
@@ -60,6 +62,8 @@ using namespace std;
 
 class ITLRandomField
 {
+	ITL_histogram *pcHistogram;	// ADD-BY-LEETEN 12/02/2011
+
 	//! structure for accessing elements passed from the application
 	struct CArray
 	{

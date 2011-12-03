@@ -228,9 +228,11 @@ void
 	// Initialize ITL
 	ITL_base::ITL_init();
 
-	// Initialize histogram
-	// "!" means the default patch file
-	ITL_histogram::ITL_init_histogram( "!" );
+	#if	0	// DEL-BY-LEETEN 12/02/2011-BEGIN
+		// Initialize histogram
+		// "!" means the default patch file
+		ITL_histogram::ITL_init_histogram( "!" );
+	#endif	// DEL-BY-LEETEN 12/02/2011-END
 
 	// create a folder to hold the tmp. dumpped result
 	strcpy(::szName, SZConvert2CStr(szName));
