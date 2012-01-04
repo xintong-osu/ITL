@@ -4,8 +4,10 @@
 cmake_minimum_required (VERSION 2.8)
 project (ITL)
 
-set(WITH_ITL_API OFF CACHE BOOL "whether ITL API is compiled") # TEST-ADD
-set(BUILD_DIY_EXAMPLES OFF CACHE BOOL "whether DIY examples are to be built") # TEST-ADD
+# ADD-BY-ABON 11/07/2011-BEGIN
+set(WITH_ITL_API OFF CACHE BOOL "whether ITL API is compiled") 
+set(BUILD_DIY_EXAMPLES OFF CACHE BOOL "whether DIY examples are to be built") 
+# ADD-BY-ABON 11/07/2011-END
 
 # ADD-BY-LEETEN 08/15/2011-BEGIN
 set(MYLIB_DIR 	"/homes/leeten/mylib" CACHE PATH "The path to MYLIB")
@@ -28,6 +30,8 @@ set(NETCDF_LIB  "${NETCDF_DIR}/lib")
 set(HDF5_DIR 	"/usr/local/hdf5" CACHE PATH "The path to HDF5")
 # ADD-BY-ABON 11/07/2011-BEGIN
 set(DIY_DIR 	"/usr/local/diy" CACHE PATH "The path to DIY")
+
+set(WITH_ZLIB   OFF CACHE BOOL "whether ZLIB is used") # ADD-BY-ABON 11/07/2011-BEGIN
 set(ZLIB_DIR 	"/usr/local/zlib" CACHE PATH "The path to zlib")
 # ADD-BY-ABON 11/07/2011-END
 
@@ -97,12 +101,12 @@ if( ${BUILD_DIY_EXAMPLES} )
 	add_subdirectory (examples/ApplicationIT_diy_global)	
 	add_subdirectory (examples/ApplicationIT_diy_blockwise)
 	add_subdirectory (examples/ApplicationIT_diy_local)
-	add_subdirectory (examples/ApplicationIT_diy_local_communication)
+	# DEL-BY-LEEETEN 01/04/2012: add_subdirectory (examples/ApplicationIT_diy_local_communication)
 endif()
 # ADD-BY-ABON 11/07/2011-END
 
 # ADD-BY-LEETEN 08/29/2011-BEGIN
-if( ${WITH_ITL_API} ) # MOD-BY-LEETEN 11/10/2011-FROM:	if( $WITH_ITL_API ) # TEST-ADD
+if( ${WITH_ITL_API} ) # MOD-BY-LEETEN 11/10/2011-FROM:	if( $WITH_ITL_API ) 
   add_subdirectory (examples/nek5000)
   add_subdirectory (examples/flash)
 endif() 			
