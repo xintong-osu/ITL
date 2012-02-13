@@ -12,10 +12,7 @@ set(BUILD_DIY_EXAMPLES OFF CACHE BOOL "whether DIY examples are to be built")
 # ADD-BY-LEETEN 08/15/2011-BEGIN
 set(MYLIB_DIR 	"/homes/leeten/mylib" CACHE PATH "The path to MYLIB")
 set(WITH_PNETCDF OFF CACHE BOOL "whether PNETCDF is used")
-# MOD-BY-LEETEN 08/29/2011-FROM:	set(PNETCDF_DIR  "/usr/local/parallel-pnetcdf" CACHE PATH "installed path of PNETCDF")
-# TO:
 set(PNETCDF_DIR  "/usr/local/parallel-netcdf" CACHE PATH "installed path of PNETCDF")
-# MOD-BY-LEETEN 08/29/2011-END	
 
 # ADD-BY-LEETEN 09/01/2011-BEGIN
 set(PNETCDF_LIB	${PNETCDF_DIR}/lib)
@@ -57,15 +54,21 @@ set(ITL_INC "${ITL_DIR}/include")
 set(ITL_LIB "${ITL_DIR}/lib")  
 # ADD-BY-LEETEN 08/29/2011-END
 
+# ADD-BY-LEETEN 02/13/2012-BEGIN
+if( DEFINED WIN32 )
+	set(MPIW32_DIR 	"C:/Program Files (x86)/DeinoMPI" CACHE PATH "The path to MPI on Windows 32 platform.")
+endif()
+
+add_definitions(
+	-DMPICH_IGNORE_CXX_SEEK 
+	-D_USE_MATH_DEFINES
+	)
+# ADD-BY-LEETEN 02/13/2012-END
+
 # if(WITH_PNETCDF EQUAL ON)
 if( ${WITH_PNETCDF} )
   add_definitions(-DWITH_PNETCDF)
   # specify the path to the headers
-  # MOD-BY-LEETEN 09/01/2011-FROM:
-    # include_directories(
-      # ${PNETCDF_DIR}/include
-    # )
-  # MOD-BY-LEETEN 09/01/2011-TO:
     include_directories(
       ${PNETCDF_INC}
     )
@@ -76,16 +79,8 @@ if( ${WITH_PNETCDF} )
       ${NETCDF_INC}
       )
     set(NETCDF_LFLAGS "-L${NETCDF_LIB} -lnetcdf")
-  # MOD-BY-LEETEN 09/01/2011-END
 endif()
 # ADD-BY-LEETEN 08/15/2011-END
-
-# DEL-BY-LEETEN 09/01/2011-BEGIN
-# # ADD-BY-LEETEN 08/29/2011-BEGIN
-# set(PNETCDF_LIB	${PNETCDF_DIR}/lib)
-# set(PNETCDF_INC	${PNETCDF_DIR}/include)
-# # ADD-BY-LEETEN 08/29/2011-END
-# DEL-BY-LEETEN 09/01/2011-END
 
 # Recurse into the "src" subdirectory. This does not actually
 # cause another cmake executable to run. The same process will walk through

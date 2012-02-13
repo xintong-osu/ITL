@@ -412,8 +412,17 @@ public:
 	
 	virtual void getDataBetween2( float* lowBoundary, float* highBoundary, T* retData )
 	{
+		// ADD-BY-LEETEN 02/13/2012-BEGIN
+		#ifdef	WIN32
+		int* lowBoundaryInt = new int[this->grid->nDim];
+		int* highBoundaryInt = new int[this->grid->nDim];
+		#else	// #ifdef	WIN32
+		// ADD-BY-LEETEN 02/13/2012-END
+
 		int lowBoundaryInt[this->grid->nDim];
 		int highBoundaryInt[this->grid->nDim];
+
+		#endif	// #ifdef	WIN32		// ADD-BY-LEETEN 02/13/2012
 
 		for( int i=0; i<this->grid->nDim; i++ )
 		{
@@ -423,6 +432,12 @@ public:
 
 		this->getDataBetween2( lowBoundaryInt, highBoundaryInt, retData );
 		
+		// ADD-BY-LEETEN 02/13/2012-BEGIN
+		#ifdef	WIN32
+		delete [] lowBoundaryInt;
+		delete [] highBoundaryInt;
+		#endif	// #ifdef	WIN32
+		// ADD-BY-LEETEN 02/13/2012-END
 	}// end function
 
 	/**

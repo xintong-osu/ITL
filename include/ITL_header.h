@@ -14,9 +14,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#if defined( _WIN32 ) || defined( _WIN64 )
-	#define _USE_MATH_DEFINES
-#endif
+#if	0	// DEL-BY-LEETEN 02/13/2012-BEGIN
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		#define _USE_MATH_DEFINES
+	#endif
+#endif	// DEL-BY-LEETEN 02/13/2012-END
 #include <cmath>
 #include <cassert>
 #include <float.h>
