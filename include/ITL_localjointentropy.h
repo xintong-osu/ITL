@@ -159,21 +159,22 @@ public:
 	{
 		assert( this->dataField1->datastore->array != NULL );
 		assert( this->dataField2->datastore->array != NULL );
-		T* nextVField1 = new T();
-		T* nextVField2 = new T();
+		VECTOR3 nextVField1;
+		VECTOR3 nextVField2;
 
 		// The histogram field is padded, pad length is same as neighborhood size of vector field
-		//int* lPadHisto = new int[this->grid->nDim];
-		//int* hPadHisto = new int[this->grid->nDim];
-		//ITL_util<int>::fill( lPadHisto, this->grid->nDim, this->grid->neighborhoodSize );
-		//ITL_util<int>::fill( hPadHisto, this->grid->nDim, this->grid->neighborhoodSize );
+		/*
+		int* lPadHisto = new int[this->grid->nDim];
+		int* hPadHisto = new int[this->grid->nDim];
+		ITL_util<int>::fill( lPadHisto, this->grid->nDim, this->grid->neighborhoodSize );
+		ITL_util<int>::fill( hPadHisto, this->grid->nDim, this->grid->neighborhoodSize );
+		*/
 
 		// Initialize the padded scalar field for histogram bins
 		if( this->binData == NULL )
 			this->binData = new ITL_field_regular<int>( this->dataField1->grid->nDim,
 												this->dataField1->grid->low, this->dataField1->grid->high,
 												this->dataField1->grid->lowPad, this->dataField1->grid->highPad,
-												//lPadHisto, hPadHisto,
 												this->dataField1->grid->neighborhoodSize );
 		
 		// Scan through each point of the histogram field
@@ -186,12 +187,12 @@ public:
 				for( int x=0; x<this->dataField1->grid->dimWithPad[0]; x++ )
 				{
 					// Get vector at this location from both fields individually
-					*nextVField1 = this->dataField1->datastore->array[index1d];
-					*nextVField2 = this->dataField2->datastore->array[index1d];
+					nextVField1 = this->dataField1->datastore->array[0];//index1d];
+					nextVField2 = this->dataField2->datastore->array[0];//index1d];
 
 					// Obtain the binID corresponding to the value at this location from both fields individually
-					int binValue1 = histogram->get_bin_number_3D( *nextVField1, nBin );
-					int binValue2 = histogram->get_bin_number_3D( *nextVField2, nBin );
+					int binValue1 = histogram->get_bin_number_3D( nextVField1 );
+					int binValue2 = histogram->get_bin_number_3D( nextVField2 );
 
 					// Combine the two bin indices from the two fields
 					int combinedBin = binValue2 * nBin + binValue1;
@@ -205,8 +206,6 @@ public:
 			}
 		}
 
-		delete nextVField1;
-		delete nextVField2;
 	   // delete lPadHisto;
 	   // delete hPadHisto;
 

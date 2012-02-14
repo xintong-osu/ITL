@@ -1,7 +1,7 @@
 functionType 2
 
 # Input vector field
-vectorField ../../sampledata/source.vec
+vectorField /home/abon/code/chaudhua/itl_repo/sampledata/source.vec
 
 # If patch file is empty (denoted by !), then the default mapping is used.
 patchFile !
@@ -19,4 +19,4 @@ nBlockY 2
 nBlockZ 2
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
-verbose 0
+verbose 1

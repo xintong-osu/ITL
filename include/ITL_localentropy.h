@@ -78,7 +78,7 @@ public:
 	void computeHistogramBinField_Scalar( int nBin )
 	{
 		assert( this->dataField->datastore->array != NULL );
-	        T nextV, minValue, maxValue, rangeValue;
+	    SCALAR nextV, minValue, maxValue, rangeValue;
 		
 		// The histogram field is padded, pad length is same as neighborhood size of vector field
 	        //int* lPadHisto = new int[this->grid->nDim];
@@ -94,17 +94,16 @@ public:
 			//											//lPadHisto, hPadHisto,
 			//											this->dataField->grid->neighborhoodSize );
 			this->binData = new ITL_field_regular<int>( this->dataField->grid->nDim,
-											        this->dataField->grid->low, this->dataField->grid->high,
-												this->dataField->grid->lowPad, this->dataField->grid->highPad,
-												//lPadHisto, hPadHisto,
-												this->dataField->grid->neighborhoodSizeArray );
+											        	this->dataField->grid->low, this->dataField->grid->high,
+											        	this->dataField->grid->lowPad, this->dataField->grid->highPad,
+														this->dataField->grid->neighborhoodSizeArray );
 
 		// MOD-BY-ABON 07/19/2011-BEGIN			
 		if( histogramRangeSet == false )
 		{
 			// Get min-max values of the scalar field
-			minValue = ITL_util<T>::Min( this->dataField->datastore->array, this->dataField->grid->nVertices );
-			maxValue = ITL_util<T>::Max( this->dataField->datastore->array, this->dataField->grid->nVertices );
+			minValue = ITL_util<SCALAR>::Min( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
+			maxValue = ITL_util<SCALAR>::Max( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
 		}
 		else
 		{	
@@ -115,7 +114,13 @@ public:
 
 		// Compute bin width			
 		float binWidth = rangeValue / (float)nBin;
-		// MOD-BY-ABON 07/19/2011-END					
+		// MOD-BY-ABON 07/19/2011-END
+
+		#ifdef DEBUG_MODE
+		printf( "Min: %g Max: %g Range: %g of the scalar values\n", minValue, maxValue, rangeValue );
+		printf( "Binwidth: %g\n", binWidth );
+		#endif
+
 
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
@@ -133,6 +138,7 @@ public:
 					// Obtain the binID corresponding to the value at this location
 					binId = (int)floor( ( nextV - minValue ) / binWidth  );
 					binId = ITL_util<int>::clamp( binId, 0, nBin-1 );
+
 					//if( binId != 0 ) cout << binId << endl;
 					this->binData->setDataAt( index1d, binId );
 
@@ -142,7 +148,7 @@ public:
 			}
 		}
 
-         // delete lPadHisto;
+        // delete lPadHisto;
         // delete hPadHisto;
 
 	}// end function
@@ -155,18 +161,16 @@ public:
 	 */
 	void computeHistogramBinField_Vector( int nBin )
 	{
-		printf( "In vector\n");
-		cout << this->dataField->grid->neighborhoodSizeArray[0] << " " << this->dataField->grid->neighborhoodSizeArray[1] << " " << this->dataField->grid->neighborhoodSizeArray[2] << endl;
-		
 		assert( this->dataField->datastore->array != NULL );
-		T *nextV = new T();
+		VECTOR3 nextV;
 
 		// The histogram field is padded, pad length is same as neighborhood size of vector field
-		//int* lPadHisto = new int[this->grid->nDim];
-		//int* hPadHisto = new int[this->grid->nDim];
-		//ITL_util<int>::fill( lPadHisto, this->grid->nDim, this->grid->neighborhoodSize );
-		//ITL_util<int>::fill( hPadHisto, this->grid->nDim, this->grid->neighborhoodSize );
-
+		/*
+		int* lPadHisto = new int[this->grid->nDim];
+		int* hPadHisto = new int[this->grid->nDim];
+		ITL_util<int>::fill( lPadHisto, this->grid->nDim, this->grid->neighborhoodSize );
+		ITL_util<int>::fill( hPadHisto, this->grid->nDim, this->grid->neighborhoodSize );
+		*/
 		// Initialize the padded scalar field for histogram bins
 		if( this->binData == NULL )
 			//this->binData = new ITL_field_regular<int>( this->dataField->grid->nDim,
@@ -177,7 +181,6 @@ public:
 			this->binData = new ITL_field_regular<int>( this->dataField->grid->nDim,
 														this->dataField->grid->low, this->dataField->grid->high,
 														this->dataField->grid->lowPad, this->dataField->grid->highPad,
-														//lPadHisto, hPadHisto,
 														this->dataField->grid->neighborhoodSizeArray );
 
 
@@ -191,10 +194,10 @@ public:
 				for( int x=0; x<this->dataField->grid->dimWithPad[0]; x++ )
 				{
 					// Get vector at location
-					*nextV = this->dataField->datastore->array[index1d];
+					nextV = this->dataField->datastore->array[index1d];
 
 					// Obtain the binID corresponding to the value at this location
-					this->binData->setDataAt( index1d, histogram->get_bin_number_3D( *nextV, nBin ) );
+					this->binData->setDataAt( index1d, histogram->get_bin_number_3D( nextV ) );
 
 					// increment to the next grid vertex
 					index1d += 1;
@@ -202,7 +205,6 @@ public:
 			}
 		}
 
-        delete nextV;
         // delete lPadHisto;
         // delete hPadHisto;
 
@@ -213,7 +215,7 @@ public:
 	 * Creates a scalar field that contains entropy at each grid vertex.
 	 * @param nBins Number of bins used in histogram computation.
 	 */
-	void computeEntropyOfField( int nBins, bool toNormalize )
+	void computeLocalEntropyOfField( int nBins, bool toNormalize )
 	{
 		// Allocate memory for entropy field (a non-padded scalar field), if not already done
 		if( this->entropyField == NULL )
@@ -257,18 +259,29 @@ public:
 	 * @param nBins Number of bins to use in histogram computation.
 	 * @param entropyFieldIndex 1D index to the entopy field.
 	 */
-	void computeEntropySinglePoint( int x, int y, int z, int nNeighbors, int nBins, int entropyFieldIndex, bool toNormalize )
+	void computeEntropySinglePoint( int x, int y, int z,
+									int nNeighbors,
+									int nBins,
+									int entropyFieldIndex, bool toNormalize )
 	{
-		int* binArray = new int[nNeighbors];
+		#if defined( _WIN32 ) || defined( _WIN64 )
+			int* binArray = new int[nNeighbors];
+			int* localFreqList = new int[nBins];
+		#else
+			int binArray[nNeighbors];
+			int localFreqList[nBins];
+		#endif
 		int index1d = 0;
 		int binArrayIndex = 0;
 
-//		for( int k = -this->binData->grid->neighborhoodSize; k <= this->binData->grid->neighborhoodSize; k++ )
-//		{
-//			for( int j = -this->binData->grid->neighborhoodSize; j <= this->binData->grid->neighborhoodSize; j++ )
-//			{
-//				for( int i = -this->binData->grid->neighborhoodSize; i <= this->binData->grid->neighborhoodSize; i++ )
-//				{
+		/*
+		for( int k = -this->binData->grid->neighborhoodSize; k <= this->binData->grid->neighborhoodSize; k++ )
+		{
+			for( int j = -this->binData->grid->neighborhoodSize; j <= this->binData->grid->neighborhoodSize; j++ )
+			{
+				for( int i = -this->binData->grid->neighborhoodSize; i <= this->binData->grid->neighborhoodSize; i++ )
+				{
+		*/
 		for( int k = -this->binData->grid->neighborhoodSizeArray[2]; k <= this->binData->grid->neighborhoodSizeArray[2]; k++ )
 		{
 			for( int j = -this->binData->grid->neighborhoodSizeArray[1]; j <= this->binData->grid->neighborhoodSizeArray[1]; j++ )
@@ -299,15 +312,15 @@ public:
 		}
 
 		// Compute entropy
-		int* localFreqList = new int[nBins];
 		float entropy = ITL_entropycore::computeEntropy_HistogramBased( binArray, localFreqList, nNeighbors, nBins, toNormalize );
-		if( entropy > 0 ) cout << entropy << endl;
 
 		// Store entropy
 		this->entropyField->setDataAt( entropyFieldIndex, entropy );
 
-		if( localFreqList != NULL ) delete [] localFreqList;
-		delete [] binArray;
+		#if defined( _WIN32 ) || defined( _WIN64 )
+			delete [] binArray;
+			delete [] localFreqList;
+		#endif
 
 	}// end function
 

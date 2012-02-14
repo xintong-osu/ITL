@@ -12,6 +12,10 @@
 
 #include "ITL_header.h"
 #include "ITL_vectormatrix.h"
+// ADD-BY-Tzu-Hsuan-BEGIN-02/13
+#include "ITL_util.h"
+#include "ITL_field_regular.h"
+// ADD-BY-Tzu-Hsuan-END-02/13
 
 class ITL_histogram
 {
@@ -35,6 +39,15 @@ public:
 	float fNrOfThetas[5];			/**< Histogram parameter. Number of phis.  */
 	float fNrOfPhis[5];				/**< Histogram parameter. Number of phis.  */
 	int* piAngleMap[5];			/**< Histogram parameter. Mapping from vector to a region in sperical coordinates.  */
+
+	// ADD-BY-Tzu-Hsuan-BEGIN-02/13
+	float histogramLow;
+	float histogramHigh;
+	ITL_field_regular<int>* binDatas;
+	SCALAR histMin;
+	SCALAR histMax;
+	bool hist_RangeSet;
+	// ADD-BY-Tzu-Hsuan-END-02/13
 
 
 public:
@@ -142,6 +155,14 @@ public:
 	 * @return Phi
 	 */
 	float getAngle2(float x, float y);
+
+	// ADD-BY-Tzu-Hsuan-BEGIN-02/13
+	int crossValidateSpeedUp( ITL_field_regular<SCALAR> *scalarField, char *fieldType, int nMax, int start, int step);
+	void computeHistogramBinField_h( ITL_field_regular<SCALAR> *scalarField, char *fieldType, int nBin, char* binMapFile);
+	void computeHistogramBinField_Scalar_h( ITL_field_regular<SCALAR> *scalarField, int nBin );
+	void setHistogramRange_h( SCALAR minR, SCALAR maxR );
+	void computeFrequencies_h( int nPoint, int *binIds, double *freqArray );
+	// ADD-BY-Tzu-Hsuan-END-02/13
 
 };
 

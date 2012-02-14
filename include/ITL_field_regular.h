@@ -148,7 +148,10 @@ public:
 	 * @param hPad Pointer to array containing ghost layer span along each dimension on the upper end.
 	 * @param neighborhoodsize Neighborhood length for each point.
 	 */
-	ITL_field_regular( T* data, int ndim, float* l, float* h, int* lPad, int* hPad, int neighborhoodsize )
+	ITL_field_regular( T* data, int ndim,
+					   float* l, float* h,
+					   int* lPad, int* hPad,
+					   int neighborhoodsize )
 	{
 		// Initialize grid
 		this->grid = new ITL_grid_regular<T>( ndim );
@@ -172,7 +175,10 @@ public:
 	 * @param hPad Pointer to array containing ghost layer span along each dimension on the upper end.
 	 * @param neighborhoodsizearray Neighborhood length for each dimension.
 	 */
-	ITL_field_regular( T* data, int ndim, float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
+	ITL_field_regular( T* data, int ndim,
+					   float* l, float* h,
+					   int* lPad, int* hPad,
+					   int* neighborhoodsizearray )
 	{
 		// Initialize grid
 		this->grid = new ITL_grid_regular<T>( ndim );
@@ -181,7 +187,7 @@ public:
 		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
 
 	}// Constructor
 

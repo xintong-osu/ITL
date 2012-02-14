@@ -1,18 +1,30 @@
 functionType 4
 
-scalarField ../../sampledata/fuel.vol 
+# Input scalar field.
+scalarField /home/abon/code/chaudhua/itl_repo/sampledata/fuel.vol 
 
+# Output scalar field 
 outField fuel_en.vol
 
+# Number of dimensions of input scalar field.
 nDim 3
 
+# Number of bins of the histogram.
 nBin 100
 
+# Neighborhood size of a block 
 neighborhoodSizeX 6
 neighborhoodSizeY 6
 neighborhoodSizeZ 6
 
+method 0
+
+# Number of blocks to be created along each dimension. 
+# One processor will process one block. So total number blocks should be equal to number of processors.
 nBlockX 2
 nBlockY 2
 nBlockZ 1
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1
 

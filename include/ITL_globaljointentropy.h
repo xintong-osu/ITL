@@ -73,11 +73,10 @@ public:
 	 */
 	void computeJointHistogramBinField_Scalar( int nBin )
 	{
-		cout << "Scalar" << endl;
 		assert( this->dataField1->datastore->array != NULL );
 		assert( this->dataField2->datastore->array != NULL );
-		T nextVField1, nextVField2;
-		T minValue1, maxValue1, minValue2, maxValue2;
+		SCALAR nextVField1, nextVField2;
+		SCALAR minValue1, maxValue1, minValue2, maxValue2;
 
 		// The histogram field is padded, pad length is same as neighborhood size of vector field
 		//int* lPadHisto = new int[this->grid->nDim];
@@ -90,7 +89,6 @@ public:
 			this->binData = new ITL_field_regular<int>( this->dataField1->grid->nDim,
 													this->dataField1->grid->low, this->dataField1->grid->high,
 													this->dataField1->grid->lowPad, this->dataField1->grid->highPad,
-													//lPadHisto, hPadHisto,
 													this->dataField1->grid->neighborhoodSizeArray );
 		// Compute the range over which histogram computation needs to be done
 		if( histogramRangeSet == false )
@@ -107,13 +105,22 @@ public:
 			maxValue1 = histogramMax1;
 			minValue2 = histogramMin2;
 			maxValue2 = histogramMax2;				
-		}	
+		}
 		
 		// Compute bin widths along each dimension
 		T rangeValue1 = maxValue1 - minValue1;
 		float binWidth1 = rangeValue1 / (float)nBin;
 		T rangeValue2 = maxValue2 - minValue2;
 		float binWidth2 = rangeValue2 / (float)nBin;
+
+		#ifdef DEBUG_MODE
+		printf( "Field 1:\n");
+		printf( "Min: %g Max: %g Range: %g of the scalar values\n", minValue1, maxValue1, rangeValue1 );
+		printf( "Binwidth: %g\n", binWidth1 );
+		printf( "Field 2:\n");
+		printf( "Min: %g Max: %g Range: %g of the scalar values\n", minValue2, maxValue2, rangeValue2 );
+		printf( "Binwidth: %g\n", binWidth2 );
+		#endif
 
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
@@ -213,6 +220,16 @@ public:
 
 	}// end function
 
+	void computeJointHistogramFrequencies( int nBin )
+	{
+		// Scan through bin Ids and keep count
+		if( jointFreqList == NULL ) jointFreqList = new int[nBin*nBin];
+		for( int i=0; i<nBin*nBin; i++ )
+			jointFreqList[i] = 0;
+		for( int i=0; i<binData->grid->nVertices; i++ )
+			jointFreqList[ binData->datastore->array[i] ] ++;
+	}
+
 	/**
 	 * Global joint Entropy computation function.
 	 * Creates a scalar field that contains entropy at each grid vertex.
@@ -220,7 +237,19 @@ public:
 	 */
 	void computeGlobalJointEntropyOfField( int nBin, bool toNormalize, int method = 0 )
 	{
-		if( method == 0 )	this->globalJointEntropy = ITL_entropycore::computeEntropy_HistogramBased( this->binData->datastore->array, this->jointFreqList, this->binData->grid->nVertices, nBin*nBin, toNormalize );	
+		if( method == 0 )
+		{
+			// Check if frequencies are already computed from bin Ids
+			// If not, only then compute frequencies from bin Ids
+			computeJointHistogramFrequencies( nBin*nBin );
+
+			// Compute entropy from joint frequency list
+			this->globalJointEntropy = ITL_entropycore::computeEntropy_HistogramBased( this->binData->datastore->array,
+																					   this->jointFreqList,
+																					   this->binData->grid->nVertices,
+																					   nBin*nBin, toNormalize );
+
+		}
 
 	}// end function
 

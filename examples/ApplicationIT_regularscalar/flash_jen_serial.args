@@ -1,18 +1,19 @@
-functionType 3
+functionType 5
 
 # Input scalar fields. (currently handles only 2) 
-scalarField /home/chaudhua/Data/ScalarData/flash/rs.rank_0_blk_0.f.b3d
-scalarField2 /home/chaudhua/Data/ScalarData/flash/rs.rank_1_blk_0.f.b3d
+scalarField /media/Data/Data/VolumeData/flash/rs.rank_0_blk_0.f.b3d
+scalarField2 /media/Data/Data/VolumeData/flash/rs.rank_1_blk_0.f.b3d
 
 # Number of dimensions of input vector field.
 nDim 3
 
 # Number of bins of the histogram.
-nBin 1000
+nBin 100
 
 #Lower and upper limits of the histogram range
 histLow 1.85E-30
 histHigh 6.1E-30
 
-
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1
 

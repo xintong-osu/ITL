@@ -83,7 +83,7 @@ void compute_blockwiseglobalentropy_parallel();
 /**
  * Serial local entropy computation function for regular scalar field.
  */
-void compute_localentropy_regularfield_serial();
+void compute_localentropy_serial();
 /**
  * Parallel local entropy computation function for regular scalar field.
  */
@@ -91,7 +91,7 @@ void compute_localentropy_parallel();
 /**
  * Serial global joint entropy computation function for regular scalar field.
  */
-void compute_globaljointentropy_regularfield_serial();
+void compute_globaljointentropy_serial();
 
 /**
  * Main function.
@@ -149,7 +149,7 @@ int main( int argc, char** argv )
 		break;
 	case 3:
 		printf( "Entering serial computation of local entropy field from the regular scalar field ...\n" );	
-		compute_localentropy_regularfield_serial();
+		compute_localentropy_serial();
 		break;
 	case 4:
 		printf( "Entering parallel computation of local entropy field from the regular scalar field ...\n" );	
@@ -157,7 +157,7 @@ int main( int argc, char** argv )
 		break;	
 	case 5:
 		printf( "Entering serial computation of global joint entropy of the regular scalar field ...\n" );	
-		compute_globaljointentropy_regularfield_serial();
+		compute_globaljointentropy_serial();
 		break;
 	default:
 		break;
@@ -181,12 +181,15 @@ void compute_globalentropy_serial()
 	scalarFieldData = ITL_ioutil<float>::readFieldBinarySerial( scalarFieldFile, nDim, dataDim );
 	execTime[0] = ITL_util<float>::endTimer( starttime );
 	if( verboseMode == 1 ) printf( "Read scalar field of dimension: %d %d %d\n", dataDim[0], dataDim[1], dataDim[2] );
-	
+
 	// Create a scalar field class from the file
 	highF[0] = dataDim[0]-1.0f;
 	highF[1] = dataDim[1]-1.0f;
 	highF[2] = dataDim[2]-1.0f;
-	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF, lowPad, highPad, sizeNeighborhoodArray );
+	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData,
+												 nDim, lowF, highF,
+												 lowPad, highPad,
+												 sizeNeighborhoodArray );
 
 	// Initialize class that can compute entropy
 	globalEntropyComputer = new ITL_globalentropy<SCALAR>( scalarField, histogram );
@@ -199,9 +202,11 @@ void compute_globalentropy_serial()
 		if( histogramLowEnd != histogramHighEnd )
 			globalEntropyComputer->setHistogramRange( histogramLowEnd, histogramHighEnd );	
 		
-		// Cross-validation
-		//globalEntropyComputer->crossValidate( "scalar", 1000, 100, 10 );
-		
+		// Run cross validation to compute the optimal number of bins (Optional)
+		if( verboseMode == 1 ) printf( "Starting cross-validation ...\n" );
+		int nBinOptimal = histogram->crossValidateSpeedUp( scalarField, "scalar", 100000, 10, 8);
+		//int nBinOptimal = globalEntropyComputer->crossValidateSpeedUp( "scalar", 100000, 10, 8);
+		if( verboseMode == 1 ) printf( "Optimal number of bins: %d\n", nBinOptimal );
 		
 		// Histogram computation
 		if( verboseMode == 1 ) printf( "Converting scalars into histogram bins ...\n" );
@@ -216,12 +221,12 @@ void compute_globalentropy_serial()
 		// Get histogram frequencies
 		int *freqList = new int[nBin];
 		globalEntropyComputer->getHistogramFrequencies( nBin, freqList );
-		if( verboseMode == 1 ) 
-		{
-			for( int p=0; p<nBin; p++ )
-				printf( "f[%d] = %d, ", p, freqList[p] );
-			printf( "\n" );
-		}
+		//if( verboseMode == 1 )
+		//{
+		//	for( int p=0; p<nBin; p++ )
+		//		printf( "f[%d] = %d, ", p, freqList[p] );
+		//	printf( "\n" );
+		//}
 
 		float globalEntropy = globalEntropyComputer->getGlobalEntropy();
 		execTime[1] = ITL_util<float>::endTimer( starttime );
@@ -269,13 +274,18 @@ void compute_globalentropy_parallel()
 	globalEntropyComputer = new ITL_globalentropy<SCALAR>( scalarField, histogram );
 
 	if( histogramLowEnd != histogramHighEnd )
-		globalEntropyComputer->setHistogramRange( histogramLowEnd, histogramHighEnd );				
+		globalEntropyComputer->setHistogramRange( histogramLowEnd, histogramHighEnd );
+
+	// Run cross validation to compute the optimal number of bins (Optional)
+	if( verboseMode == 1 ) printf( "Starting cross-validation ...\n" );
+	int nBinOptimal = histogram->crossValidateSpeedUp( scalarField, "scalar", 100000, 10, 8);
+	//int nBinOptimal = globalEntropyComputer->crossValidateSpeedUp( "scalar", 100000, 10, 8);
+	if( verboseMode == 1 ) printf( "Optimal number of bins: %d\n", nBinOptimal );
 
 	// Histogram computation
-	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" ); 
+	if( verboseMode == 1 ) printf( "Converting scalars into histogram bins at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();	
 	globalEntropyComputer->computeHistogramBinField( "scalar", nBin );
-	if( verboseMode == 1 ) printf( "Done\n" );
 
 	// Compute frequencies
 	globalEntropyComputer->computeHistogramFrequencies( nBin );
@@ -288,11 +298,11 @@ void compute_globalentropy_parallel()
 	#endif
 
 	globalEntropyComputer->getHistogramFrequencies( nBin, freqList );
-	if( verboseMode == 1 ) 
-	{	
-		for( int i=0; i<nBin; i++ )
-			printf( "%d:f[%d]=%d\n", myId, i, freqList[i] );
-	}
+	//if( verboseMode == 1 )
+	//{
+	//	for( int i=0; i<nBin; i++ )
+	//		printf( "%d:f[%d]=%d\n", myId, i, freqList[i] );
+	//}
 
 	// Sync with all processors and and sum up all histogram frequencies to processor 0
 	MPI_Barrier( MPI_COMM_WORLD );
@@ -331,15 +341,17 @@ void compute_globalentropy_parallel()
 void compute_blockwiseglobalentropy_parallel()
 {
 	// Read chunk of data from file
-	if( verboseMode == 1 ) printf( "Reading scalar field ...\n" );	
+	if( verboseMode == 1 ) printf( "%d: Reading scalar field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
-	scalarFieldData = ITL_ioutil<SCALAR>::readFieldBinaryParallel2( scalarFieldFile, nDim, dataDim,
-								blockDim, nBlock,blockId,
-								low, high,
-								lowPad, highPad,
-								sizeNeighborhood, myId, numProcs);
+	scalarFieldData = ITL_ioutil<SCALAR>::readFieldBinaryParallel3( scalarFieldFile,
+																	nDim, dataDim, blockDim,
+																	nBlock,blockId,
+																	low, high,
+																	lowPad, highPad,
+																	sizeNeighborhoodArray,
+																	myId, numProcs );
 	execTime[0] = ITL_util<float>::endTimer( starttime );
-	if( verboseMode == 1 ) printf( "Read scalar field of dimension: %d %d %d\n", dataDim[0], dataDim[1], dataDim[2] );
+	if( verboseMode == 1 ) printf( "%d: Read scalar field of dimension: %d %d %d\n", myId, dataDim[0], dataDim[1], dataDim[2] );
 
 	// Create a vector field class from the file
 	highF[0] = blockDim[0]-1.0f;
@@ -354,17 +366,17 @@ void compute_blockwiseglobalentropy_parallel()
 		globalEntropyComputer->setHistogramRange( histogramLowEnd, histogramHighEnd );				
 
 	// Histogram computation
-	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" ); 
+	if( verboseMode == 1 ) printf( "%d: Converting scalars into histogram bins ...\n", myId );
 	starttime = ITL_util<float>::startTimer();	
 	globalEntropyComputer->computeHistogramBinField( "scalar", nBin );
-	if( verboseMode == 1 ) printf( "Done\n" );
 
 	// Compute global entropy of the block
+	if( verboseMode == 1 ) printf( "%d: Computing global entropy of the block ...\n", myId );
 	globalEntropyComputer->computeGlobalEntropyOfField( nBin, false, 0 );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
 	
 	// Print block entropy (Process id = block id)
-	printf( "Global entropy of block: %d, %f\n", myId, globalEntropyComputer->getGlobalEntropy() );
+	printf( "%d: Global entropy of block: %g\n", myId, globalEntropyComputer->getGlobalEntropy() );
 
 	// Runtime
 	if( verboseMode == 1 ) 	printf( "%d: Read/Computation Time: %f, %f seconds\n", myId, execTime[0], execTime[1] );
@@ -373,54 +385,50 @@ void compute_blockwiseglobalentropy_parallel()
 }// end function
 
 
-void compute_localentropy_regularfield_serial()
+void compute_localentropy_serial()
 {
 	// Initialize ITL
 	ITL_base::ITL_init();
+
+	// Read scalar field
+	if( verboseMode == 1 )	printf( "Reading scalar field ...\n" );
+	starttime = ITL_util<float>::startTimer();
+	scalarFieldData = ITL_ioutil<float>::readFieldBinarySerial( scalarFieldFile, nDim, dataDim );
+	execTime[0] = ITL_util<float>::endTimer( starttime );
+	if( verboseMode == 1 ) printf( "Read scalar field of dimension: %d %d %d\n", dataDim[0], dataDim[1], dataDim[2] );
 
 	// Create a scalar field class from the file
 	highF[0] = dataDim[0]-1.0f;
 	highF[1] = dataDim[1]-1.0f;
 	highF[2] = dataDim[2]-1.0f;
 
-	// Read scalar field
-	printf( "Reading scalar field ...\n" );
-	starttime = ITL_util<float>::startTimer();
-	scalarFieldData = ITL_ioutil<float>::readFieldBinarySerial( scalarFieldFile, nDim, dataDim );
-	execTime[0] = ITL_util<float>::endTimer( starttime );
-	printf( "Read scalar field of dimension: %d %d %d\n", dataDim[0], dataDim[1], dataDim[2] );
-
-
 	// Initialize scalar field class
 	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim,
- 							lowF, highF,
-							lowPad, highPad,
-							sizeNeighborhoodArray );
+ 												 lowF, highF,
+ 												 lowPad, highPad,
+ 												 sizeNeighborhoodArray );
 
 	// Initialize class that can compute local entropy field
 	localEntropyComputer = new ITL_localentropy<SCALAR>( scalarField, histogram );
 
 	// Histogram computation
-	printf( "Converting scalars into histogram bins at each point of the scalar field ...\n" );
+	if( verboseMode == 1 ) printf( "Converting scalars into histogram bins ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	localEntropyComputer->computeHistogramBinField( "scalar", nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Entropy Computation
-	printf( "Computing entropy at each point of the scalar field ...\n" );
+	if( verboseMode == 1 ) printf( "Computing entropy at each point of the scalar field ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	localEntropyComputer->computeEntropyOfField( nBin, false );
+	localEntropyComputer->computeLocalEntropyOfField( nBin, false );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Saving data to binary file
-	printf( "Saving local entropy field to binary file ...\n" );
+	if( verboseMode == 1 ) printf( "Saving local entropy field to binary file ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	ITL_field_regular<float>* entropyField = localEntropyComputer->getEntropyField();
 	ITL_ioutil<float>::writeFieldBinarySerial( entropyField->getDataFull(), outFieldFile, entropyField->grid->dim, nDim );
 	execTime[3] = ITL_util<float>::endTimer( starttime );
-	//printf( "Done\n" );
 
 	// Runtime
 	execTime[4] = execTime[1] + execTime[2];
@@ -437,8 +445,13 @@ void compute_localentropy_parallel()
 	// Read relevant portion of data from file
 	if(verboseMode == 1 ) printf( "%d:Reading portion of scalar field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
-	//scalarFieldData = ITL_ioutil<SCALAR>::readFieldBinaryParallel2( scalarFieldFile, nDim, dataDim, blockDim, nBlock,blockId, low, high, lowPad, highPad, sizeNeighborhood, myId, numProcs );
-	scalarFieldData = ITL_ioutil<SCALAR>::readFieldBinaryParallel3( scalarFieldFile, nDim, dataDim, blockDim, nBlock,blockId, low, high, lowPad, highPad, sizeNeighborhoodArray, myId, numProcs );
+	scalarFieldData = ITL_ioutil<SCALAR>::readFieldBinaryParallel3( scalarFieldFile,
+																	nDim, dataDim, blockDim,
+																	nBlock,blockId,
+																	low, high,
+																	lowPad, highPad,
+																	sizeNeighborhoodArray,
+																	myId, numProcs );
 	execTime[0] = ITL_util<float>::endTimer( starttime );
 	for( int i=0; i<blockDim[0]*blockDim[1]*blockDim[2]; i++ )
 	{
@@ -464,7 +477,7 @@ void compute_localentropy_parallel()
 
 	if(verboseMode == 1 ) printf( "%d: Computing entropy at each point of the scalar field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
-	localEntropyComputer->computeEntropyOfField( nBin, true );
+	localEntropyComputer->computeLocalEntropyOfField( nBin, true );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
 
 
@@ -483,10 +496,8 @@ void compute_localentropy_parallel()
 
 }//end function
 
-
-
 // ADD-BY-Abon 07/19/2011-BEGIN
-void compute_globaljointentropy_regularfield_serial()
+void compute_globaljointentropy_serial()
 {
 	// Read chunk of data from both files 
 	starttime = ITL_util<float>::startTimer();
@@ -498,27 +509,31 @@ void compute_globaljointentropy_regularfield_serial()
 	highF[0] = dataDim[0]-1.0f;
 	highF[1] = dataDim[1]-1.0f;
 	highF[2] = dataDim[2]-1.0f;
-	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF, lowPad, highPad, sizeNeighborhood );
-	scalarField2 = new ITL_field_regular<SCALAR>( scalarFieldData2, nDim, lowF, highF, lowPad, highPad, sizeNeighborhood );
+	scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim,
+												 lowF, highF,
+												 lowPad, highPad,
+												 sizeNeighborhood );
+	scalarField2 = new ITL_field_regular<SCALAR>( scalarFieldData2, nDim,
+												  lowF, highF,
+												  lowPad, highPad,
+												  sizeNeighborhood );
 
 	// Initialize class that can compute global joint entropy
 	globalJointEntropyComputer = new ITL_globaljointentropy<SCALAR>( scalarField, scalarField2, histogram );
 
 	// Histogram computation
-	printf( "Converting scalars into joint histogram bins at each point of the scalar field ...\n" );
+	if(verboseMode == 1 ) printf( "Converting scalars into joint histogram bins ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	if( histogramLowEnd != histogramHighEnd )
 		globalJointEntropyComputer->setJointHistogramRange( histogramLowEnd, histogramHighEnd, histogramLowEnd, histogramHighEnd );	
 	globalJointEntropyComputer->computeJointHistogramBinField( "scalar", nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Global Joint entropy Computation
-	printf( "Computing joint entropy of the entire scalar field ...\n" );
+	if(verboseMode == 1 ) printf( "Computing joint entropy of the entire scalar field ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	globalJointEntropyComputer->computeGlobalJointEntropyOfField( nBin, false );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 	
 	// Display computed global joint entropy
 	printf( "Joint global entropy of scalar fields: %f\n", globalJointEntropyComputer->getGlobalJointEntropy() );
@@ -526,7 +541,7 @@ void compute_globaljointentropy_regularfield_serial()
 
 	// Runtime
 	execTime[4] = execTime[1] + execTime[2];
-	printf( "%d: Read/Histogram/Entropy/Write/Total Computation Time: %f %f %f %f %f seconds\n", myId, execTime[0], execTime[1], execTime[2], execTime[3], execTime[4]  );
+	if(verboseMode == 1 ) printf( "%d: Read/Histogram/Entropy/Write/Total Computation Time: %f %f %f %f %f seconds\n", myId, execTime[0], execTime[1], execTime[2], execTime[3], execTime[4]  );
 
 }// end function
 // ADD-BY-Abon 07/19/2011-END

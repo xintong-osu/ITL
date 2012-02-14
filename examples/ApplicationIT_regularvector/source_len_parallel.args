@@ -1,13 +1,13 @@
 functionType 4
 
 # Input vector field. 
-vectorField ../../sampledata/source.vec
+vectorField /home/abon/code/chaudhua/itl_repo/sampledata/source.vec
 
 # Output file which stores local entropy field in binary format.
 outField source_en.vol
 
 # If patch file is empty (denoted by !), then the default mapping is used.
-patchFile patch.txt
+patchFile !
 
 # Number of dimensions of input vector field.
 nDim 3
@@ -27,4 +27,4 @@ nBlockY 2
 nBlockZ 1
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
-verbose 0
+verbose 1

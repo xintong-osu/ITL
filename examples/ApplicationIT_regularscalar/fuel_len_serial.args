@@ -1,12 +1,23 @@
-functionType 0
-scalarField ../../sampledata/fuel.vol 
+functionType 3
+
+# Input scalar field.
+scalarField /home/abon/code/chaudhua/itl_repo/sampledata/fuel.vol 
+
+# Output scalar field 
 outField fuel_en.vol
+
+# Number of dimensions of input scalar field.
 nDim 3
-nBin 1000
+
+# Number of bins of the histogram.
+nBin 100
+
+# Neighborhood size of a block 
 neighborhoodSizeX 6
 neighborhoodSizeY 6
 neighborhoodSizeZ 6
-nBlockX 4
-nBlockY 2
-nBlockZ 1
 
+method 0
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1

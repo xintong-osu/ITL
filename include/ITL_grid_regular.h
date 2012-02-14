@@ -176,27 +176,11 @@ public:
 	void setBounds( float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
 	{
 		// set bounding box in physical space
-		//this->low = new float[this->nDim];
-		//this->high = new float[this->nDim];
 		memcpy( this->low, l, this->nDim * sizeof(float) );
 		memcpy( this->high, h, this->nDim * sizeof(float) );
 
 		// Set the neighborhood size and vertices in the neighborhood
-		//this->neighborhoodSizeArray = new int[3];
 		memcpy( this->neighborhoodSizeArray, neighborhoodsizearray, this->nDim * sizeof(int) );
-		//this->neighborhoodSizeArray[0] = neighborhoodsizearray[0];
-		//this->neighborhoodSizeArray[1] = neighborhoodsizearray[1];
-		//this->neighborhoodSizeArray[2] = neighborhoodsizearray[2];
-
-		// Set field size and bounding box in terms of grid vertex
-		//this->dim = new int[this->nDim];
-		//this->dimWithPad = new int[this->nDim];
-		//this->lowInt = new int[this->nDim];
-		//this->highInt = new int[this->nDim];
-		//this->lowIntWithPad = new int[this->nDim];
-		//this->highIntWithPad = new int[this->nDim];
-		//this->lowPad = new int[this->nDim];
-		//this->highPad = new int[this->nDim];
 
 		// Set the padding / ghost cell size
 		memcpy( this->lowPad, lPad, this->nDim * sizeof(int) );
@@ -221,7 +205,7 @@ public:
 		#ifdef DEBUG_MODE
 		printf( "Field Bounding box:\n" );
 		for( int i=0; i<this->nDim; i++ )
-			printf( "(%f, %f)\t", this->low[i], this->high[i] );
+			printf( "(%g, %g)\t", this->low[i], this->high[i] );
 		printf( "\n" );
 		for( int i=0; i<this->nDim; i++ )
 			printf( "(%d, %d)\t", this->lowInt[i], this->highInt[i] );

@@ -1,24 +1,21 @@
-functionType 3
+functionType 5
 
 # Input vector fields. (currently handles only 2) 
-vectorField ../../sampledata/circle.vec
-vectorField2 ../../sampledata/source.vec
+vectorField /home/abon/code/chaudhua/itl_repo/sampledata/source.vec
+vectorField2 /home/abon/code/chaudhua/itl_repo/sampledata/circle.vec
 
 # Output file which stores joint local entropy field in binary format.
 outField mixed_jen.vol
 
 # If patch file is empty (denoted by !), then the default mapping is used.
-patchFile patch.txt
+patchFile !
 
 # Number of dimensions of input vector field.
 nDim 3
 
 # Number of bins of the histogram.
 nBin 360
-neighborhoodSize 6
-neighborhoodSizeX 6
-neighborhoodSizeY 6
-neighborhoodSizeZ 6
-nBlockX 2
-nBlockY 1
-nBlockZ 1
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1 
+

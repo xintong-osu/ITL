@@ -1,7 +1,7 @@
-functionType 1
+functionType 3
 
 # Input vector field. 
-vectorField ../../sampledata/source.vec
+vectorField /home/abon/code/chaudhua/itl_repo/sampledata/source.vec
 
 # Output file which stores local entropy field in binary format.
 outField source_en.vol
@@ -15,9 +15,13 @@ nDim 3
 # Number of bins of the histogram.
 nBin 360
 
+# Neighborhood size of a block 
 neighborhoodSize 6
 neighborhoodSizeX 6
 neighborhoodSizeY 6
 neighborhoodSizeZ 6
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1 
 
 

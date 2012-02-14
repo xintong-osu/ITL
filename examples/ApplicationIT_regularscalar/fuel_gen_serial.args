@@ -1,19 +1,22 @@
-functionType 2
+functionType 0
 
 # Input scalar field.
-scalarField ../../sampledata/fuel.vol 
+scalarField /home/abon/code/chaudhua/itl_repo/sampledata/fuel.vol 
 
 # Number of dimensions of input vector field.
 nDim 3
 
 # Number of bins of the histogram.
-nBin 10
+nBin 100
 
 #Lower and upper limits of the histogram range
 histLow 0
 histHigh 255
 
 method 0
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1
 
 
 

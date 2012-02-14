@@ -204,22 +204,24 @@ void compute_globalentropy_serial()
 	highF[0] = dataDim[0]-1.0f;
 	highF[1] = dataDim[1]-1.0f;
 	highF[2] = dataDim[2]-1.0f;
-	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );//, lowPad, highPad, sizeNeighborhoodArray );
+	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );
 
 	// Initialize class that can compute entropy
 	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
 
 	// Histogram computation
-	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" );
+	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	globalEntropyComputer->computeHistogramBinField( "vector", nBin );
 
-	//int freqList[360];
-	//globalEntropyComputer->computeHistogramFrequencies( 360 );
-	//globalEntropyComputer->getHistogramFrequencies( 360, freqList );
-	//for( int i=0; i<360; i++ )
-	//	printf( "%d\n", freqList[i] );
-	//exit(0);
+	if( verboseMode == 1 )
+	{
+		int freqList[nBin];
+		globalEntropyComputer->computeHistogramFrequencies( nBin );
+		globalEntropyComputer->getHistogramFrequencies( nBin, freqList );
+		for( int i=0; i<nBin; i++ )
+			printf( "f[%d] = %d\t", i, freqList[i] );
+	}
 
 	// Global entropy Computation
 	if( verboseMode == 1 ) printf( "Computing entropy at each point of the vector field ...\n" );
@@ -351,6 +353,7 @@ void compute_blockwiseglobalentropy_parallel()
 void compute_localentropy_serial()
 {
 	// Read chunk of data from file
+	if( verboseMode == 1 ) printf( "Reading vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	data = ITL_ioutil<VECTOR3>::readFieldBinarySerial( vectorFieldFile, nDim, dataDim );
 	execTime[0] = ITL_util<float>::endTimer( starttime );
@@ -368,28 +371,23 @@ void compute_localentropy_serial()
 	localEntropyComputer = new ITL_localentropy<VECTOR3>( vectorField, histogram );
 
 	// Histogram computation
-	printf( "Converting vectors into histogram bins at each point of the vector field ...\n" );
+	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	localEntropyComputer->computeHistogramBinField( "vector", nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Entropy Computation
-	printf( "Computing entropy at each point of the vector field ...\n" );
+	if( verboseMode == 1 ) printf( "Computing entropy at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	localEntropyComputer->computeEntropyOfField( nBin, true );
+	localEntropyComputer->computeLocalEntropyOfField( nBin, true );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Saving data to binary file
-	printf( "saving entropy field to binary file ...\n" );
+	if( verboseMode == 1 ) printf( "saving entropy field to binary file ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	ITL_field_regular<float>* entropyField = localEntropyComputer->getEntropyField();
-	cout << entropyField->grid->dim[0] << " " << entropyField->grid->dim[1] << " " << entropyField->grid->dim[2] << endl;
-	
 	ITL_ioutil<float>::writeFieldBinarySerial( entropyField->getDataFull(), outFieldFile, entropyField->grid->dim, nDim );
 	execTime[3] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Runtime
 	execTime[4] = execTime[1] + execTime[2];
@@ -400,18 +398,13 @@ void compute_localentropy_serial()
 void compute_localentropy_parallel()
 {
 	// Read relevant portion of data from file
+	if( verboseMode == 1 ) printf( "%d: Reading vector field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
-	//data = ITL_ioutil<VECTOR3>::readFieldBinaryParallel2( vectorFieldFile, nDim, dataDim,
-  	//												blockDim, nBlock,blockId,
-	//												low, high,
-	//												lowPad, highPad,
-	//												sizeNeighborhood, myId, numProcs );
 	data = ITL_ioutil<VECTOR3>::readFieldBinaryParallel3( vectorFieldFile, nDim, dataDim,
 												blockDim, nBlock,blockId,
 												low, high,
 												lowPad, highPad,
 												sizeNeighborhoodArray, myId, numProcs );
-
 	execTime[0] = ITL_util<float>::endTimer( starttime );
 
 	// Create a vector field block from the relevant portion of the file
@@ -421,9 +414,9 @@ void compute_localentropy_parallel()
 		highF[i] = (float)high[i];
 	}
 	vectorField = new ITL_field_regular<VECTOR3>( data, nDim,
-							lowF, highF,
-							lowPad, highPad,
-							sizeNeighborhoodArray  );
+												  lowF, highF,
+												  lowPad, highPad,
+												  sizeNeighborhoodArray  );
 
 	// Initialize class that can compute entropy
 	localEntropyComputer = new ITL_localentropy<VECTOR3>( vectorField, histogram );
@@ -435,7 +428,7 @@ void compute_localentropy_parallel()
 	
 	if(verboseMode == 1 ) printf( "%d: Computing entropy at each point of the vector field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
-	localEntropyComputer->computeEntropyOfField( nBin, true );
+	localEntropyComputer->computeLocalEntropyOfField( nBin, true );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
 	
 	if(verboseMode == 1 ) printf( "%d: saving entropy field to binary file ...\n", myId );
@@ -457,6 +450,7 @@ void compute_localentropy_parallel()
 void compute_jointlocalentropy_serial()
 {
 	// Read chunk of data from both files 
+	if( verboseMode == 1 ) printf( "Reading two vector fields ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	data = ITL_ioutil<VECTOR3>::readFieldBinarySerial( vectorFieldFile, nDim, dataDim );
 	data2 = ITL_ioutil<VECTOR3>::readFieldBinarySerial( vectorFieldFile2, nDim, dataDim );
@@ -483,14 +477,12 @@ void compute_jointlocalentropy_serial()
 	starttime = ITL_util<float>::startTimer();
 	jointEntropyComputer->computeJointHistogramBinField( "vector", nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Joint entropy Computation
 	printf( "Computing joint entropy at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	jointEntropyComputer->computeLocalJointEntropyOfField( nBin );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Saving data to binary file
 	printf( "saving entropy field to binary file ...\n" );
@@ -498,7 +490,6 @@ void compute_jointlocalentropy_serial()
 	ITL_field_regular<float>* jointEntropyField = jointEntropyComputer->getLocalJointEntropyField();
 	ITL_ioutil<float>::writeFieldBinarySerial( jointEntropyField->getDataFull(), outFieldFile, jointEntropyField->grid->dim, nDim );
 	execTime[3] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Runtime
 	execTime[4] = execTime[1] + execTime[2];
@@ -511,6 +502,7 @@ void compute_jointlocalentropy_parallel()
 {
 	
 	// Read chunk of data from first file
+	if( verboseMode == 1 ) printf( "%d: Reading vector field ...\n", myId );
 	if( myId == 0 )	starttime = ITL_util<float>::startTimer();
 	data = ITL_ioutil<VECTOR3>::readFieldBinaryParallel3( vectorFieldFile, nDim, dataDim,
   														  blockDim, nBlock,blockId,
@@ -542,33 +534,26 @@ void compute_jointlocalentropy_parallel()
 	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( vectorField, vectorField2, histogram );
 
 	// Histogram computation
-	printf( "Converting vectors into joint histogram bins at each point of the vector field ...\n" );
+	if( verboseMode == 1 ) printf( "%d: Converting vectors into joint histogram bins  ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
 	jointEntropyComputer->computeJointHistogramBinField( "vector", nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Joint entropy Computation
-	printf( "Computing joint entropy at each point of the vector field ...\n" );
+	if( verboseMode == 1 ) 	printf( "%d: Computing joint entropy at each point of the vector field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
 	jointEntropyComputer->computeLocalJointEntropyOfField( nBin );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
-	printf( "Done\n" );
 
 	// Saving data to binary file
+	if( verboseMode == 1 ) printf( "%d: Saving joint local entropy field ...\n", myId );
 	if( myId == 0 ) starttime = ITL_util<float>::startTimer();
-	ITL_field_regular<float>* jointEntropyField = jointEntropyComputer->getLocalJointEntropyField();
-	//ITL_ioutil<float>::writeFieldBinaryParallel( entropyField->getDataFull(), outFieldFile,
-	//										     dataDim, blockDim,
-	//										     lowF, nDim,
-	//										     myId, numProcs );
-
-	ITL_ioutil<float>::writeFieldBinaryParallel2( jointEntropyField->getDataFull(), (char*)outFieldFile, dataDim,
-													blockDim, nBlock, blockId,
-													lowF, nDim,
-													myId, numProcs );													
+	ITL_ioutil<float>::writeFieldBinaryParallel2( jointEntropyComputer->getLocalJointEntropyField()->getDataFull(),
+											  	  (char*)outFieldFile, dataDim,
+												  blockDim, nBlock, blockId,
+												  lowF, nDim,
+												  myId, numProcs );
 	if( myId == 0 ) execTime[3] = ITL_util<float>::endTimer( starttime );
-	printf( "%d: Done\n", myId );
 
 	// Runtime
 	execTime[4] = execTime[1] + execTime[2];

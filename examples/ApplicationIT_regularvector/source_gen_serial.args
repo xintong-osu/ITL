@@ -1,7 +1,7 @@
 functionType 0
 
 # Input vector field
-vectorField ../../sampledata/source.vec
+vectorField /home/abon/code/chaudhua/itl_repo/sampledata/source.vec 
 
 # If patch file is empty (denoted by !), then the default mapping is used.
 patchFile !

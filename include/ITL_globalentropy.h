@@ -98,7 +98,7 @@ public:
 	void computeHistogramBinField_Scalar( int nBin )
 	{
 		assert( this->dataField->datastore->array != NULL );
-	        SCALAR nextV, minValue, maxValue, rangeValue;
+	    SCALAR nextV, minValue, maxValue, rangeValue;
 		
 		// The histogram field is padded, pad length is same as neighborhood size of vector field
 	        //int* lPadHisto = new int[this->grid->nDim];
@@ -400,6 +400,188 @@ public:
 
 		delete [] scoreList;
 		delete [] nBinArray;
+		//for( int i=0; i<nIter; i++ )
+		//	delete [] freqListPtr[i];
+		//delete [] freqListPtr;
+
+	}// End function
+
+	/** added by Tzu-Hsuan
+	 *
+	 */
+	int crossValidateSpeedUp( char *fieldType, int nMax, int start, int step )
+	{
+		// Assume method is 0 (histogram-based)
+		// Allocate memory
+
+		int nIter = log((float)(nMax/start))/log(2.0) + 1;
+		printf("nIter:%d\n",nIter);
+		SCALAR minValue,maxValue;
+		double *scoreList = new double[nIter];
+		int *nBinArray = new int[nIter];
+		int cross_nBin;
+
+		double *freqListPtr = NULL;
+		double **freqListPtr2 = NULL;
+
+		for( int i = 0; i<nIter; i++ )
+		{
+			nBinArray[nIter-i-1] = (int)(nMax/(pow(2.0,(float)i)));
+
+		}
+
+		for(int i=0;i<nIter;i++)
+			printf("nBinArray[i]:%d\n",nBinArray[i]);
+
+		// Iterate
+		double minScore = 10000000;
+		int minScoreIndex = -1;
+		float h = 0;
+		int N = this->dataField->grid->nVertices;
+
+		//FILE *crossV;
+		//crossV = fopen("crossV.txt","w+");
+		double firstPart = 0;
+		double secondPart = 0;
+		double sumOfSquares = 0;
+
+		// Compute the range over which histogram computation needs to be done
+		if( histogramRangeSet == false )
+		{
+			// Get min-max values of the scalar field
+			// ******************* Need to resolve typecast issue begin *************************
+			minValue = ITL_util<SCALAR>::Min( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
+			maxValue = ITL_util<SCALAR>::Max( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
+			// ******************* Need to resolve typecast issue end *************************
+		}
+		else
+		{
+			minValue = histogramMin;
+			maxValue = histogramMax;
+		}
+
+		histogramMin = minValue;
+		histogramMax = maxValue;
+
+		printf("max:%g\tmin:%g",maxValue,minValue);
+		h = ( histogramMax - histogramMin ) / (float) nBinArray[nIter-1];
+		printf("h:%g\n",h);
+
+		computeHistogramBinField( fieldType, nBinArray[nIter-1] );
+
+		freqListPtr = new double[nBinArray[nIter-1]];
+
+		for( int j=0; j<nBinArray[nIter-1]; j++ )
+			freqListPtr[j] = 0;
+
+		computeFrequencies( this->binData->grid->nVertices, this->binData->datastore->array, freqListPtr );
+
+		freqListPtr2 = new double*[nIter];
+		for(int k=0;k<nIter;k++)
+			freqListPtr2[k] = new double[nBinArray[nIter-1]];
+
+
+		for( int j=0; j<nBinArray[nIter-1]; j++ )
+		{
+			freqListPtr[j] /= (float)N;
+			freqListPtr2[nIter-1][j] = freqListPtr[j];
+			assert( freqListPtr[j] >= 0 );
+			sumOfSquares += ( freqListPtr[j] * freqListPtr[j] );
+
+		}
+
+		firstPart =  2.0f / ((N-1)*h);
+		secondPart = (double)( N+1 ) / (double)(( N-1 )*h);
+		//secondPart = (double)( N+1 ) / (double)(( N-1 )*N*N*h);
+		scoreList[nIter-1] = firstPart - ( secondPart * sumOfSquares );
+		//fprintf(crossV,"%d\t %g\t %g\n", nBinArray[nIter-1], h, scoreList[nIter-1]);
+		printf( "Optimal Number of bins:%d  Binwidth:%g  Score:%g\n", nBinArray[nIter-1], h, scoreList[nIter-1] );
+	    //fprintf( crossV, "%d\t %lf\t %lf\n", nBinArray[nIter-1], h, scoreList[nIter-1] );
+
+		//fprintf(crossV,"%d\t1st:%g\t 2nd:%g\t sos:%g\t score:%g\n", nBinArray[nIter-1],firstPart, secondPart, sumOfSquares, scoreList[nIter-1]);
+		if( scoreList[nIter-1] < minScore )
+		{
+			minScore = scoreList[nIter-1];
+			minScoreIndex = nIter-1;
+		}
+
+		//printf( "==========%d, %g, %g\n", nBinArray[nIter-1], h, scoreList[nIter-1] );
+
+		for( int i = nIter-2; i>=0; i-- )
+		{
+
+			h = ( maxValue - minValue ) / (double) nBinArray[i];
+			sumOfSquares = 0;
+			for( int j=1; j<=nBinArray[i]; j++ )
+			{
+				freqListPtr2[i][j-1] = freqListPtr2[i+1][j*2-1] + freqListPtr2[i+1][j*2-2];
+				assert( freqListPtr2[i][j-1] >= 0 );
+				sumOfSquares += ( freqListPtr2[i][j-1] * freqListPtr2[i][j-1] );
+			}
+
+
+			firstPart =  2.0f / ((N-1)*h);
+			secondPart = (double)( N+1 ) / (double)(( N-1 )*h);
+			//secondPart = (double)( N+1 ) / (double)(( N-1 )*N*N*h);
+			scoreList[i] = firstPart - ( secondPart * sumOfSquares );
+
+			//printf( "Number of bins:%d Binwidth:%g Score:%g\n", nBinArray[i], h, scoreList[i] );
+			//fprintf( crossV, "%d\t %lf\t %lf\n", nBinArray[i], h, scoreList[i] );
+			//fprintf(crossV,"%d\t1st:%g\t 2nd:%g\t sos:%g\t score:%g\n", nBinArray[i],firstPart, secondPart, sumOfSquares, scoreList[i]);
+
+			if( scoreList[i] < minScore )
+			{
+				minScore = scoreList[i];
+				minScoreIndex = i;
+			}
+
+
+		}
+
+/*
+		int *freq;
+		freq = new int[nBinArray[minScoreIndex]];
+		for(int i=0;i<nBinArray[minScoreIndex];i++)
+		{
+			freq[i] = freqListPtr2[minScoreIndex][i];
+		}
+		*/
+		//printf("new_start:%d\tnew_Iter:%d",new_start,new_Iter);
+
+
+
+		printf( "Cross validation result: optimal number of bins: %d\n", nBinArray[minScoreIndex] );
+		cross_nBin=nBinArray[minScoreIndex];
+		//printf("minScoreIndex:%d\t nBinArray[minScoreIndex]:%d",minScoreIndex,nBinArray[minScoreIndex]);
+
+	/*
+		int new_start,new_Iter;
+		if(minScoreIndex!=(nIter-1))
+		{
+			new_start=nBinArray[minScoreIndex];
+		    new_Iter = ceil((nBinArray[minScoreIndex]*2 - new_start)/(float)step);
+		    crossValidate( "scalar", new_Iter, new_start, step );
+		}
+
+		if(minScoreIndex!=0)
+		{
+			new_start=nBinArray[minScoreIndex]/2;
+		    new_Iter = ceil((nBinArray[minScoreIndex]- new_start)/(float)step);
+		    crossValidate( "scalar", new_Iter, new_start, step );
+		}
+	*/
+
+		//fclose( crossV );
+
+		delete [] freqListPtr;
+		for(int kk=0;kk<nIter;kk++)
+			delete [] freqListPtr2[kk];
+		delete [] freqListPtr2;
+		delete [] scoreList;
+		delete [] nBinArray;
+
+		return cross_nBin;
+
 		//for( int i=0; i<nIter; i++ )
 		//	delete [] freqListPtr[i];
 		//delete [] freqListPtr;

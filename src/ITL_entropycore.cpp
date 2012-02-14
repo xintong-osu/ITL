@@ -9,9 +9,6 @@ float ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint
 		float probArray[nBin];
 	#endif
 		
-	//for( int i=0; i<nBin; i++ )
-	//	probArray[i] = 0;
-
 	// Turn count into probabilities
 	for( int i=0; i<nBin; i++ )
 		probArray[i] = freqArray[i] / (float)nPoint;
