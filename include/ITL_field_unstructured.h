@@ -4,15 +4,24 @@
  * Created on: Dec 09, 2010
  * @author Abon
  * @author Teng-Yok
+ * @author Cong Wang
  */
 
 #ifndef ITL_FIELD_UNSTRUCTURED_H_
 #define ITL_FIELD_UNSTRUCTURED_H_
 
+#include "ITL_grid_tetrahedral.h"
+
 template <class T>
 class ITL_field_unstructured: public ITL_field<T>
 {
+public:
 
+	ITL_field_unstructured(ITL_grid_unstructured<T>* ugrid)
+	{
+		grid = ugrid;
+		this->datastore = new ITL_datastore<T>(grid->nVertices);
+	}
 };
 
 #endif /* ITL_FIELD_UNSTRUCTURED_H_ */

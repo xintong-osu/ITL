@@ -4,6 +4,7 @@
  * Created on: Nov 23, 2010
  * @author Abon
  * @author Teng-Yok
+ * @author Cong Wang
  */
 
 #ifndef ITL_IOUTIL_H_
@@ -12,11 +13,48 @@
 #include <mpi.h>
 #include "ITL_header.h"
 #include "ITL_util.h"
+#include <fstream>
+#include <sstream>
 
 template <class T>
 class ITL_ioutil
 {
 public:
+
+	static T* readTetrahedralSerial( const char* fileName, T*& vlist, int*& tlist, int& vertexNum, int& tetNum)
+	{
+		// Open file
+		ifstream in;
+		in.open(fileName);
+		if (!in)
+		{
+			cerr << "cannot open file " << fileName << endl;
+			exit(1);
+		}
+		std::stringstream reader;
+		reader << in.rdbuf();   
+
+		cout << "reading " << fileName << endl;
+		reader >> vertexNum >> tetNum;
+		cout << "vertex: " << vertexNum << " tet: " << tetNum << endl;
+
+		vlist = new T[vertexNum * 4];
+		tlist = new int[tetNum * 4];
+
+		for (unsigned int i = 0; i < vertexNum * 4; ++i)
+		{
+			reader >> vlist[i];
+		}
+
+		for (unsigned int i = 0; i < tetNum * 4; ++i)
+		{
+			reader >> tlist[i];
+		}
+		
+		in.close();
+		cout << "finished." << endl;
+	}
+
 
 	/**
 	 * Serial file reader.

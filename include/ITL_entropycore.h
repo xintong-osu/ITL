@@ -32,7 +32,7 @@ public:
 	 */
 	static float computeEntropy_HistogramBased( int* binIds, int* freqArray, int nPoint, int nBin, bool toNormalize );
 
-	
+	static float computeEntropy_HistogramBased( float* freqArray, int nBin, bool toNormalize );
 	/**
 	 * KDE based entropy computation function.
 	 * @param data Pointer to data array.

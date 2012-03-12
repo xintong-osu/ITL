@@ -18,7 +18,7 @@ class ITL_globalentropy
 {
 public:
 
-	ITL_field_regular<T> *dataField;		/**< A scalar field containing field data */
+	ITL_field<T> *dataField;		/**< A scalar field containing field data */
 	ITL_field_regular<int>* binData;		/**< A scalar field containing histogram bins corresponding to field points. */
 	int *freqList;
 
@@ -36,7 +36,7 @@ public:
 	/**
 	 * Constructor Type 1.
 	 */
-	ITL_globalentropy( ITL_field_regular<T> *f, ITL_histogram *hist )
+	ITL_globalentropy( ITL_field<T> *f, ITL_histogram *hist )
 	{
 		dataField = f;
 		binData = NULL;
@@ -49,7 +49,7 @@ public:
 	/**
 	 * Constructor Type 2.
 	 */
-	ITL_globalentropy( ITL_field_regular<T> *dataF, ITL_field_regular<int> *binF, ITL_histogram *hist  )
+	ITL_globalentropy( ITL_field<T> *dataF, ITL_field_regular<int> *binF, ITL_histogram *hist  )
 	{
 		dataField = dataF;
 		binData = binF;
@@ -312,6 +312,59 @@ public:
 											this->dataField->datastore->array,
 											this->dataField->grid->nVertices,
 											0.0, toNormalize );
+	}// End function
+
+	/**
+	 * Entropy computation function.
+	 * Creates a scalar field that contains entropy at each grid vertex.
+	 * @param nBins Number of bins used in histogram computation/Number of sample points in KDE estimation.
+	 * @paran toNormalize boolean flag, TRUE indicates that the computed entropy value needs to be normalized
+	 */
+	void computeGlobalEntropyOfField_Unstructured( int nBin, bool toNormalize)
+	{
+		ITL_grid_tetrahedral<SCALAR>* uGrid = dynamic_cast<ITL_grid_tetrahedral<SCALAR>*>(dataField->grid);
+
+		int i=0,j=0;
+
+		double rangemin;
+		double rangemax;
+		rangemin = rangemax = uGrid->vertexList[0].f;
+		for(i = 1; i < uGrid->nVertices; i++)
+		{
+			rangemax = rangemax > uGrid->vertexList[i].f ? rangemax : uGrid->vertexList[i].f;
+			rangemin = rangemin < uGrid->vertexList[i].f ? rangemin : uGrid->vertexList[i].f;
+		}
+
+		double binWidth = (rangemax - rangemin) / (float)nBin;
+		histogramMin = rangemin;
+		histogramMax = rangemax;
+			
+		float* hist = new float[nBin];
+		memset(hist, 0, sizeof(float) * nBin);
+
+		//process cell by cell: calculate the contribution of cell i to bin j
+		double func[21]= {0};
+		double min=0,max=0;
+		int posmin=0,posmax=0;
+		double tt = 0;
+		ITL_grid_tetrahedral<SCALAR>* tetGrid = dynamic_cast<ITL_grid_tetrahedral<SCALAR>*>(uGrid);
+		for (int i = 0; i < uGrid->nCell; ++i)
+		{
+			tetGrid->local_func(i,func);
+
+			//min and max defines range of cell i
+			min=func[0];
+			max=func[5];
+			posmin = floor((min - histogramMin) / binWidth);
+			for(int j = posmin; histogramMin + j * binWidth < max; j++)
+			{
+				tt = tetGrid->contribution(func,histogramMin + j * binWidth, histogramMin + (j + 1) * binWidth);
+				if(tt > 0 || tt < 0)
+					hist[j] += tt;
+			}
+		}
+
+		globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( hist, nBin, toNormalize );
 	}// End function
 
 	/**

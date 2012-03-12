@@ -80,6 +80,36 @@ float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArra
 	
 }// End function
 
+float ITL_entropycore::computeEntropy_HistogramBased( float* freqArray, int nBin, bool toNormalize )
+{
+	float total = 0;
+	for( int i=0; i<nBin; i++ )
+	{
+		total += freqArray[i];
+	}
+
+	// Turn into probabilities
+	for( int i=0; i<nBin; i++ )
+		freqArray[i] = freqArray[i] / total;
+
+	// Compute negative entropy
+	float entropy = 0;
+	for( int i = 0; i<nBin; i++ )
+	{
+		entropy += ( freqArray[i] * ( freqArray[i] == 0 ? 0 : ( log( freqArray[i] ) / log(2.0) ) ) );
+	}
+
+	// Change sign
+	entropy = -entropy;
+
+	// Normalize, if required
+	if( toNormalize )
+		entropy /= ( log( (float)nBin ) / log( 2.0f ) );
+
+	return entropy;
+
+}// End function
+
 float ITL_entropycore::computeEntropy_KDEBased( float* data, int nPoint, float h, bool toNormalize )
 {
 	// Compute mean and variance of data
