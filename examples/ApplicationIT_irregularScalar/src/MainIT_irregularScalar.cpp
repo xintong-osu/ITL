@@ -23,6 +23,9 @@
 
 using namespace std;
 
+int numProcs;
+int myId;
+
 int verboseMode = 1;
 int nBin = 1000;
 double execTime[5];
@@ -58,6 +61,11 @@ void compute_globalentropy_serial(ITL_grid_tetrahedral<SCALAR>* tetGrid)
 
 int main( int argc, char** argv )
 {
+	// Initialize MPI
+	MPI_Init( &argc, &argv );
+	MPI_Comm_size( MPI_COMM_WORLD, &numProcs );
+	MPI_Comm_rank( MPI_COMM_WORLD, &myId );
+
 	const char* tetFile = "blunt.scalar";
 	SCALAR* vlist = NULL;
 	int* tlist = NULL;
