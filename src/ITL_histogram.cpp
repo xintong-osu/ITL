@@ -320,8 +320,7 @@ ITL_histogram::crossValidateSpeedUp( ITL_field_regular<SCALAR> *scalarField, cha
 
 	for( int i = 0; i<nIter; i++ )
 	{
-		nBinArray[nIter-i-1] = (int)(nMax/(pow(2.0,(float)i)));
-
+		nBinArray[nIter-i-1] = (int)((float)nMax/powf(2.0f,(float)i));	// MOD-BY-LEETEN 04/09/2012-FROM:		nBinArray[nIter-i-1] = (int)(nMax/(pow(2.0,(float)i)));
 	}
 
 	for(int i=0;i<nIter;i++)

@@ -216,11 +216,23 @@ void compute_globalentropy_serial()
 
 	if( verboseMode == 1 )
 	{
+		// ADD-BY-LEETEN 04/09/2012-BEGIN
+		#ifdef WIN32
+		int* freqList = new int[nBin];
+		#else	// #ifdef WIN32
+		// ADD-BY-LEETEN 04/09/2012-END
 		int freqList[nBin];
+		#endif	// #ifdef WIN32	// ADD-BY-LEETEN 04/09/2012
 		globalEntropyComputer->computeHistogramFrequencies( nBin );
 		globalEntropyComputer->getHistogramFrequencies( nBin, freqList );
 		for( int i=0; i<nBin; i++ )
 			printf( "f[%d] = %d\t", i, freqList[i] );
+		// ADD-BY-LEETEN 04/09/2012-BEGIN
+		#ifdef WIN32
+		delete [] freqList;
+		#endif	// #ifdef WIN32
+		// ADD-BY-LEETEN 04/09/2012-END
+
 	}
 
 	// Global entropy Computation
