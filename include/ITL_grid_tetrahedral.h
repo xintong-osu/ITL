@@ -22,7 +22,16 @@
 template <class T>
 class ITL_grid_tetrahedral: public ITL_grid_unstructured<T>
 {
-private:
+  // MOD-BY-LEETEN 04/09/2012-FROM: private:
+public:
+  using ITL_grid_unstructured<T>::radius; 
+  using ITL_grid_unstructured<T>::nVertices;
+  using ITL_grid_unstructured<T>::nCell;
+  using ITL_grid_unstructured<T>::vertexList; //list of vertices in the grid
+  using ITL_grid_unstructured<T>::cellList; //list of cells in the grid
+  using ITL_grid_unstructured<T>::intersectCells; //vector of intersecting cells of each vertex's neighborhood box in the grid
+  using ITL_grid_unstructured<T>::containCells; //vector of contained cells of each vertex's neighborhood box in the grid
+  // MOD-BY-LEETEN 04/09/2012-END
 	//check if bbox intersects local entropy box
 	inline bool boxIntersec(const ITL_vertex<T>& v, const bbox<T>& bb)
 	{
@@ -105,7 +114,6 @@ public:
 		this->nCell = nC;
 		vertexList = new ITL_vertex<T>[nVertices];
 		cellList = new ITL_tetrahedron<T>[nCell];	
-
 		intersectCells = new vector<int>[nVertices];
 		containCells = new vector<int>[nVertices];
 	}

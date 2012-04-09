@@ -15,6 +15,7 @@
 template <class T>
 class ITL_field_unstructured: public ITL_field<T>
 {
+  using ITL_field<T>::grid; // ADD-BY-LEETEN 04/09/2012
 public:
 
 	ITL_field_unstructured(ITL_grid_unstructured<T>* ugrid)

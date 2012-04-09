@@ -63,6 +63,7 @@ struct vec3
 	{
 	}
 
+#if 0 // MOD-BY-LEETEN 04/09/2012-FROM:
 	vec3 cross(const vec3& r)
 	{
 		return vec3(this->y * r.z - this->z * r.y, this->z * r.x - this->x * r.z, this->x * r.y - this->y * r.x);
@@ -96,6 +97,41 @@ struct vec3
 		vec3 v(x/f, y/f, z/f);
 		return v;
 	}
+#else // MOD-BY-LEETEN 04/09/2012-TO:
+	const vec3 cross(const vec3& r) const
+	{
+		return vec3(this->y * r.z - this->z * r.y, this->z * r.x - this->x * r.z, this->x * r.y - this->y * r.x);
+	}
+
+	T dot(const vec3& r) const
+	{
+		return this->x * r.x + this->y * r.y + this->z * r.z;
+	}
+
+	const vec3<T>& operator- (const vec3<T>& right) const
+	{
+		vec3<T> v(x-right.x, y-right.y, z-right.z);
+		return v;
+	}
+
+	const vec3<T>& operator+ (const vec3& right) const
+	{
+		vec3 v(x+right.x, y+right.y, z+right.z);
+		return v;
+	}
+
+	const vec3<T>& operator* (T f) const
+	{
+		vec3 v(x*f, y*f, z*f);
+		return v;
+	}
+
+	const vec3<T>& operator/ (T f) const
+	{
+		vec3 v(x/f, y/f, z/f);
+		return v;
+	}
+#endif // MOD-BY-LEETEN 04/09/2012-END
 
 	vec3& operator*= (T f)
 	{

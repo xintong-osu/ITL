@@ -13,6 +13,11 @@
 // ADD-BY-LEETEN 07/18/2011-BEGIN
 #include "ITL_histogram.h"
 // ADD-BY-LEETEN 07/18/2011-END
+// ADD-BY-LEETEN 04/09/2012-BEGIN
+#include "ITL_grid_unstructured.h"
+#include "ITL_grid_tetrahedral.h" 
+#include "ITL_cell.h"
+// ADD-BY-LEETEN 04/09/2012-END
 #include "ITL_field_regular.h"
 #include "ITL_entropycore.h"
 
@@ -290,7 +295,10 @@ public:
 		rangeValue = rmax - rmin;
 
 		// Compute bin width			
-		float binWidth = rangeValue / (float)nBin;
+                // MOD-BY-LEETEN 04/09/2012-FROM:		float binWidth = rangeValue / (float)nBin;
+		float binWidth = rangeValue / (float)nBins;
+		// MOD-BY-LEETEN 04/09/2012-END
+
 
 		float* entropyField = new float[uGrid->nVertices];
 
