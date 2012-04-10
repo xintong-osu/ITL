@@ -14,6 +14,8 @@
 #include "ITL_ioutil.h"
 #include "ITL_vectormatrix.h"
 #include "ITL_histogramconstants.h"
+#include "ITL_histogram.h"
+#include "ITL_histogrammapper.h"
 #include "ITL_localentropy.h"
 #include "ITL_globalentropy.h"
 #include "ITL_localjointentropy.h"
@@ -56,9 +58,12 @@ const char *patchFile = NULL;
 const char *outFieldFile = NULL;
 
 ITL_histogram *histogram = NULL;
+ITL_histogrammapper<VECTOR3> *histMapper = NULL;
 
 ITL_field_regular<VECTOR3> *vectorField = NULL;
 ITL_field_regular<VECTOR3> *vectorField2 = NULL;
+
+ITL_field_regular<int> *binField = NULL;
 
 ITL_localentropy<VECTOR3> *localEntropyComputer = NULL;
 ITL_globalentropy<VECTOR3> *globalEntropyComputer = NULL;
@@ -139,6 +144,9 @@ int main( int argc, char** argv )
 	// Initialize histogram
 	histogram = new ITL_histogram( patchFile, nBin );
 
+	// Initialize data-to-histogram converter class
+	histMapper = new ITL_histogrammapper<VECTOR3>( histogram );
+
 	switch( functionType )
 	{
 	case 0:
@@ -206,13 +214,13 @@ void compute_globalentropy_serial()
 	highF[2] = dataDim[2]-1.0f;
 	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );
 
-	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
-
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	globalEntropyComputer->computeHistogramBinField( "vector", nBin );
+	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+
+	// Initialize class that can compute entropy
+	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
 
 	if( verboseMode == 1 )
 	{
@@ -222,9 +230,12 @@ void compute_globalentropy_serial()
 		#else	// #ifdef WIN32
 		// ADD-BY-LEETEN 04/09/2012-END
 		int freqList[nBin];
-		#endif	// #ifdef WIN32	// ADD-BY-LEETEN 04/09/2012
-		globalEntropyComputer->computeHistogramFrequencies( nBin );
-		globalEntropyComputer->getHistogramFrequencies( nBin, freqList );
+		#endif
+		// #ifdef WIN32	// ADD-BY-LEETEN 04/09/2012
+
+		globalEntropyComputer->computeHistogramFrequencies();
+		globalEntropyComputer->getHistogramFrequencies( freqList );
+
 		for( int i=0; i<nBin; i++ )
 			printf( "f[%d] = %d\t", i, freqList[i] );
 		// ADD-BY-LEETEN 04/09/2012-BEGIN
@@ -269,16 +280,16 @@ void compute_globalentropy_parallel()
 	highF[2] = blockDim[2]-1.0f;
 	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );
 
-	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
-
 	// Histogram computation
-	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" ); 
+	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	globalEntropyComputer->computeHistogramBinField( "vector", nBin );
+	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+
+	// Initialize class that can compute entropy
+	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
 
 	// Compute frequencies
-	globalEntropyComputer->computeHistogramFrequencies( nBin );
+	globalEntropyComputer->computeHistogramFrequencies();
 
 	// Get histogram frequencies
 	#if defined( _WIN32 ) || defined( _WIN64 )
@@ -286,7 +297,7 @@ void compute_globalentropy_parallel()
 	#else
 		int freqList[nBin];
 	#endif
-	globalEntropyComputer->getHistogramFrequencies( nBin, freqList );
+	globalEntropyComputer->getHistogramFrequencies( freqList );
 		
 	// Sync with all processors and and sum up all histogram frequencies to processor 0
 	MPI_Barrier( MPI_COMM_WORLD );
@@ -341,16 +352,16 @@ void compute_blockwiseglobalentropy_parallel()
 	highF[2] = blockDim[2]-1.0f;
 	vectorField = new ITL_field_regular<VECTOR3>( data, nDim, lowF, highF );
 
-	// Initialize class that can compute entropy
-	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
-
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" ); 
 	starttime = ITL_util<float>::startTimer();	
-	globalEntropyComputer->computeHistogramBinField( "vector", nBin );
+	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+
+	// Initialize class that can compute entropy
+	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
 
 	// Compute global entropy of the block
-	globalEntropyComputer->computeGlobalEntropyOfField( nBin, false, 0 );
+	globalEntropyComputer->computeGlobalEntropyOfField( false, 0 );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
 	
 	// Print block entropy (Process id = block id)
@@ -379,26 +390,28 @@ void compute_localentropy_serial()
 										   lowPad, highPad,
 										   sizeNeighborhoodArray );
 
-	// Initialize class that can compute entropy
-	localEntropyComputer = new ITL_localentropy<VECTOR3>( vectorField, histogram );
-
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	localEntropyComputer->computeHistogramBinField( "vector", nBin );
+	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
+
+	// Initialize class that can compute entropy
+	localEntropyComputer = new ITL_localentropy<VECTOR3>( binField, histogram, nBin );
 
 	// Entropy Computation
 	if( verboseMode == 1 ) printf( "Computing entropy at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	localEntropyComputer->computeLocalEntropyOfField( nBin, true );
+	localEntropyComputer->computeLocalEntropyOfField( true );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
 
 	// Saving data to binary file
 	if( verboseMode == 1 ) printf( "saving entropy field to binary file ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	ITL_field_regular<float>* entropyField = localEntropyComputer->getEntropyField();
-	ITL_ioutil<float>::writeFieldBinarySerial( entropyField->getDataFull(), outFieldFile, entropyField->grid->dim, nDim );
+	int dim[4];
+	entropyField->getSize( dim );
+	ITL_ioutil<float>::writeFieldBinarySerial( entropyField->getDataFull(), outFieldFile, dim, nDim );
 	execTime[3] = ITL_util<float>::endTimer( starttime );
 
 	// Runtime
@@ -430,17 +443,17 @@ void compute_localentropy_parallel()
 												  lowPad, highPad,
 												  sizeNeighborhoodArray  );
 
-	// Initialize class that can compute entropy
-	localEntropyComputer = new ITL_localentropy<VECTOR3>( vectorField, histogram );
-
 	if(verboseMode == 1 ) printf( "%d: Computing histogram at each point of the vector field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
-	localEntropyComputer->computeHistogramBinField( "vector", nBin );
+	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
 	
+	// Initialize class that can compute entropy
+	localEntropyComputer = new ITL_localentropy<VECTOR3>( binField, histogram, nBin );
+
 	if(verboseMode == 1 ) printf( "%d: Computing entropy at each point of the vector field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
-	localEntropyComputer->computeLocalEntropyOfField( nBin, true );
+	localEntropyComputer->computeLocalEntropyOfField( true );
 	execTime[2] = ITL_util<float>::endTimer( starttime );
 	
 	if(verboseMode == 1 ) printf( "%d: saving entropy field to binary file ...\n", myId );
@@ -481,14 +494,14 @@ void compute_jointlocalentropy_serial()
 											lowPad, highPad,
 											sizeNeighborhood );
 
-	// Initialize class that can compute entropy
-	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( vectorField, vectorField2, histogram );
-
 	// Histogram computation
 	printf( "Converting vectors into joint histogram bins at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	jointEntropyComputer->computeJointHistogramBinField( "vector", nBin );
+	histMapper->computeJointHistogramBinField_Vector( vectorField, vectorField2, &binField, nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
+
+	// Initialize class that can compute entropy
+	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( binField, histogram );
 
 	// Joint entropy Computation
 	printf( "Computing joint entropy at each point of the vector field ...\n" );
@@ -500,7 +513,9 @@ void compute_jointlocalentropy_serial()
 	printf( "saving entropy field to binary file ...\n" );
 	starttime = ITL_util<float>::startTimer();
 	ITL_field_regular<float>* jointEntropyField = jointEntropyComputer->getLocalJointEntropyField();
-	ITL_ioutil<float>::writeFieldBinarySerial( jointEntropyField->getDataFull(), outFieldFile, jointEntropyField->grid->dim, nDim );
+	int dim[4];
+	jointEntropyField->getSize( dim );
+	ITL_ioutil<float>::writeFieldBinarySerial( jointEntropyField->getDataFull(), outFieldFile, dim, nDim );
 	execTime[3] = ITL_util<float>::endTimer( starttime );
 
 	// Runtime
@@ -542,14 +557,14 @@ void compute_jointlocalentropy_parallel()
 											lowPad, highPad,
 											sizeNeighborhoodArray );
 
-	// Initialize class that can compute entropy
-	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( vectorField, vectorField2, histogram );
-
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "%d: Converting vectors into joint histogram bins  ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
-	jointEntropyComputer->computeJointHistogramBinField( "vector", nBin );
+	histMapper->computeJointHistogramBinField_Vector( vectorField, vectorField2, &binField, nBin );
 	execTime[1] = ITL_util<float>::endTimer( starttime );
+
+	// Initialize class that can compute entropy
+	jointEntropyComputer = new ITL_localjointentropy<VECTOR3>( binField, histogram );
 
 	// Joint entropy Computation
 	if( verboseMode == 1 ) 	printf( "%d: Computing joint entropy at each point of the vector field ...\n", myId );

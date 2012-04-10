@@ -15,8 +15,6 @@
 template <class T>
 class ITL_grid
 {
-public:
-
 	int nDim;			/**< Number of dimensions */
 	int dim[4];			/**< Array for length of each dimension */
 	int dimWithPad[4];		/**< Array for length of each dimension along with ghost layers (if any) */
@@ -52,30 +50,69 @@ public:
 	}
 
 	/**
-	 * Pure virtual function.
+	 * Destructor.
 	 */
-	virtual void setBounds(){}
-	/**
-	 * Pure virtual function for setting the bounds of a grid with no ghost layers.
-	 */
-	virtual void setBounds( float* l, float* h ){}
-	/**
-	 * Pure virtual function for setting the bounds of a grid with ghost layers.
-	 */
-	virtual void setBounds( float* l, float* h, int* lPad, int* hPad, int neighborhoodsize ){}
-	virtual void setBounds( float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray ){}
+	virtual ~ITL_grid()
+	{
+	}
+
 	/**
 	 * Pure virtual function for 3D spatial index to 1D array index conversion.
 	 */
-	virtual int convert3DIndex( int x, int y, int z ){ return -1; }
+	virtual int
+	convert3DIndex( int x, int y, int z )
+	{
+		return -1;
+	}
+
 	/**
 	 * Pure virtual function for 3D+T spatial index to 1D array index conversion.
 	 */
-	virtual int convert3DTimeVaryingIndex( int x, int y, int z, int t ){ return -1; }
+	virtual int
+	convert3DTimeVaryingIndex( int x, int y, int z, int t )
+	{
+		return -1;
+	}
+
+
 	/**
-	 * Destructor.
+	 * Pure virtual function.
 	 */
-	virtual ~ITL_grid(){}
+	virtual void
+	setBounds()
+	{
+	}
+
+	/**
+	 * Pure virtual function for setting the bounds of a grid with no ghost layers.
+	 */
+	virtual void
+	setBounds( float* l, float* h )
+	{
+	}
+
+	/**
+	 * Pure virtual function for setting the bounds of a grid with ghost layers.
+	 */
+	virtual void
+	setBounds( float* l, float* h, int* lPad, int* hPad, int neighborhoodsize )
+	{
+	}
+
+	/**
+	 * Pure virtual function for setting the bounds of a grid with ghost layers.
+	 */
+	virtual void
+	setBounds( float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
+	{
+	}
+
+	virtual int
+	getSize()
+	{
+		return nVertices;
+	}
+
 
 };
 

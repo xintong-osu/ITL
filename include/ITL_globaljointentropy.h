@@ -17,15 +17,15 @@ class ITL_globaljointentropy
 {
 public:
 
-	ITL_field_regular<T> *dataField1;
-	ITL_field_regular<T> *dataField2;
+	//ITL_field_regular<T> *dataField1;
+	//ITL_field_regular<T> *dataField2;
 	ITL_field_regular<int> *binData;
 	
 	int *jointFreqList;
 	float globalJointEntropy;
 
-	T histogramMin1, histogramMax1, histogramMin2, histogramMax2;
-	bool histogramRangeSet;
+	//T histogramMin1, histogramMax1, histogramMin2, histogramMax2;
+	//bool histogramRangeSet;
 
 	ITL_histogram *histogram;	// ADD-BY-ABON 11/07/2011
 
@@ -34,14 +34,14 @@ public:
 	/**
 	 * Default Constructor.
 	 */
-	ITL_globaljointentropy( ITL_field_regular<T> *f1, ITL_field_regular<T> *f2, ITL_histogram *hist )
+	ITL_globaljointentropy( ITL_field_regular<int> *f, ITL_histogram *hist )
 	{
-		this->dataField1 = f1;
-		this->dataField2 = f2;
+		//this->dataField1 = f1;
+		//this->dataField2 = f2;
 		this->binData = NULL;
 		this->jointFreqList = NULL;
-		histogramRangeSet = false;
-		histogram = hist;
+		//histogramRangeSet = false;
+		//histogram = hist;
 	}
 	
 	/**
@@ -49,12 +49,14 @@ public:
 	 * Calls the appropriate function based on field type
 	 * @param nBins Number of bins to use in histogram computation.
 	 */
+	/*
 	void computeJointHistogramBinField( char *fieldType, int nBin = 0 )
 	{
 		if( strcmp( fieldType, "scalar" ) == 0 )
 		{
 			// Determine number of bins, if not specified already
-			if( nBin == 0 )		nBin = (int) floor( this->dataField1->grid->nVertices / 10.0f );
+			//if( nBin == 0 )		nBin = (int) floor( this->dataField1->grid->nVertices / 10.0f );
+			if( nBin == 0 )		nBin = (int) floor( this->dataField1->getSize() / 10.0f );
 			
 			computeJointHistogramBinField_Scalar( nBin );
 		}
@@ -66,15 +68,19 @@ public:
 			computeJointHistogramBinField_Vector( nBin );
 		}		
 	}// End function
+	*/
 	
 	/**
 	 * Joint histogram bin assignment function for scalar field.
 	 * @param nBin Number of bins to be used in histogram computation.
 	 */
+	/*
 	void computeJointHistogramBinField_Scalar( int nBin )
 	{
-		assert( this->dataField1->datastore->array != NULL );
-		assert( this->dataField2->datastore->array != NULL );
+		//assert( this->dataField1->datastore->array != NULL );
+		//assert( this->dataField2->datastore->array != NULL );
+		assert( this->dataField1->getDataFull() != NULL );
+		assert( this->dataField2->getDataFull() != NULL );
 		SCALAR nextVField1, nextVField2;
 		SCALAR minValue1, maxValue1, minValue2, maxValue2;
 
@@ -86,18 +92,30 @@ public:
 
 		// Initialize the padded scalar field for histogram bins
 		if( this->binData == NULL )
-			this->binData = new ITL_field_regular<int>( this->dataField1->grid->nDim,
-													this->dataField1->grid->low, this->dataField1->grid->high,
-													this->dataField1->grid->lowPad, this->dataField1->grid->highPad,
-													this->dataField1->grid->neighborhoodSizeArray );
+		{
+			float low[4];
+			float high[4];
+			int lowPad[4];
+			int highPad[4];
+			int neighborhoodSize[4];
+
+			dataField1->getBounds( low, high );
+			dataField1->getPadSize( lowPad, highPad );
+			dataField1->getNeighborhoodSize( neighborhoodSize );
+
+			this->binData = new ITL_field_regular<int>( this->dataField1->getNumDim(),
+													low, high,
+													lowPad, highPad,
+													neighborhoodSize );
+		}
 		// Compute the range over which histogram computation needs to be done
 		if( histogramRangeSet == false )
 		{
 			// Get min-max values of both the scalar fields
-			minValue1 = ITL_util<T>::Min( this->dataField1->datastore->array, this->dataField1->grid->nVertices );
-			maxValue1 = ITL_util<T>::Max( this->dataField1->datastore->array, this->dataField1->grid->nVertices );
-			minValue2 = ITL_util<T>::Min( this->dataField2->datastore->array, this->dataField2->grid->nVertices );
-			maxValue2 = ITL_util<T>::Max( this->dataField2->datastore->array, this->dataField2->grid->nVertices );
+			minValue1 = ITL_util<T>::Min( this->dataField1->getDataFull(), this->dataField1->getSize() );
+			maxValue1 = ITL_util<T>::Max( this->dataField1->getDataFull(), this->dataField1->getSize() );
+			minValue2 = ITL_util<T>::Min( this->dataField2->getDataFull(), this->dataField2->getSize() );
+			maxValue2 = ITL_util<T>::Max( this->dataField2->getDataFull(), this->dataField2->getSize() );
 		}
 		else
 		{
@@ -126,15 +144,20 @@ public:
 		// and convert field value to bin ID
 		int index1d = 0;
 		int binId1, binId2, combinedBinId;
-		for( int z=0; z<this->dataField1->grid->dimWithPad[2]; z++ )
+		int dimWithPad[4];
+		dataField1->getSizeWithPad( dimWithPad );
+		for( int z=0; z<dimWithPad[2]; z++ )
 		{
-			for( int y=0; y<this->dataField1->grid->dimWithPad[1]; y++ )
+			for( int y=0; y<dimWithPad[1]; y++ )
 			{
-				for( int x=0; x<this->dataField1->grid->dimWithPad[0]; x++ )
+				for( int x=0; x<dimWithPad[0]; x++ )
 				{
 					// Get vector at this location from both fields individually
-					nextVField1 = this->dataField1->datastore->array[index1d];
-					nextVField2 = this->dataField2->datastore->array[index1d];
+					//nextVField1 = this->dataField1->datastore->array[index1d];
+					//nextVField2 = this->dataField2->datastore->array[index1d];
+					nextVField1 = this->dataField1->getDataAt( index1d );
+					nextVField2 = this->dataField2->getDataAt( index1d );
+
 
 					// Obtain the binID corresponding to the value at this location from both fields individually
 					binId1 = (int)floor( ( nextVField1 - minValue1 ) / binWidth1  );
@@ -158,15 +181,17 @@ public:
 		// delete hPadHisto;
 
 	}// end function
+	*/
 
 	/**
 	 * Joint histogram bin assignment function for vector field.
 	 * @param nBin Number of bins to be used in joint histogram computation.
 	 */
+	/*
 	void computeJointHistogramBinField_Vector( int nBin )
 	{
-		assert( this->dataField1->datastore->array != NULL );
-		assert( this->dataField2->datastore->array != NULL );
+		assert( this->dataField1->getDataFull() != NULL );
+		assert( this->dataField2->getDataFull() != NULL );
 		T* nextVField1 = new T();
 		T* nextVField2 = new T();
 
@@ -178,24 +203,38 @@ public:
 
 		// Initialize the padded scalar field for histogram bins
 		if( this->binData == NULL )
-			this->binData = new ITL_field_regular<int>( this->dataField1->grid->nDim,
-												this->dataField1->grid->low, this->dataField1->grid->high,
-												this->dataField1->grid->lowPad, this->dataField1->grid->highPad,
+		{
+			float low[4];
+			float high[4];
+			int lowPad[4];
+			int highPad[4];
+			int neighborhoodSize[4];
+
+			dataField1->getBounds( low, high );
+			dataField1->getPadSize( lowPad, highPad );
+			dataField1->getNeighborhoodSize( neighborhoodSize );
+
+			this->binData = new ITL_field_regular<int>( this->dataField1->getNumDim(),
+												low, high,
+												lowPad, highPad,
 												//lPadHisto, hPadHisto,
-												this->dataField1->grid->neighborhoodSize );
+												neighborhoodSize );
+		}
 		
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
 		int index1d = 0;
-		for( int z=0; z<this->dataField1->grid->dimWithPad[2]; z++ )
+		int dimWithPad[4];
+		dataField1->getSizeWithPad( dimWithPad );
+		for( int z=0; z<dimWithPad[2]; z++ )
 		{
-			for( int y=0; y<this->dataField1->grid->dimWithPad[1]; y++ )
+			for( int y=0; y<dimWithPad[1]; y++ )
 			{
-				for( int x=0; x<this->dataField1->grid->dimWithPad[0]; x++ )
+				for( int x=0; x<dimWithPad[0]; x++ )
 				{
 					// Get vector at this location from both fields individually
-					*nextVField1 = this->dataField1->datastore->array[index1d];
-					*nextVField2 = this->dataField2->datastore->array[index1d];
+					*nextVField1 = this->dataField1->getDataAt( index1d );
+					*nextVField2 = this->dataField2->getDataAt( index1d );
 
 					// Obtain the binID corresponding to the value at this location from both fields individually
 					int binValue1 = histogram->get_bin_number_3D( *nextVField1, nBin );
@@ -219,6 +258,7 @@ public:
 	   // delete hPadHisto;
 
 	}// end function
+	*/
 
 	void computeJointHistogramFrequencies( int nBin )
 	{
@@ -226,8 +266,10 @@ public:
 		if( jointFreqList == NULL ) jointFreqList = new int[nBin*nBin];
 		for( int i=0; i<nBin*nBin; i++ )
 			jointFreqList[i] = 0;
-		for( int i=0; i<binData->grid->nVertices; i++ )
-			jointFreqList[ binData->datastore->array[i] ] ++;
+		//for( int i=0; i<binData->grid->nVertices; i++ )
+			//jointFreqList[ binData->datastore->array[i] ] ++;
+		for( int i=0; i<binData->getSize(); i++ )
+			jointFreqList[ binData->getDataAt(i) ] ++;
 	}
 
 	/**
@@ -244,9 +286,9 @@ public:
 			computeJointHistogramFrequencies( nBin*nBin );
 
 			// Compute entropy from joint frequency list
-			this->globalJointEntropy = ITL_entropycore::computeEntropy_HistogramBased( this->binData->datastore->array,
+			this->globalJointEntropy = ITL_entropycore::computeEntropy_HistogramBased( this->binData->getDataFull(),
 																					   this->jointFreqList,
-																					   this->binData->grid->nVertices,
+																					   this->binData->getSize(),
 																					   nBin*nBin, toNormalize );
 
 		}
@@ -261,6 +303,7 @@ public:
 	  * @param minR2 lower limit of the range along second dimension.
 	  * @param maxR2 upper limit of the range along second dimension.
 	  */
+	/*
 	void setJointHistogramRange( T minR1, T maxR1, T minR2, T maxR2 )
 	{
 		histogramMin1 = minR1;
@@ -269,12 +312,13 @@ public:
 		histogramMax2 = maxR2;
 		histogramRangeSet = true;
 	}// end function
+	*/
 
 	/**
 	 * Joint histogram frequency data accessor function.
 	 * Returns pointer to integer array storing the joint histogram freqencies.
 	 */
-	void getHistogramFrequencies( int nBin, int *jointfreqlist )
+	void getHointHistogramFrequencies( int nBin, int *jointfreqlist )
 	{
 		assert( this->jointFreqList != NULL );
 

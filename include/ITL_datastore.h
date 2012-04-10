@@ -16,9 +16,7 @@
 template <class T>
 class ITL_datastore
 {
-public:
-
-	FILE* datafile; /**< Pointer to data file. Required if data has to be read directly from file. */
+	//FILE* datafile; /**< Pointer to data file. Required if data has to be read directly from file. */
 	int nel;		/**< Total number of elements in the 1D array. */
 	T* array;		/**< Pointer to the 1D array containing data elements. */
 
@@ -30,7 +28,6 @@ public:
 	ITL_datastore()
 	{
 		this->array = NULL;
-		this->datafile = NULL;
 
 	}// end constructor 1
 
@@ -38,24 +35,82 @@ public:
 	 * Constructor.
 	 * @param data pointer to template array conaining data.
 	 */
-	ITL_datastore( T* data, int nData )
+	ITL_datastore( T* data, int ndata )
 	{
 		//this->array = data;
-		this->array = new T[nData];
-		memcpy( this->array, data, sizeof(T)*nData );
-		this->datafile = NULL;
+		nel = ndata;
+		this->array = NULL;
+		this->array = new T[nel];
+		memcpy( this->array, data, sizeof(T)*nel );
 
 	}// end constructor 1
 
-	/**
-	 * Constructor.
-	 * @param nData Number of data elements.
-	 * This constructor allocates memory for data.
-	 */
-	ITL_datastore( int nData )
+	ITL_datastore( const ITL_datastore<T>& that )
 	{
-		this->array = new T[nData];
-		this->datafile = NULL;
+		this->nel = that.nel;
+		this->array = NULL;
+		this->array = new T[nel];
+		memcpy( this->array, that.getData(), sizeof(T)*nel );
+	}
+
+	ITL_datastore( ITL_datastore<T>& that )
+	{
+		this->nel = that.nel;
+		this->array = NULL;
+		this->array = new T[nel];
+		memcpy( this->array, that.getData(), sizeof(T)*nel );
+	}
+
+	ITL_datastore& operator= ( const ITL_datastore<T>& that )
+	{
+		if ( this != &that ) // protect against invalid self-assignment
+		{
+			this->nel = that.nel;
+			this->array = NULL;
+			this->array = new T[nel];
+			memcpy( this->array, that.array, sizeof(T)*nel );
+		}
+		// by convention, always return *this
+		return *this;
+	}
+
+	ITL_datastore& operator= ( ITL_datastore<T>& that )
+	{
+		if ( this != &that ) // protect against invalid self-assignment
+		{
+			this->nel = that.nel;
+			this->array = NULL;
+			this->array = new T[nel];
+			memcpy( this->array, that.array, sizeof(T)*nel );
+		}
+		// by convention, always return *this
+		return *this;
+	}
+
+
+	/**
+	 * Destructor
+	 */
+	virtual
+	~ITL_datastore()
+	{
+		if( this->array != NULL ) delete [] this->array;
+	}// end destructor
+
+	void
+	init( int ndata )
+	{
+		nel = ndata;
+		this->array = new T[nel];
+
+	}// end constructor 1
+
+	void
+	init( T* data, int ndata )
+	{
+		nel = ndata;
+		this->array = new T[nel];
+		memcpy( this->array, data, sizeof(T)*nel );
 
 	}// end constructor 1
 
@@ -68,22 +123,41 @@ public:
 		return array != NULL;
 	}// end function
 
+	virtual void
+	setDataAt( T v, int i )
+	{
+		array[i] = v;
+	}
+
+	virtual void
+	setDataFull( T* ptr )
+	{
+		array = ptr;
+	}
+
 	/**
 	 * Data accessor function.
 	 * @return Pointer to data.
 	 */
-	virtual T* getData()
+	virtual T*
+	getData()
 	{
 		return array;
 	}
 
-	/**
-	 * Destructor
-	 */
-	~ITL_datastore()
+	virtual int
+	getDataSize()
 	{
-		if( this->array != NULL ) delete [] this->array;
-	}// end destructor
+		return nel;
+	}
+
+	virtual T
+	getDataAt( int i )
+	{
+		assert( array != NULL );
+		assert( i < nel );
+		return array[i];
+	}
 
 };
 

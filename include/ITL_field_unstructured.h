@@ -20,8 +20,8 @@ public:
 
 	ITL_field_unstructured(ITL_grid_unstructured<T>* ugrid)
 	{
-		grid = ugrid;
-		this->datastore = new ITL_datastore<T>(grid->nVertices);
+		//this->grid = ugrid;
+		//this->datastore = new ITL_datastore<T>(grid->nVertices);
 	}
 };
 

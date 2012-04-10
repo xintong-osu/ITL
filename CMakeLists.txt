@@ -91,7 +91,7 @@ add_subdirectory (include) # ADD-BY-LEETEN 09/07/2011
 
 add_subdirectory (examples/ApplicationIT_regularscalar)
 add_subdirectory (examples/ApplicationIT_regularvector)
-add_subdirectory (examples/ApplicationIT_irregularscalar)
+add_subdirectory (examples/ApplicationIT_irregularScalar)
 # ADD-BY-ABON 11/07/2011-BEGIN
 if( ${BUILD_DIY_EXAMPLES} )
 	add_subdirectory (examples/ApplicationIT_diy_global)	

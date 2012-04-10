@@ -15,7 +15,28 @@
 template <class T>
 class ITL_grid_regular: public ITL_grid<T>
 {
+	int nDim;			/**< Number of dimensions */
+	int dim[4];			/**< Array for length of each dimension */
+	int dimWithPad[4];		/**< Array for length of each dimension along with ghost layers (if any) */
+	int nVertices;			/**< Number of vertices in Cartesian space. */
+	int nVerticesWithPad;		/**< Number of vertices along with ghost layers (if any) in Cartesian space. */
+	float low[4];			/**< Lower bound of field in continuous Cartesian space. Limit may not coincide with a grid vertex */
+	float high[4];			/**< Upper bound of field in continuous Cartesian space. Limit may not coincide with a grid vertex */
+	int lowInt[4];			/**< Lower bound of field in discrete Cartesian space (nearest grid vertex containing the lower bound). */
+	int highInt[4];			/**< Upper bound of field in discrete Cartesian space (nearest grid vertex containing the upper bound). */
+	int lowIntWithPad[4];		/**< Lower bound of field in discrete Cartesian space along with ghost layers (if any) */
+	int highIntWithPad[4];		/**< Upper bound of field in discrete Cartesian space along with ghost layers (if any) */
+
+	int neighborhoodSize;   	/**< Neighborhood length for each point. Helps to determine span of ghost layers */
+	int lowPad[4];			/**< Span of ghost layers beyond lower end. */
+	int highPad[4];			/**< Span of ghost layers beyond upper end. */
+	int neighborhoodSizeArray[4];
+
 public:
+
+	ITL_grid_regular()
+	{
+	}
 
 	/**
 	 * Constructor.
@@ -23,7 +44,7 @@ public:
 	 */
 	ITL_grid_regular( int ndim )
 	{
-		this->nDim = ndim;
+		nDim = ndim;
 		//this->dim = NULL;
 		//this->low = NULL;
 		//this->high = NULL;
@@ -35,6 +56,187 @@ public:
 		//this->highIntWithPad = NULL;
 	}
 
+	ITL_grid_regular( const ITL_grid_regular<T>& that )
+	{
+		this->nDim = that.nDim;
+		this->nVertices = that.nVertices;
+		this->nVerticesWithPad = that.nVerticesWithPad;
+		this->neighborhoodSize = that.neighborhoodSize;
+
+		for( int i=0; i<nDim; i++ )
+		{
+			this->dim[i] = that.dim[i];
+			this->dimWithPad[i] = that.dimWithPad[i];
+
+			this->low[i] = that.low[i];
+			this->high[i] = that.high[i];
+			this->lowInt[i] = that.lowInt[i];
+			this->highInt[i] = that.highInt[i];
+			this->lowPad[i] = that.lowPad[i];
+			this->highPad[i] = that.highPad[i];
+			this->lowIntWithPad[i] = that.lowIntWithPad[i];
+			this->highIntWithPad[i] = that.highIntWithPad[i];
+
+			this->neighborhoodSizeArray[i] = that.neighborhoodSizeArray[i];
+			this->highIntWithPad[i] = that.highIntWithPad[i];
+
+		}
+
+		//float l[nDim], h[nDim];
+		//int lPad[nDim], hPad[nDim];
+		//int neighborhoodsizearray[nDim];
+
+		//that.getBounds( l, h );
+		//that.getPadSize( lPad, hPad );
+		//that.getNeighborSize( neighborhoodsizearray );
+
+		//this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
+
+	}
+
+	ITL_grid_regular( ITL_grid_regular<T>& that )
+	{
+		this->nDim = that.nDim;
+		this->nVertices = that.nVertices;
+		this->nVerticesWithPad = that.nVerticesWithPad;
+		this->neighborhoodSize = that.neighborhoodSize;
+
+		for( int i=0; i<nDim; i++ )
+		{
+			this->dim[i] = that.dim[i];
+			this->dimWithPad[i] = that.dimWithPad[i];
+
+			this->low[i] = that.low[i];
+			this->high[i] = that.high[i];
+			this->lowInt[i] = that.lowInt[i];
+			this->highInt[i] = that.highInt[i];
+			this->lowPad[i] = that.lowPad[i];
+			this->highPad[i] = that.highPad[i];
+			this->lowIntWithPad[i] = that.lowIntWithPad[i];
+			this->highIntWithPad[i] = that.highIntWithPad[i];
+
+			this->neighborhoodSizeArray[i] = that.neighborhoodSizeArray[i];
+			this->highIntWithPad[i] = that.highIntWithPad[i];
+
+		}
+
+		/*
+		this->nDim = that.getNumDim();
+
+		float l[nDim], h[nDim];
+		int lPad[nDim], hPad[nDim];
+		int neighborhoodsizearray[nDim];
+
+		that.getBounds( l, h );
+		that.getPadSize( lPad, hPad );
+		that.getNeighborSize( neighborhoodsizearray );
+
+		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
+		*/
+
+	}
+
+	ITL_grid_regular& operator= ( const ITL_grid_regular<T>& that )
+	{
+		if (this != &that ) // protect against invalid self-assignment
+		{
+			this->nDim = that.nDim;
+			this->nVertices = that.nVertices;
+			this->nVerticesWithPad = that.nVerticesWithPad;
+			this->neighborhoodSize = that.neighborhoodSize;
+
+			for( int i=0; i<nDim; i++ )
+			{
+				this->dim[i] = that.dim[i];
+				this->dimWithPad[i] = that.dimWithPad[i];
+
+				this->low[i] = that.low[i];
+				this->high[i] = that.high[i];
+				this->lowInt[i] = that.lowInt[i];
+				this->highInt[i] = that.highInt[i];
+				this->lowPad[i] = that.lowPad[i];
+				this->highPad[i] = that.highPad[i];
+				this->lowIntWithPad[i] = that.lowIntWithPad[i];
+				this->highIntWithPad[i] = that.highIntWithPad[i];
+
+				this->neighborhoodSizeArray[i] = that.neighborhoodSizeArray[i];
+				this->highIntWithPad[i] = that.highIntWithPad[i];
+
+			}
+
+
+			/*
+			this->nDim = that.getNumDim();
+
+			float l[nDim], h[nDim];
+			int lPad[nDim], hPad[nDim];
+			int neighborhoodsizearray[nDim];
+
+			that.getBounds( l, h );
+			that.getPadSize( lPad, hPad );
+			that.getNeighborSize( neighborhoodsizearray );
+
+			this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
+			*/
+
+		}
+		// by convention, always return *this
+		return *this;
+	}
+
+	ITL_grid_regular& operator= ( ITL_grid_regular<T>& that )
+	{
+		if (this != &that ) // protect against invalid self-assignment
+		{
+			this->nDim = that.nDim;
+			this->nVertices = that.nVertices;
+			this->nVerticesWithPad = that.nVerticesWithPad;
+			this->neighborhoodSize = that.neighborhoodSize;
+
+			for( int i=0; i<nDim; i++ )
+			{
+				this->dim[i] = that.dim[i];
+				this->dimWithPad[i] = that.dimWithPad[i];
+
+				this->low[i] = that.low[i];
+				this->high[i] = that.high[i];
+				this->lowInt[i] = that.lowInt[i];
+				this->highInt[i] = that.highInt[i];
+				this->lowPad[i] = that.lowPad[i];
+				this->highPad[i] = that.highPad[i];
+				this->lowIntWithPad[i] = that.lowIntWithPad[i];
+				this->highIntWithPad[i] = that.highIntWithPad[i];
+
+				this->neighborhoodSizeArray[i] = that.neighborhoodSizeArray[i];
+				this->highIntWithPad[i] = that.highIntWithPad[i];
+
+			}
+
+			/*
+			this->nDim = that.getNumDim();
+
+			float l[nDim], h[nDim];
+			int lPad[nDim], hPad[nDim];
+			int neighborhoodsizearray[nDim];
+
+			that.getBounds( l, h );
+			that.getPadSize( lPad, hPad );
+			that.getNeighborSize( neighborhoodsizearray );
+
+			this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
+			*/
+
+		}
+		// by convention, always return *this
+		return *this;
+	}
+
+	void
+	init( int ndim )
+	{
+		nDim = ndim;
+	}
+
 	/**
 	 * Function for setting the bounds of a grid with no ghost layers.
 	 * @param l Pointer to array containing lower grid bounds in continuous space along each dimension.
@@ -43,25 +245,12 @@ public:
 	void setBounds( float* l, float* h )
 	{
 		// set bounding box in physical space
-		//this->low = new float[this->nDim];
-		//this->high = new float[this->nDim];
 		memcpy( this->low, l, this->nDim * sizeof(float) );
 		memcpy( this->high, h, this->nDim * sizeof(float) );
 
 		// Set the neighborhood size to 0 (No pad required)
 		this->neighborhoodSize = 0;
-		//this->neighborhoodSizeArray = new int[3];
 		this->neighborhoodSizeArray[0] = this->neighborhoodSizeArray[1] = this->neighborhoodSizeArray[2] = 0;
-
-		// Set field size and bounding box in terms of grid vertex
-		//this->dim = new int[this->nDim];
-		//this->dimWithPad = new int[this->nDim];
-		//this->lowInt = new int[this->nDim];
-		//this->highInt = new int[this->nDim];
-		//this->lowIntWithPad = new int[this->nDim];
-		//this->highIntWithPad = new int[this->nDim];
-		//this->lowPad = new int[this->nDim];
-		//this->highPad = new int[this->nDim];
 
 		// Set the boundary related variables (padding / ghost cell size 0)
 		for( int i=0; i<this->nDim; i++ )
@@ -218,6 +407,10 @@ public:
 		for( int i=0; i<this->nDim; i++ )
 			printf( "%d\t", this->dimWithPad[i] );
 		printf( "\n" );
+		printf( "Neighborhood size:\n" );
+		for( int i=0; i<this->nDim; i++ )
+			printf( "%d\t", this->neighborhoodSizeArray[i] );
+		printf( "\n" );
 		#endif
 
 	}// end function
@@ -246,9 +439,85 @@ public:
 		return -1;
 	}// end function
 
+
+	virtual int
+	getSize()
+	{
+		return nVertices;
+	}
+
+	virtual void
+	getSize( int* d )
+	{
+		memcpy( d, dim, sizeof(int)*nDim );
+	}
+
+	virtual void
+	getSizeWithPad( int* d )
+	{
+		memcpy( d, dimWithPad, sizeof(int)*nDim );
+	}
+
+	virtual void
+	getBounds( float* l, float* h )
+	{
+		memcpy( l, low, sizeof(float)*nDim );
+		memcpy( h, high, sizeof(float)*nDim );
+	}
+
+	virtual void
+	getBounds( int* l, int* h )
+	{
+		memcpy( l, lowInt, sizeof(int)*nDim );
+		memcpy( h, highInt, sizeof(int)*nDim );
+	}
+
+	virtual void
+	getBounds( int *limits )
+	{
+		limits[0] = lowInt[0];
+		limits[1] = lowInt[1];
+		limits[2] = lowInt[2];
+		limits[3] = highInt[0];
+		limits[4] = highInt[1];
+		limits[5] = highInt[2];
+
+	}
+
+	virtual void
+	getPadSize( int* lowpad, int* highpad )
+	{
+		memcpy( lowpad, lowPad, sizeof(int)*getNumDim() );
+		memcpy( highpad, highPad, sizeof(int)*getNumDim() );
+
+	}
+
+	virtual int
+	getNeighborhoodSize()
+	{
+		return neighborhoodSize;
+	}
+
+
+	virtual void
+	getNeighborhoodSize( int* neighborsize )
+	{
+		memcpy( neighborsize, neighborhoodSizeArray, sizeof(int)*getNumDim() );
+	}
+
+
+	virtual int
+	getNumDim()
+	{
+		return nDim;
+	}
+
+
+
 	/**
 	 * Destructor
 	 */
+	virtual
 	~ITL_grid_regular()
 	{
 		//if( this->dim != NULL )		delete this->dim;

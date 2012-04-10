@@ -75,7 +75,7 @@ public:
 		// Read header
 		for( int i=0; i<nDim; i++ )
 			fread( &dim[i], sizeof(int), 1, dataFile );
-				
+
 		// Compute total number of elements
 		nel = ITL_util<int>::prod( dim, nDim );
 
@@ -96,6 +96,46 @@ public:
 
 		// return data array
 		return array;
+
+	}// end function
+
+	/**
+	 * Serial file reader.
+	 * Reads field stored as binary file in vec format.
+	 * @param fileName File name.
+	 * @param nDim Dimensionality of the field.
+	 * @param dim Length of field along each dimension (can be a zero filled array)
+	 * @return pointer to data
+	 */
+	static void readFieldBinarySerial( const char* fileName, int nDim, int* dim, T** array )
+	{
+		int nel = 0;
+
+		// Open file
+		FILE* dataFile = fopen( fileName, "rb" );
+		assert( dataFile != NULL );
+
+		// Read header
+		for( int i=0; i<nDim; i++ )
+			fread( &dim[i], sizeof(int), 1, dataFile );
+				
+		// Compute total number of elements
+		nel = ITL_util<int>::prod( dim, nDim );
+
+		// Allocate memory for data to be read
+		(*array) = new T[nel];
+
+		// Read data to 1D array
+		fread( *array, sizeof(T), nel, dataFile );
+
+		#ifdef DEBUG_MODE
+		if( nDim == 3 )
+			printf( "NX: %d, NY: %d, NZ: %d\nTotal number of elements: %d\n", dim[0], dim[1], dim[2], nel );
+		printf( "%d values read from file\n", nel );
+		#endif
+
+		// close file
+		fclose( dataFile );
 
 	}// end function
 

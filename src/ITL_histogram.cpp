@@ -7,20 +7,6 @@
  */
 #include "ITL_histogram.h"
 
-// ADD-BY-LEETEN 07/18/2011-BEGIN
-// Initialize static parameters of a histogram
-//bool ITL_histogram::bIsAngleMapInitialized = false;
-//bool ITL_histogram::bIsPatchRead = false;
-//int ITL_histogram::iNrOfThetas = 720;
-//int ITL_histogram::iNrOfPhis =	360;
-//float ITL_histogram::fNrOfThetas = float(ITL_histogram::iNrOfThetas);
-//float ITL_histogram::fNrOfPhis	= float(ITL_histogram::iNrOfPhis);
-//int* ITL_histogram::piAngleMap = new int[ITL_histogram::iNrOfThetas*ITL_histogram::iNrOfPhis];
-//float* ITL_histogram::theta=new float[2*360];
-//float* ITL_histogram::phi=new float[2*360];
-// ADD-BY-LEETEN 07/18/2011-END
-
-
 ITL_histogram::ITL_histogram( const char* patchFileName, int nbin )
 {
 	nResolution = 1;
@@ -295,7 +281,16 @@ ITL_histogram::get_bin_number_2D( VECTOR3 v, int nbin )
 	// the magnitude is ignored.
 	float mytheta= getAngle(v.x(), v.y());//0~2pi
 
-	return (int)floor( (mytheta / (2*pi) ) * nbin );
+	//ADD-BY-ABON-02/26/12-BEGIN
+	int binID = (int)floor( (mytheta / (2*pi) ) * nbin );
+	#ifdef DEBUG_MODE
+	if( binID < 0 || binID >= nbin )
+		cout << "binid out of bound ..." << endl;
+	#endif
+	binID = ITL_util<int>::clamp( binID, 0, nbin-1 );
+	//ADD-BY-ABON-02/26/12-END
+
+	return binID;
 }
 
 /**
@@ -330,7 +325,8 @@ ITL_histogram::crossValidateSpeedUp( ITL_field_regular<SCALAR> *scalarField, cha
 	double minScore = 10000000;
 	int minScoreIndex = -1;
 	float h = 0;
-	int N = scalarField->grid->nVertices;
+	//int N = scalarField->grid->nVertices;
+	int N = scalarField->getSize();
 	cout << "N " << N << endl;
 	//FILE *crossV;
 	//crossV = fopen("crossV.txt","w+");
@@ -343,8 +339,10 @@ ITL_histogram::crossValidateSpeedUp( ITL_field_regular<SCALAR> *scalarField, cha
 	{
 		// Get min-max values of the scalar field
 		// ******************* Need to resolve typecast issue begin *************************
-		minValue = ITL_util<SCALAR>::Min( (SCALAR*)scalarField->datastore->array, scalarField->grid->nVertices );
-		maxValue = ITL_util<SCALAR>::Max( (SCALAR*)scalarField->datastore->array, scalarField->grid->nVertices );
+		//minValue = ITL_util<SCALAR>::Min( (SCALAR*)scalarField->datastore->array, scalarField->grid->nVertices );
+		//maxValue = ITL_util<SCALAR>::Max( (SCALAR*)scalarField->datastore->array, scalarField->grid->nVertices );
+		minValue = ITL_util<SCALAR>::Min( (SCALAR*)scalarField->getDataFull(), scalarField->getSize() );
+		maxValue = ITL_util<SCALAR>::Max( (SCALAR*)scalarField->getDataFull(), scalarField->getSize() );
 		// ******************* Need to resolve typecast issue end *************************
 	}
 	else
@@ -367,7 +365,8 @@ ITL_histogram::crossValidateSpeedUp( ITL_field_regular<SCALAR> *scalarField, cha
 	for( int j=0; j<nBinArray[nIter-1]; j++ )
 		freqListPtr[j] = 0;
 
-	computeFrequencies_h( this->binDatas->grid->nVertices, this->binDatas->datastore->array, freqListPtr );
+	//computeFrequencies_h( this->binDatas->grid->nVertices, this->binDatas->datastore->array, freqListPtr );
+	computeFrequencies_h( this->binDatas->getSize(), this->binDatas->getDataFull(), freqListPtr );
 
 	freqListPtr2 = new double*[nIter];
 	for(int k=0;k<nIter;k++)
@@ -440,8 +439,6 @@ ITL_histogram::crossValidateSpeedUp( ITL_field_regular<SCALAR> *scalarField, cha
 	}*/
 	//printf("new_start:%d\tnew_Iter:%d",new_start,new_Iter);
 
-
-
 	printf( "Cross validation result: optimal number of bins: %d\n", nBinArray[minScoreIndex] );
 	cross_nBin=nBinArray[minScoreIndex];
 	//printf("minScoreIndex:%d\t nBinArray[minScoreIndex]:%d",minScoreIndex,nBinArray[minScoreIndex]);
@@ -487,7 +484,8 @@ ITL_histogram::computeHistogramBinField_h( ITL_field_regular<SCALAR> *scalarFiel
 	if( strcmp( fieldType, "scalar" ) == 0 )
 	{
 		// Determine number of bins, if not specified already
-		if( nBin == 0 )		nBin = (int) floor( scalarField->grid->nVertices / 10.0f );
+		//if( nBin == 0 )		nBin = (int) floor( scalarField->grid->nVertices / 10.0f );
+		if( nBin == 0 )		nBin = (int) floor( scalarField->getSize() / 10.0f );
 
 		computeHistogramBinField_Scalar_h( scalarField, nBin );
 	}
@@ -512,7 +510,8 @@ ITL_histogram::computeHistogramBinField_h( ITL_field_regular<SCALAR> *scalarFiel
 void
 ITL_histogram::computeHistogramBinField_Scalar_h( ITL_field_regular<SCALAR> *scalarField, int nBin )
 {
-	assert( scalarField->datastore->array != NULL );
+	//assert( scalarField->datastore->array != NULL );
+	assert( scalarField->getDataFull() != NULL );
         SCALAR nextV, minValue, maxValue, rangeValue;
 
 	// The histogram field is padded, pad length is same as neighborhood size of vector field
@@ -523,16 +522,23 @@ ITL_histogram::computeHistogramBinField_Scalar_h( ITL_field_regular<SCALAR> *sca
 
 	// Initialize the padded scalar field for histogram bins
 	if( this->binDatas == NULL )
-		this->binDatas = new ITL_field_regular<int>( scalarField->grid->nDim, scalarField->grid->low, scalarField->grid->high, scalarField->grid->lowPad, scalarField->grid->highPad, scalarField->grid->neighborhoodSizeArray );
-
+		//this->binDatas = new ITL_field_regular<int>( scalarField->grid->nDim, scalarField->grid->low, scalarField->grid->high, scalarField->grid->lowPad, scalarField->grid->highPad, scalarField->grid->neighborhoodSizeArray );
+	{
+		float low[4];
+		float high[4];
+		scalarField->getBounds( low, high );
+		this->binDatas = new ITL_field_regular<int>( scalarField->getNumDim(), low, high );
+	}
 
 	// Compute the range over which histogram computation needs to be done
 	if( hist_RangeSet == false )
 	{
 		// Get min-max values of the scalar field
 		// ******************* Need to resolve typecast issue begin *************************
-		minValue = ITL_util<SCALAR>::Min( (SCALAR*)scalarField->datastore->array, scalarField->grid->nVertices );
-		maxValue = ITL_util<SCALAR>::Max( (SCALAR*)scalarField->datastore->array, scalarField->grid->nVertices );
+		//minValue = ITL_util<SCALAR>::Min( (SCALAR*)scalarField->datastore->array, scalarField->grid->nVertices );
+		//maxValue = ITL_util<SCALAR>::Max( (SCALAR*)scalarField->datastore->array, scalarField->grid->nVertices );
+		minValue = ITL_util<SCALAR>::Min( (SCALAR*)scalarField->getDataFull(), scalarField->getSize() );
+		maxValue = ITL_util<SCALAR>::Max( (SCALAR*)scalarField->getDataFull(), scalarField->getSize() );
 		// ******************* Need to resolve typecast issue end *************************
 	}
 	else
@@ -554,15 +560,18 @@ ITL_histogram::computeHistogramBinField_Scalar_h( ITL_field_regular<SCALAR> *sca
 	// and convert field value to bin ID
 	int index1d = 0;
 	int binId = 0;
-	for( int z=0; z<scalarField->grid->dimWithPad[2]; z++ )
+	int dimWithPad[4];
+	scalarField->getSizeWithPad( dimWithPad );
+	for( int z=0; z<dimWithPad[2]; z++ )
 	{
-		for( int y=0; y<scalarField->grid->dimWithPad[1]; y++ )
+		for( int y=0; y<dimWithPad[1]; y++ )
 		{
-			for( int x=0; x<scalarField->grid->dimWithPad[0]; x++ )
+			for( int x=0; x<dimWithPad[0]; x++ )
 			{
 				// Get scalar value at location
 				// ******************* Need to resolve typecast issue *************************
-				nextV = scalarField->datastore->array[index1d];
+				//nextV = scalarField->datastore->array[index1d];
+				nextV = scalarField->getDataAt( index1d );
 
 				// Obtain the binID corresponding to the value at this location
 				binId = (int)floor( ( nextV - minValue ) / binWidth  );

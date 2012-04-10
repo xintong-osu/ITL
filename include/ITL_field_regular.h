@@ -13,10 +13,14 @@
 #include "ITL_util.h"
 #include "ITL_field.h"
 #include "ITL_grid_regular.h"
+#include "ITL_datastore.h"
 
 template <class T>
 class ITL_field_regular: public ITL_field<T>
 {
+	ITL_grid_regular<T> grid;			/**< Grid associated to the field. */
+	ITL_datastore<T> datastore;			/**< Data store associated to the field. */
+
 public:
 
 	/**
@@ -24,8 +28,57 @@ public:
 	 */
 	ITL_field_regular()
 	{
-		this->grid = NULL;
-		this->datastore = NULL;
+		//this->grid = NULL;
+		//this->datastore = NULL;
+	}
+
+	ITL_field_regular( const ITL_field_regular<T>& that )
+	{
+		this->grid = that.grid;
+		this->datastore = that.datastore;
+
+	}
+
+	ITL_field_regular( ITL_field_regular<T>& that )
+	{
+		this->grid = that.grid;
+		this->datastore = that.datastore;
+
+	}
+
+	ITL_field_regular& operator= ( const ITL_field_regular<T>& that )
+	{
+		if (this != &that ) // protect against invalid self-assignment
+		{
+			this->grid = that.grid;
+			this->datastore = that.datastore;
+		}
+		// by convention, always return *this
+		return *this;
+	}
+
+	ITL_field_regular& operator= ( ITL_field_regular<T>& that )
+	{
+		if (this != &that ) // protect against invalid self-assignment
+		{
+			this->grid = that.grid;
+			this->datastore = that.datastore;
+
+			/*
+			int nDim = that.getNumDim();
+
+			this->grid.init( nDim );
+
+			float l[nDim], h[nDim];
+			that.getBounds( l, h );
+			this->setBounds( l, h );
+
+			this->datastore.init( that.getDataFull(), that.getSize() );
+			*/
+
+		}
+		// by convention, always return *this
+		return *this;
 	}
 
 	/**
@@ -37,13 +90,17 @@ public:
 	ITL_field_regular( int ndim, float* l, float* h )
 	{
 		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
 
 		// set grid bounds
 		this->setBounds( l, h );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		//this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		int dimWithPad[4];
+		getSizeWithPad( dimWithPad );
+		datastore.init( ITL_util<int>::prod( dimWithPad, grid.getNumDim() ) );
 
 	}// constructor
 
@@ -59,13 +116,18 @@ public:
 	ITL_field_regular( int ndim, float* l, float* h, int* lPad, int* hPad, int neighborhoodsize )
 	{
 		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
 
 		// set grid bounds
 		this->setBounds( l, h, lPad, hPad, neighborhoodsize );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		//this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		int dimWithPad[4];
+		getSizeWithPad( dimWithPad );
+		datastore.init( ITL_util<int>::prod( dimWithPad, grid.getNumDim() ) );
+
 
 	}// Constructor
 
@@ -82,13 +144,18 @@ public:
 	ITL_field_regular( int ndim, float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
 	{
 		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
 
 		// set grid bounds
 		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		//this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		int dimWithPad[4];
+		getSizeWithPad( dimWithPad );
+		datastore.init( ITL_util<int>::prod( dimWithPad, grid.getNumDim() ) );
+
 
 	}// Constructor
 
@@ -101,7 +168,8 @@ public:
 	ITL_field_regular( T* data, int ndim, int* dim )
 	{
 		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
 
 		// set grid bounds: 0 to N-1
 		float* lowEnd = new float[ndim];
@@ -114,7 +182,11 @@ public:
 		this->setBounds( lowEnd, highEnd );
 
 		// Initialize data store
-		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		//this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		int dimWithPad[4];
+		getSizeWithPad( dimWithPad );
+		datastore.init( data, ITL_util<int>::prod( dimWithPad, grid.getNumDim() ) );
+
 
 	}// constructor 1
 
@@ -127,13 +199,18 @@ public:
 	ITL_field_regular( T* data, int ndim, float* l, float* h )
 	{
 		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
 
 		// set grid bounds
 		this->setBounds( l, h );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		//this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		int dimWithPad[4];
+		getSizeWithPad( dimWithPad );
+		datastore.init( data, ITL_util<int>::prod( dimWithPad, grid.getNumDim() ) );
+
 
 	}// constructor
 
@@ -154,13 +231,18 @@ public:
 					   int neighborhoodsize )
 	{
 		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
 
 		// set grid bounds
 		this->setBounds( l, h, lPad, hPad, neighborhoodsize );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		//this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		int dimWithPad[4];
+		getSizeWithPad( dimWithPad );
+		datastore.init( data, ITL_util<int>::prod( dimWithPad, grid.getNumDim() ) );
+
 
 	}// Constructor
 
@@ -181,27 +263,54 @@ public:
 					   int* neighborhoodsizearray )
 	{
 		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
 
 		// set grid bounds
 		this->setBounds( l, h, lPad, hPad, neighborhoodsizearray );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		//this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dimWithPad[0], this->grid->nDim ) );
+		int dimWithPad[4];
+		getSizeWithPad( dimWithPad );
+		datastore.init( data, ITL_util<int>::prod( dimWithPad, grid.getNumDim() ) );
+
 
 	}// Constructor
 
 	void initialize( int ndim, float *l, float *h )
 	{
 		// Initialize grid
-		this->grid = new ITL_grid_regular<T>( ndim );
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
 
 		// set grid bounds
 		this->setBounds( l, h );
 
 		// Initialize datastore
-		this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dim[0], ndim ) );	
+		//this->datastore = new ITL_datastore<T>( ITL_util<int>::prod( &this->grid->dim[0], ndim ) );
+		int dim[4];
+		getSizeWithPad( dim );
+		datastore.init( ITL_util<int>::prod( dim, grid.getNumDim() ) );
 	}
+
+	void initialize( T* data, int ndim, float *l, float *h )
+	{
+		// Initialize grid
+		//this->grid = new ITL_grid_regular<T>( ndim );
+		grid.init( ndim );
+
+		// set grid bounds
+		this->setBounds( l, h );
+
+		// Initialize datastore
+		//this->datastore = new ITL_datastore<T>( data, ITL_util<int>::prod( &this->grid->dim[0], ndim ) );
+		int dim[4];
+		getSize( dim );
+		datastore.init( data, ITL_util<int>::prod( dim, grid.getNumDim() ) );
+
+	}
+
 
 
 	/**
@@ -213,7 +322,8 @@ public:
 	void setBounds( float* l, float* h )
 	{	
 		// call same method of the grid
-		this->grid->setBounds( l, h );
+		//this->grid->setBounds( l, h );
+		grid.setBounds( l, h );
 
 	}// end function
 
@@ -229,14 +339,26 @@ public:
 	void setBounds( float* l, float* h, int* lPad, int* hPad, int neighborhoodsize )
 	{
 		// call same method of the grid
-		this->grid->setBounds( l, h , lPad, hPad, neighborhoodsize );
+		//this->grid->setBounds( l, h , lPad, hPad, neighborhoodsize );
+		grid.setBounds( l, h , lPad, hPad, neighborhoodsize );
 
 	}// end function
 
 	void setBounds( float* l, float* h, int* lPad, int* hPad, int* neighborhoodsizearray )
 	{
 		// call same method of the grid
-		this->grid->setBounds( l, h , lPad, hPad, neighborhoodsizearray );
+		//this->grid->setBounds( l, h , lPad, hPad, neighborhoodsizearray );
+		//float low[4], high[4];
+		//int lowpad[4], highpad[4], narray[4];
+
+		//memcpy( low, l, grid.getNumDim() * sizeof(float) );
+		//memcpy( high, h, grid.getNumDim() * sizeof(float) );
+		//memcpy( narray, neighborhoodsizearray, grid.getNumDim() * sizeof(int) );
+		//memcpy( lowpad, lPad, grid.getNumDim() * sizeof(int) );
+		//memcpy( highpad, hPad, grid.getNumDim() * sizeof(int) );
+
+		//grid.setBounds( low, high, lowpad, highpad, narray );
+		grid.setBounds( l, h, lPad, hPad, neighborhoodsizearray );
 
 	}// end function
 
@@ -247,6 +369,7 @@ public:
 	 * @paam subfieldArray A null pointer or a pointer to sub-blocks to be created.  
 	 * @param isSharingNeighbor Flag that denotes if two adjacent blocks are sharing a common neighbor. Default value is false.
 	 */
+	/*
 	virtual void partitionField ( int* nBlock, ITL_field_regular<T> *subfieldArray, bool isSharingNeighbor = true )
 	{		
 		float *blockSize = new float[this->grid->nDim];
@@ -254,9 +377,9 @@ public:
 		float* highSub = new float[this->grid->nDim];
 
 		// Compute the dimension of each block
-		blockSize[0] = ceil( (this->grid->dim[0]-1) / (float)nBlock[0] );
-		blockSize[1] = ceil( (this->grid->dim[1]-1) / (float)nBlock[1] );
-		blockSize[2] = ceil( (this->grid->dim[2]-1) / (float)nBlock[2] );
+		blockSize[0] = ceil( (grid.dim[0]-1) / (float)nBlock[0] );
+		blockSize[1] = ceil( (grid.dim[1]-1) / (float)nBlock[1] );
+		blockSize[2] = ceil( (grid.dim[2]-1) / (float)nBlock[2] );
 		//blockSize[0] = floor( (this->grid->dim[0]-1) / (float)nBlock[0] );
 		//blockSize[1] = floor( (this->grid->dim[1]-1) / (float)nBlock[1] );
 		//blockSize[2] = floor( (this->grid->dim[2]-1) / (float)nBlock[2] );
@@ -269,7 +392,7 @@ public:
 		#endif
 
 		// Compute total number of blocks
-		int nTotalBlocks = ITL_util<int>::prod( nBlock, this->grid->nDim );
+		int nTotalBlocks = ITL_util<int>::prod( nBlock, grid.nDim );
 
 		// Allocate memory for array of subfields
 		if( subfieldArray == NULL )	subfieldArray = new ITL_field_regular<T>[nTotalBlocks];
@@ -317,6 +440,7 @@ public:
 		delete [] lowSub;
 		delete [] highSub;
 	}// end function
+	*/
 
 	/**
 	 * Function for creating a partition or subfield
@@ -324,6 +448,7 @@ public:
 	 * @param low Lower bound along each dimension.
 	 * @param high Higher bound along each dimension.
 	 */
+	/*
 	ITL_field<T>* createSubField( float* low, float* high )
 	{
 		// Allocate memory for 3D block
@@ -332,6 +457,7 @@ public:
 		return newField;
 
 	}// end function
+	*/
 
 	/**
 	 * Data accessor function type 1.
@@ -341,7 +467,8 @@ public:
 	virtual T getDataAt( int id )
 	{
 		// Get data
-		return this->datastore->array[id];
+		//return this->datastore->array[id];
+		return datastore.getDataAt(id);
 	}// end function
 
 	/**
@@ -354,10 +481,12 @@ public:
 	virtual T getDataAt( int x, int y, int z )
 	{
 		// Convert index to 1D
-		int index1d = this->grid->convert3DIndex( x, y, z );
+		//int index1d = this->grid->convert3DIndex( x, y, z );
+		int index1d = grid.convert3DIndex( x, y, z );
 
 		// Get data
-		return this->datastore->array[index1d];
+		//return this->datastore->array[index1d];
+		return datastore.getDataAt( index1d );
 	}// end function
 
 	/**
@@ -367,76 +496,31 @@ public:
 	 * @param highBoundary Higher bound along each dimension.
 	 * @return pointer to field value.
 	 */
-	virtual T* getDataBetween( float* lowBoundary, float* highBoundary  )
-	{
-		int* lowBoundaryInt = new int[this->grid->nDim];
-		int* highBoundaryInt = new int[this->grid->nDim];
-
-		for( int i=0; i<this->grid->nDim; i++ )
-		{
-			lowBoundaryInt[i] = (int)floor( lowBoundary[i] );
-			highBoundaryInt[i] = (int)ceil( highBoundary[i] );
-		}
-
-		return this->getDataBetween( lowBoundaryInt, highBoundaryInt );
-
-	}// end function
-
-	/**
-	 * Data accessor function type 4.
-	 * Returns chunk of data within specified bound.
-	 * @param lowBoundary Lower bound along each dimension.
-	 * @param highBoundary Higher bound along each dimension.
-	 * @return pointer to field value.
-	 */
-	virtual T* getDataBetween( int* lowBoundary, int* highBoundary  )
-	{
-		// Count number of vertices requested
-		int* dimLength = ITL_util<int>::subtractArrays( highBoundary, lowBoundary, this->grid->nDim );
-		ITL_util<int>::addArrayScalar( dimLength, 1, this->grid->nDim );
-		int nV = ITL_util<int>::prod( dimLength, this->grid->nDim );
-
-		// Allocate memory to return data
-		T* retData = new T[nV];
-
-		int globalOffset = 0;
-		int localOffset = 0;
-		for( int z=0; z<dimLength[2]; z++ )
-		{
-			for( int y=0; y<dimLength[1]; y++ )
-			{
-				globalOffset = this->grid->convert3DIndex( lowBoundary[0], lowBoundary[1]+y, lowBoundary[2]+z );
-
-				memcpy( (T*)(retData + localOffset ) , (T*)(this->datastore->array + globalOffset ) , dimLength[0] * sizeof( T ) );
-				localOffset += dimLength[0];
-			}
-		}
-		
-		return retData;
-
-	}// end function
-	
-	virtual void getDataBetween2( float* lowBoundary, float* highBoundary, T* retData )
+	virtual void
+	getDataBetween( float* lowBoundary, float* highBoundary, T* retData )
 	{
 		// ADD-BY-LEETEN 02/13/2012-BEGIN
 		#ifdef	WIN32
-		int* lowBoundaryInt = new int[this->grid->nDim];
-		int* highBoundaryInt = new int[this->grid->nDim];
+			int* lowBoundaryInt = new int[this->grid->nDim];
+			int* highBoundaryInt = new int[this->grid->nDim];
 		#else	// #ifdef	WIN32
 		// ADD-BY-LEETEN 02/13/2012-END
 
-		int lowBoundaryInt[this->grid->nDim];
-		int highBoundaryInt[this->grid->nDim];
+			//int lowBoundaryInt[this->grid->nDim];
+			//int highBoundaryInt[this->grid->nDim];
+			int lowBoundaryInt[grid.getNumDim()];
+			int highBoundaryInt[grid.getNumDim()];
 
 		#endif	// #ifdef	WIN32		// ADD-BY-LEETEN 02/13/2012
 
-		for( int i=0; i<this->grid->nDim; i++ )
+		//for( int i=0; i<this->grid->nDim; i++ )
+		for( int i=0; i<grid.getNumDim(); i++ )
 		{
 			lowBoundaryInt[i] = (int)floor( lowBoundary[i] );
 			highBoundaryInt[i] = (int)ceil( highBoundary[i] );
 		}
 
-		this->getDataBetween2( lowBoundaryInt, highBoundaryInt, retData );
+		this->getDataBetween( lowBoundaryInt, highBoundaryInt, retData );
 		
 		// ADD-BY-LEETEN 02/13/2012-BEGIN
 		#ifdef	WIN32
@@ -453,12 +537,21 @@ public:
 	 * @param highBoundary Higher bound along each dimension.
 	 * @return pointer to field value.
 	 */
-	virtual void getDataBetween2( int* lowBoundary, int* highBoundary, T* retData )
+	virtual void
+	getDataBetween( int* lowBoundary, int* highBoundary, T* retData )
 	{
 		// Count number of vertices requested
-		int* dimLength = ITL_util<int>::subtractArrays( highBoundary, lowBoundary, this->grid->nDim );
-		ITL_util<int>::addArrayScalar( dimLength, 1, this->grid->nDim );
-		int nV = ITL_util<int>::prod( dimLength, this->grid->nDim );
+		//int* dimLength = ITL_util<int>::subtractArrays( highBoundary, lowBoundary, this->grid->nDim );
+		//ITL_util<int>::addArrayScalar( dimLength, 1, this->grid->nDim );
+		//int nV = ITL_util<int>::prod( dimLength, this->grid->nDim );
+		//int* dimLength = ITL_util<int>::subtractArrays( highBoundary, lowBoundary, grid.nDim );
+		//ITL_util<int>::addArrayScalar( dimLength, 1, grid.nDim );
+		//int nV = ITL_util<int>::prod( dimLength, grid.nDim );
+		int dimLength[4];
+		ITL_util<int>::subtractArrays( highBoundary, lowBoundary, dimLength, grid.getNumDim() );
+		ITL_util<int>::addArrayScalar( dimLength, 1, grid.getNumDim() );
+		int nV = ITL_util<int>::prod( dimLength, grid.getNumDim() );
+
 
 		int globalOffset = 0;
 		int localOffset = 0;
@@ -466,16 +559,17 @@ public:
 		{
 			for( int y=0; y<dimLength[1]; y++ )
 			{
-				globalOffset = this->grid->convert3DIndex( lowBoundary[0], lowBoundary[1]+y, lowBoundary[2]+z );
+				//globalOffset = this->grid->convert3DIndex( lowBoundary[0], lowBoundary[1]+y, lowBoundary[2]+z );
+				globalOffset = grid.convert3DIndex( lowBoundary[0], lowBoundary[1]+y, lowBoundary[2]+z );
 
-				memcpy( (T*)(retData + localOffset ) , (T*)(this->datastore->array + globalOffset ) , dimLength[0] * sizeof( T ) );
+				//memcpy( (T*)(retData + localOffset ) , (T*)(this->datastore->array + globalOffset ) , dimLength[0] * sizeof( T ) );
+				memcpy( (T*)(retData + localOffset ) , (T*)(getDataFull() + globalOffset ) , dimLength[0] * sizeof( T ) );
 				localOffset += dimLength[0];
 			}
 		}
 
 	}// end function
 	
-
 	/**
 	 * Data accessor function type 5.
 	 * Returns entire field data.
@@ -483,8 +577,111 @@ public:
 	 */
 	virtual T* getDataFull()
 	{
-		return this->datastore->array;
+		//return this->datastore->array;
+		return datastore.getData();
 	}// end function
+
+	virtual int
+	getSize()
+	{
+		return grid.getSize();
+	}
+
+	virtual void
+	getSize( int* d )
+	{
+		int dim[4];
+		grid.getSize( dim );
+
+		memcpy( d, dim, sizeof(int)*grid.getNumDim() );
+	}
+
+	virtual void
+	getSizeWithPad( int* d )
+	{
+		int dimWPad[4];
+		grid.getSizeWithPad( dimWPad );
+
+		memcpy( d, dimWPad, sizeof(int)*grid.getNumDim() );
+	}
+
+	virtual int
+	getNumDim()
+	{
+		return grid.getNumDim();
+	}
+
+	virtual void
+	getBounds( float* l, float* h )
+	{
+		float low[4];
+		float high[4];
+		grid.getBounds( low, high );
+
+		memcpy( l, low, sizeof(float)*grid.getNumDim() );
+		memcpy( h, high, sizeof(float)*grid.getNumDim() );
+	}
+
+	virtual void
+	getBounds( int* l, int* h )
+	{
+		int low[4];
+		int high[4];
+		grid.getBounds( low, high );
+
+		memcpy( l, low, sizeof(int)*grid.getNumDim() );
+		memcpy( h, high, sizeof(int)*grid.getNumDim() );
+	}
+
+	/**
+	 * Field bounds accessor function.
+	 */
+	virtual void
+	getBounds( int *limits )
+	{
+		int lim[6];
+		grid.getBounds( lim );
+
+		limits[0] = lim[0];
+		limits[1] = lim[1];
+		limits[2] = lim[2];
+		limits[3] = lim[3];
+		limits[4] = lim[4];
+		limits[5] = lim[5];
+
+	}
+
+	virtual void
+	getPadSize( int* lowpad, int* highpad )
+	{
+		int lowPad[4];
+		int highPad[4];
+
+		grid.getPadSize( lowPad, highPad );
+
+		memcpy( lowpad, lowPad, sizeof(int)*grid.getNumDim() );
+		memcpy( highpad, highPad, sizeof(int)*grid.getNumDim() );
+
+	}
+
+	virtual int
+	getNeighborhoodSize()
+	{
+		return grid.getNeighborhoodSize();
+	}
+
+	virtual void
+	getNeighborhoodSize( int* neighborsize )
+	{
+		int neighborSize[4];
+
+		grid.getNeighborhoodSize( neighborSize );
+
+		memcpy( neighborsize, neighborSize, sizeof(int)*grid.getNumDim() );
+
+	}
+
+
 
 	/**
 	 * Data mutator function type 1.
@@ -495,7 +692,8 @@ public:
 	virtual void setDataAt( int id, T data )
 	{
 		// Set data
-		this->datastore->array[id] = data;
+		//this->datastore->array[id] = data;
+		datastore.setDataAt( data, id );
 	}// end function
 
 	/**
@@ -504,10 +702,13 @@ public:
 	virtual void setDataAt( int x, int y, int z, T data )
 	{
 		// Convert index to 1D
-		int index1d = this->grid->convert3DIndex( x, y, z );
+		//int index1d = this->grid->convert3DIndex( x, y, z );
+		int index1d = grid.convert3DIndex( x, y, z );
 
 		// Set data
-		this->datastore->array[index1d] = data;
+		//this->datastore->array[index1d] = data;
+		datastore.setDataAt( data, index1d );
+
 	}// end function
 
 	/**
@@ -525,16 +726,22 @@ public:
 	 */
 	virtual void setDataFull( T* data )
 	{
-		this->datastore->array = data;
+		//this->datastore->array = data;
+		datastore.setDataFull( data );
 	}// end function
+
+	int
+	convert3DIndex( int x, int y, int z )
+	{
+		return grid.convert3DIndex( x, y, z );
+	}
 
 	/**
 	 * Destructor.
 	 */
+	virtual
 	~ITL_field_regular()
 	{
-		//if( this->grid != NULL )	delete this->grid;
-		//if( this->datastore != NULL )	delete this->datastore;
 		//delete grid;
 		//delete datastore;
 	}

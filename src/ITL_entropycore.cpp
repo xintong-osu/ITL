@@ -1,6 +1,7 @@
 #include "ITL_entropycore.h"
 
-float ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint, int nBin, bool toNormalize )
+float
+ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint, int nBin, bool toNormalize )
 {
 	// Initialize probability array
 	#if defined( _WIN32 ) || defined( _WIN64 )
@@ -35,7 +36,60 @@ float ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint
 	
 }// End function
 
-float ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArray, int nPoint, int nBin, bool toNormalize )
+float
+ITL_entropycore::computeEntropy_HistogramBased2( float* probArray, int nBin, bool toNormalize )
+{
+
+	// Compute negative entropy
+	float entropy = 0;
+	for( int i = 0; i<nBin; i++ )
+	{
+		entropy += ( probArray[i] * ( probArray[i] == 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
+	}
+
+	// Change sign
+	entropy = -entropy;
+
+	// Normalize, if required
+	if( toNormalize )
+		entropy /= ( log( (float)nBin ) / log( 2.0f ) );
+
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		delete [] probArray;
+	#endif
+
+	return entropy;
+
+}// End function
+
+double
+ITL_entropycore::computeEntropy_HistogramBased2( double* probArray, int nBin, bool toNormalize )
+{
+
+	// Compute negative entropy
+	double entropy = 0;
+	for( int i = 0; i<nBin; i++ )
+	{
+		entropy += ( probArray[i] * ( probArray[i] == 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
+	}
+
+	// Change sign
+	entropy = -entropy;
+
+	// Normalize, if required
+	if( toNormalize )
+		entropy /= ( log( (double)nBin ) / log( 2.0 ) );
+
+	#if defined( _WIN32 ) || defined( _WIN64 )
+		delete [] probArray;
+	#endif
+
+	return entropy;
+
+}// End function
+
+float
+ITL_entropycore::computeEntropy_HistogramBased( int* binIds, int* freqArray, int nPoint, int nBin, bool toNormalize )
 {
 	// Initialize probability array
 	#if defined( _WIN32 ) || defined( _WIN64 )

@@ -24,6 +24,7 @@ class ITL_grid_tetrahedral: public ITL_grid_unstructured<T>
 {
   // MOD-BY-LEETEN 04/09/2012-FROM: private:
 public:
+  using ITL_grid_unstructured<T>::nDim;
   using ITL_grid_unstructured<T>::radius; 
   using ITL_grid_unstructured<T>::nVertices;
   using ITL_grid_unstructured<T>::nCell;
@@ -114,8 +115,8 @@ public:
 		this->nCell = nC;
 		vertexList = new ITL_vertex<T>[nVertices];
 		cellList = new ITL_tetrahedron<T>[nCell];	
-		intersectCells = new vector<int>[nVertices];
-		containCells = new vector<int>[nVertices];
+		this->intersectCells = new vector<int>[this->nVertices];
+		this->containCells = new vector<int>[this->nVertices];
 	}
 
 	ITL_tetrahedron<T>& getTet(int index)
@@ -186,7 +187,7 @@ public:
 	//build intersected and contained cells information, with internal vectors (intersectCells / containCells)
 	void buildBoxIntersecTets()
 	{
-		getBoxIntersecTets(intersectCells, containCells);
+		getBoxIntersecTets(this->intersectCells, this->containCells);
 	}
 
 	void sortVerts(double arr[],int n, int *pos)

@@ -93,8 +93,18 @@ public :
 	} 
 	void Zero() {vec[0] = vec[1] = vec[2] = 0.0;}					// make zero vector 
 	float GetMag() {return (float)(sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]));}	// get magnitude 
-	const VECTOR3 & operator =(const VECTOR3 & v0)					// copy vector v0 
-	{vec[0] = v0(0); vec[1] = v0(1); vec[2] = v0(2); return(*this);} 
+	//const VECTOR3 & operator =(const VECTOR3 & v0)					// copy vector v0
+	//{vec[0] = v0(0); vec[1] = v0(1); vec[2] = v0(2); return(*this);}
+	const VECTOR3 & operator =(const VECTOR3 & v0)					// copy vector v0
+	{
+		if( this != &v0 )
+		{
+			vec[0] = v0(0);
+			vec[1] = v0(1);
+		    vec[2] = v0(2);
+		}
+		return(*this);
+	}
 	float GetMax();													// get the maximum value								 
 	void Clamp();													// make sure all dimension <=1.0 
 	void Normalize();					                            // normalize vector 
@@ -146,7 +156,11 @@ private :
 public : 
  
 	MATRIX3()                                    // constructor 
-	{	Identity(); }; 
+	{	mat[0] = VECTOR3(1,0,0);
+		mat[1] = VECTOR3(0,1,0);
+		mat[2] = VECTOR3(0,0,1); };
+	//MATRIX3()                                    // constructor
+	//{	Identity(); };
 	MATRIX3(const VECTOR3 & v0, const VECTOR3 & v1, const VECTOR3 & v2) 
 	{	mat[0] = v0; mat[1] = v1; mat[2] = v2; };  // constructor 
 	int Dimension() const 
@@ -161,7 +175,7 @@ public :
 	MATRIX3 & operator =(const MATRIX3 & m0)     // copy matrix m0 
 	{	mat[0] = m0(0); mat[1] = m0(1); mat[2] = m0(2);  
 	return(*this); }; 
-	void Identity();                             // set to identity 
+	void Identity();                             // set to identity
 }; 
  
 ////////////////////////////////////////////////////////////////////////// 
@@ -303,9 +317,9 @@ MATRIX3 operator -(const MATRIX3 & m0, const MATRIX3 & m1); // return m0 - m1
 MATRIX3 operator *(const MATRIX3 & m0, const MATRIX3 & m1); // return m0 * m1 
 MATRIX3 operator *(const float x0, const MATRIX3 & m0);    // return x0 * m0 
 MATRIX3 operator *(const MATRIX3 & m0, const float x0);    // return m0 * x0 
-VECTOR3 operator *(const MATRIX3 & m0, const VECTOR3 & v0); // return m0 * v0 
+VECTOR3 operator *(const MATRIX3 & m0, const VECTOR3 & v0); // return m0 * v0
 VECTOR3 operator *(const VECTOR3 & v0, const MATRIX3 & m0); // return v0 * m0 
- 
+
 //************************ 
 // MATRIX4 operations 
 //************************ 

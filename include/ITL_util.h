@@ -21,21 +21,24 @@ public:
 
 public:
 
-	static T clamp( T val, T low, T high )
+	static T
+	clamp( T val, T low, T high )
 	{
 		if( val < low)		return low;
 		if( val > high )	return high;
 		return val;
 	}// end function
 
-	static T mirror( T val, T low, T high )
+	static T
+	mirror( T val, T low, T high )
 	{
 		if( val < low)		return low + ( low - val );
 		if( val > high )	return high - ( val - high );
 		return val;
 	}// end function
 	
-	static T Min( T* array, int len )
+	static T
+	Min( T* array, int len )
 	{
 		T min = array[0];
 		for( int i=0; i<len; i++ )
@@ -46,7 +49,8 @@ public:
 
 	}// end function
 	
-	static T Max( T* array, int len )
+	static T
+	Max( T* array, int len )
 	{
 		T max = array[0];
 		for( int i=0; i<len; i++ )
@@ -57,17 +61,22 @@ public:
 
 	}// end function
 
-
-	static T sum( T* array, int len )
+	static T
+	sum( T* array, int len )
 	{
 		T sum = 0;
+		//cout << sum << endl;
 		for( int i=0; i<len; i++ )
+		{
+			//cout << array[i] << endl;
 			sum += array[i];
+		}
 		return sum;
 
 	}// end function
 
-	static T prod( T* array, int len )
+	static T
+	prod( T* array, int len )
 	{
 		T product = 1;
 		for( int i=0; i<len; i++ )
@@ -76,7 +85,8 @@ public:
 
 	}// end function
 
-	static void fill( T* array, int len, T val )
+	static void
+	fill( T* array, int len, T val )
 	{
 		for( int i=0; i<len; i++ )
 		{
@@ -84,27 +94,26 @@ public:
 		}
 	}
 
-	static T* addArrays( T* one, T* two, int len )
+	static void
+	addArrays( T* one, T* two, T* sum, int len )
 	{
-		T* sum = new T[len];
 		for( int i=0; i<len; i++ )
 		{
 			sum[i] = one[i]+two[i];
 		}
-		return sum;
 	}
 
-	static T* subtractArrays( T* one, T* two, int len )
+	static void
+	subtractArrays( T* one, T* two, T* sub, int len )
 	{
-		T* sub = new T[len];
 		for( int i=0; i<len; i++ )
 		{
 			sub[i] = one[i]-two[i];
 		}
-		return sub;
 	}
 
-	static void addArrayScalar( T* array, T scalar, int len )
+	static void
+	addArrayScalar( T* array, T scalar, int len )
 	{
 		for( int i=0; i<len; i++ )
 		{
@@ -112,13 +121,100 @@ public:
 		}
 	}
 
-	static void subtractArrayScalar( T* array, T scalar, int len )
+	static void
+	subtractArrayScalar( T* array, T scalar, int len )
 	{
 		for( int i=0; i<len; i++ )
 		{
 			array[i] = array[i]-scalar;
 		}
 	}
+
+	/**
+	 * Index conversion: 3D to 1D
+	 */
+	static int
+	index3DTo1D( int x, int y, int z, int* fieldsize )
+	{
+		return z*fieldsize[1]*fieldsize[0] + y*fieldsize[0] + x;
+	}// End function
+
+	/**
+	 * Tri-linear interpolation
+	 */
+	static SCALAR
+	triLinterp_scalar( SCALAR array[], float *f )
+	{
+		SCALAR tmp[2];
+		tmp[0] = biLinterp_scalar( array, f );
+		tmp[1] = biLinterp_scalar( array+4, f );
+		return linterp_scalar( tmp, f[2] );
+
+	}// End function
+
+	/**
+	 * Bi-linear interpolation
+	 */
+	static SCALAR
+	biLinterp_scalar( SCALAR array[], float *f )
+	{
+		SCALAR tmp[2];
+		tmp[0] = linterp_scalar( array, f[0] );
+		tmp[1] = linterp_scalar( array+1, f[0] );
+		return linterp_scalar( tmp, f[1] );
+
+	}// End function
+
+	/**
+	 * Linear interpolation
+	 */
+	static SCALAR
+	linterp_scalar( SCALAR array[], float f )
+	{
+		return ( array[0]*f + array[1]*(1-f) );
+
+	}// End function
+
+	/**
+	 * Tri-linear interpolation
+	 */
+	static VECTOR3
+	triLinterp_vector( VECTOR3* array, float *f )
+	{
+		VECTOR3 tmp[2];
+		tmp[0] = biLinterp_vector( array, f );
+		tmp[1] = biLinterp_vector( array+4, f );
+		return linterp_vector( tmp, f[2] );
+
+	}// End function
+
+	/**
+	 * Bi-linear interpolation
+	 */
+	static VECTOR3
+	biLinterp_vector( VECTOR3* array, float *f )
+	{
+		VECTOR3 tmp[2];
+
+		tmp[0] = linterp_vector( array, f[0] );
+		tmp[1] = linterp_vector( array+2, f[0] );
+
+		return linterp_vector( tmp, f[1] );
+
+	}// End function
+
+	/**
+	 * Linear interpolation
+	 */
+	static VECTOR3
+	linterp_vector( VECTOR3* array, float f )
+	{
+		VECTOR3 tmp1( array[0].x()*f, array[0].y()*f, array[0].z()*f );
+		VECTOR3 tmp2( array[1].x()*(1-f), array[1].y()*(1-f), array[1].z()*(1-f) );
+		VECTOR3 tmp( tmp1[0] + tmp2[0], tmp1[1] + tmp2[1], tmp1[2] + tmp2[2] );
+
+		return tmp;
+	}// End function
 
 	/**
 	 * Start Time computation.

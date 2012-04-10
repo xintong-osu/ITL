@@ -17,14 +17,17 @@ class ITL_statutil
 {
 public:
 
-	static T Mean( T* array, int len )
+	static T
+	Mean( T* array, int len )
 	{
 		T sum = ITL_util<T>::sum( array, len );
-		return (sum / (float)len ); 
+		//cout << sum << endl;
+		return ( sum / (double)len );
 		
 	}// end function
 
-	static T Variance( T* array, int len, T mean )
+	static T
+	Variance( T* array, int len, T mean )
 	{
 		T mse = 0;
 		for( int i=0; i<len; i++ )
@@ -34,7 +37,8 @@ public:
 
 	}// end function
 
-	static T STD( T* array, int len, T mean )
+	static T
+	STD( T* array, int len, T mean )
 	{
 		return sqrt( ITL_statutil<T>::Variance( array, len, mean ) );
 
