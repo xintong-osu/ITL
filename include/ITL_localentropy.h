@@ -75,7 +75,8 @@ public:
 	 * Creates a scalar field that contains entropy at each grid vertex.
 	 * @param nBins Number of bins used in histogram computation.
 	 */
-	void computeLocalEntropyOfField( bool toNormalize )
+	void
+	computeLocalEntropyOfField( bool toNormalize )
 	{
 		float low[4];
 		float high[4];
@@ -86,18 +87,22 @@ public:
 		// Allocate memory for entropy field (a non-padded scalar field), if not already done
 		if( this->entropyField == NULL )
 		{
-			dataField->getBounds( low, high );
-			dataField->getPadSize( lowPad, highPad );
+			binData->getBounds( low, high );
+			binData->getPadSize( lowPad, highPad );
 
+			printf( "Low: %g %g %g\n", low[0], low[1], low[2] );
+			printf( "High: %g %g %g\n", high[0], high[1], high[2] );
+			printf( "Low Pad: %d %d %d\n", lowPad[0], lowPad[1], lowPad[2] );
+			printf( "High Pad: %d %d %d\n", highPad[0], highPad[1], highPad[2] );
 
-			this->entropyField = new ITL_field_regular<SCALAR>( this->dataField->getNumDim(),
+			this->entropyField = new ITL_field_regular<SCALAR>( binData->getNumDim(),
 																low, high );
 		}
 
 		// Compute total number of vertices in the neighborhood, including the vertext itself
-		//int nNeighbors = (int)std::pow( 2.0f*this->dataField->grid->neighborhoodSize + 1.0f, this->dataField->grid->nDim );
+		binData->getNeighborhoodSize( neighborhoodSize );
+		printf( "Neighborhoodsize: %d %d %d\n", neighborhoodSize[0], neighborhoodSize[1], neighborhoodSize[2] );
 
-		dataField->getNeighborhoodSize( neighborhoodSize );
 		int nNeighbors = (int)( ( 2.0f*neighborhoodSize[0] + 1.0f ) *
 						     ( 2.0f*neighborhoodSize[1] + 1.0f ) *
 						     ( 2.0f*neighborhoodSize[2] + 1.0f ) );
@@ -109,6 +114,7 @@ public:
 		int index1d = 0;
 		int dim[4];
 		entropyField->getSize( dim );
+		printf( "enfield dim: %d %d %d\n", dim[0], dim[1], dim[2] );
 
 		for( int z=0; z<dim[2]; z++ )
 		{

@@ -14,15 +14,16 @@
 #include "io.hpp"
 #include "merge.hpp"
 
-#include "bil.h"
+//#include "bil.h"
 
 #include "ITL_header.h"
 #include "ITL_base.h"
 #include "ITL_util.h"
 #include "ITL_ioutil.h"
 #include "ITL_vectormatrix.h"
-#include "ITL_histogram.h"
 #include "ITL_histogramconstants.h"
+#include "ITL_histogram.h"
+#include "ITL_histogrammapper.h"
 #include "ITL_field_regular.h"
 #include "ITL_globalentropy.h"
 
@@ -35,13 +36,17 @@ list<string> argValues;
 char* inputFieldFile = NULL; 	
 char* patchFile = NULL;
 
-SCALAR *scalarFieldData = NULL;
-VECTOR3 *vectorFieldData = NULL;
+SCALAR* scalarFieldData = NULL;
+VECTOR3* vectorFieldData = NULL;
 
 ITL_histogram *histogram = NULL;
+ITL_histogrammapper<SCALAR>* histMapper_scalar = NULL;
+ITL_histogrammapper<VECTOR3>* histMapper_vector = NULL;
 
 ITL_field_regular<SCALAR> *scalarField = NULL;
 ITL_field_regular<VECTOR3> *vectorField = NULL;
+
+ITL_field_regular<int> *binField = NULL;
 
 ITL_globalentropy<SCALAR> *globalEntropyComputer_scalar = NULL;
 ITL_globalentropy<VECTOR3> *globalEntropyComputer_vector = NULL;
@@ -70,20 +75,23 @@ clock_t starttime, endtime;
 //
 // returns: pointer to resulting merged item
 //
-char *ComputeMerge(char **items, int nitems) {
-
-  // the result of the merge: type must match items in calling function--
-  // we have casted away the compiler's type-checking and are on our own
-  int *res = new int[nBin];
-
-  memset(res, 0, nBin * sizeof(int));
-  for (int i = 0; i < nitems; i++) {
-    for (int j = 0; j < nBin; j++)
-      res[j] += ((int **)items)[i][j];
-  }
-
-  return(char*)res; // cast back to char* before returning
-
+void
+ComputeMerge(char **items, int* gids, int nitems)
+{
+	// the result of the merge: type must match items in calling function--
+	// we have casted away the compiler's type-checking and are on our own
+	//int *res = new int[nBin];
+	//memset(res, 0, nBin * sizeof(int));
+	//for (int i = 0; i < nitems; i++) {
+	// for (int j = 0; j < nBin; j++)
+	//    res[j] += ((int **)items)[i][j];
+	//}
+	//return(char*)res; // cast back to char* before returning
+	for (int i = 1; i < nitems; i++)
+	{
+		for (int j = 0; j < nBin; j++)
+			((int **)items)[0][j] += ((int **)items)[i][j];
+	}
 }
 //
 // user-defined callback function for creating a received item
@@ -96,7 +104,9 @@ char *ComputeMerge(char **items, int nitems) {
 //
 // returns: pointer to the item
 //
-char *CreateItem(int *hdr) {
+char*
+CreateItem(int *hdr)
+{
 
   int *bins = new int[nBin]; // DIY will free this resource for you
   return (char *)bins;
@@ -109,10 +119,10 @@ char *CreateItem(int *hdr) {
 //
 // side effects: deletes the item
 //
-void DeleteItem(char *item) {
-
+void
+DeleteItem(char *item)
+{
   delete[] item;
-
 }
 //
 // user-defined callback function for creating an MPI datatype for the
@@ -128,26 +138,31 @@ void DeleteItem(char *item) {
 //
 // returns: pointer to the datatype
 //
-void *CreateType(void *item, MPI_Datatype *dtype) {
+void*
+CreateType(void *item, DIY_Datatype *dtype )
+{
 
-  //MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
-  //MPI_Type_contiguous(nBin, MPI_INT, dtype);
-  //MPI_Type_commit(dtype); // DIY will free this resource for you
-  //abs_addr = false;
-  //return dtype;
-  struct map_block_t map[1] = {
-	{MPI_INT, OFST, nBin, 0, 1},
-   };	
-  DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
-  
-  return MPI_BOTTOM;
+	//MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
+	//MPI_Type_contiguous(nBin, MPI_INT, dtype);
+	//MPI_Type_commit(dtype); // DIY will free this resource for you
+	//abs_addr = false;
+	//return dtype;
+	//struct map_block_t map[1] = {
+	//	{MPI_INT, OFST, nBin, 0, 1},
+	// };
+  	//DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
+  	//return MPI_BOTTOM;
+
+	DIY_Create_vector_datatype( nBin, 1, DIY_INT, dtype );
+	return item;
 }
 
 /**
  * Main function.
  * Program starts from here.
  */
-int main( int argc, char** argv )
+int
+main( int argc, char** argv )
 {
 	int numProcs;
 	int rank;
@@ -199,6 +214,12 @@ int main( int argc, char** argv )
 
 	// Initialize histogram
 	histogram = new ITL_histogram( patchFile, nBin );
+
+	// Initialize data to histogram converter
+	if( fieldType == 0 )
+		histMapper_scalar = new ITL_histogrammapper<SCALAR>( histogram );
+	else if( fieldType == 1 )
+		histMapper_vector = new ITL_histogrammapper<VECTOR3>( histogram );
 
 	// Initialize DIY after initializing MPI
 	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
@@ -280,32 +301,46 @@ int main( int argc, char** argv )
 
 		if( fieldType == 0 )
 		{
-						
 
 			// Initialize ITL scalar field with block data
+			cout << "-4" << endl;
 			scalarField = new ITL_field_regular<SCALAR>( data[k], nDim, lowF, highF );
-	
-			// Initialize class that can compute entropy
-			globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( scalarField, histogram );
+			SCALAR m = ITL_util<SCALAR>::Min( data[k], 64*64*64 );
+			SCALAR M = ITL_util<SCALAR>::Max( data[k], 64*64*64 );
+			cout << m << " " << M << endl;
 
+			cout << "-3" << endl;
 			if( histogramLowEnd != histogramHighEnd )
-				globalEntropyComputer_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );				
+				histMapper_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );
 
 			// Create bin field (Local analysis)
-			globalEntropyComputer_scalar->computeHistogramBinField( "scalar", nBin );
+			cout << "-2" << endl;
+			histMapper_scalar->computeHistogramBinField_Scalar( scalarField, &binField, nBin );
+
+			// Initialize class that can compute entropy
+			cout << "-1" << endl;
+			globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( binField, histogram, nBin );
 
 			// Compute frequencies
-			globalEntropyComputer_scalar->computeHistogramFrequencies( nBin );
+			cout << "0" << endl;
+			globalEntropyComputer_scalar->computeHistogramFrequencies();
 
 			// Get histogram frequencies
+			cout << "1" << endl;
 			freqList[k] = new int[nBin];
-			globalEntropyComputer_scalar->getHistogramFrequencies( nBin, freqList[k] );
-		        //for (int i = 0; i < nBin; i++)
-	     		//	fprintf(stderr, "freq[%d] = %d\n", i, freqList[k][i]);
+			globalEntropyComputer_scalar->getHistogramFrequencies( freqList[k] );
+		    //for (int i = 0; i < nBin; i++)
+	     	//	fprintf(stderr, "freq[%d] = %d\n", i, freqList[k][i]);
+			cout << "2" << endl;
 
 			// Clear up
 			delete globalEntropyComputer_scalar;
+			delete binField;
+			binField = NULL;
 			delete scalarField;
+
+			cout << "3" << endl;
+
 		}
 		if( fieldType == 1 )
 		{
@@ -313,18 +348,18 @@ int main( int argc, char** argv )
 			// Initialize ITL vector field with block data
 			vectorField = new ITL_field_regular<VECTOR3>( vectordata[k], nDim, lowF, highF );
 
-			// Initialize class that can compute entropy
-			globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
-
 			// Create bin field (local analysis)
-			globalEntropyComputer_vector->computeHistogramBinField( "vector", nBin );
+			histMapper_vector->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+
+			// Initialize class that can compute entropy
+			globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
 
 			// Compute frequencies
-			globalEntropyComputer_vector->computeHistogramFrequencies( nBin );
+			globalEntropyComputer_vector->computeHistogramFrequencies();
 
 			// Get histogram frequencies
 			freqList[k] = new int[nBin];	
-			globalEntropyComputer_vector->getHistogramFrequencies( nBin, freqList[k] );
+			globalEntropyComputer_vector->getHistogramFrequencies( freqList[k] );
 
 			// Clear up
 			delete globalEntropyComputer_vector;
@@ -334,7 +369,13 @@ int main( int argc, char** argv )
 	}// End for loop
 
 	// Merge the local analyses
-	DIY_Merge_blocks( (char**)freqList, (int **)NULL, nblocks, (char***)&hist, rounds, kvalues, &ComputeMerge, &CreateItem, &DeleteItem, &CreateType, &nb_merged );
+	cout << "Merging " << endl;
+	DIY_Merge_blocks( (char**)freqList, (int **)NULL, //nblocks, (char***)&hist,
+					  rounds, kvalues,
+					  &ComputeMerge,
+					  &CreateItem,// &DeleteItem,
+					  &CreateType, &nb_merged );
+	cout << "Merged " << endl;
 
 	//for (int b = 0; b < nb_merged; b++) {
 	// for (int i = 0; i < nBin; i++)
@@ -344,21 +385,23 @@ int main( int argc, char** argv )
 	// Compute global entropy of the merged blocks
 	if (nb_merged)
 	{		
+		assert( hist != NULL );
+		cout << "adding frequencies " << nb_merged << endl;
 		for( int k=0; k<nb_merged; k++ )
 		{			
-
 			if( verboseMode == 1 )
 			{			
 				for( int p=0; p<nBin;p++ )
-					printf( "%d, ", hist[k][p] );
+					printf( "%d, ", freqList[k][p] );
 				printf( "\n" );
 			}
 	
 			// Directly compute entropy
-			globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( hist[k], dataSize[0]*dataSize[1]*dataSize[2], nBin, false );
+			cout << dataSize[0] << " " << dataSize[1] << " " << dataSize[2] << endl;
+			globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( freqList[k], dataSize[0]*dataSize[1]*dataSize[2], nBin, false );
 
 			// Print entropy	
-			//printf( "Global Entropy: %f\n", globalEntropy );
+			printf( "Global Entropy: %f\n", globalEntropy );
 		}
 	}
 	execTime[1] = ITL_util<float>::endTimer( starttime );
@@ -378,7 +421,7 @@ int main( int argc, char** argv )
 
 	// Finalize BIL
 	if( fieldType == 1 ) MPI_Type_free( &complex );
-	BIL_Finalize();
+	DIY_Finalize();
 
 	// Finalize MPI
 	MPI_Finalize();

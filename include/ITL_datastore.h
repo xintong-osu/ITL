@@ -135,6 +135,17 @@ public:
 		array = ptr;
 	}
 
+	virtual void
+	setDataFull( T* ptr, int ndata )
+	{
+		nel = ndata;
+		if( this->array != NULL )
+			delete [] this->array;
+		this->array = new T[nel];
+		memcpy( this->array, ptr, sizeof(T)*nel );
+	}
+
+
 	/**
 	 * Data accessor function.
 	 * @return Pointer to data.

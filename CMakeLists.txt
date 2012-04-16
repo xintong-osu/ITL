@@ -32,14 +32,18 @@ set(WITH_ZLIB   OFF CACHE BOOL "whether ZLIB is used") # ADD-BY-ABON 11/07/2011-
 set(ZLIB_DIR 	"/usr/local/zlib" CACHE PATH "The path to zlib")
 # ADD-BY-ABON 11/07/2011-END
 
+# Set Matlab engine
+set( MATENGINE_INC_DIR "/home/abon/install/matlabr2011b/extern/include" CACHE PATH "Path to Matlab engine" )
+set( MATENGINE_LIB_DIR "/home/abon/install/matlabr2011b/bin/glnxa64" CACHE PATH "Path to Matlab engine libs" )
+
 # set the path of DIY files
 set(DIY_INC "${DIY_DIR}/include")  
 set(DIY_LIB "${DIY_DIR}/lib")  
 
 # ADD-BY-ABON 11/07/2011-BEGIN
 # set the path of BIL files
-set(BIL_INC "${DIY_DIR}/src/bil-0.6.0/src")  
-set(BIL_LIB "${DIY_DIR}/src/bil-0.6.0" )
+set(BIL_INC "${DIY_DIR}/src/bil-0.6.0/src" CACHE PATH "The path to bil headers" )  
+set(BIL_LIB "${DIY_DIR}/src/bil-0.6.0" CACHE PATH "The path to bil library" )
 # ADD-BY-ABON 11/07/2011-END
 
 # ADD-BY-ABON 11/07/2011-BEGIN
@@ -98,6 +102,7 @@ if( ${BUILD_DIY_EXAMPLES} )
 	add_subdirectory (examples/ApplicationIT_diy_blockwise)
 	add_subdirectory (examples/ApplicationIT_diy_local)
 	# DEL-BY-LEEETEN 01/04/2012: add_subdirectory (examples/ApplicationIT_diy_local_communication)
+	add_subdirectory (examples/ApplicationIT_diy_crossvalidate)	
 endif()
 # ADD-BY-ABON 11/07/2011-END
 

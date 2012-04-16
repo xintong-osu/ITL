@@ -1,5 +1,5 @@
 # Input scalar field. Use raw file without any header when DIY is being used.
-inputField ../../sampledata/fuel.raw
+inputField /home/abon/code/chaudhua/itl_repo/sampledata/fuel.raw
 
 # Type of the field. 0 for scalar, 1 for vector.
 fieldType 0
@@ -21,9 +21,16 @@ nX 64
 nY 64
 nZ 64
 
+# Value Range
+histLow 0
+histHigh 255
+
 # Total number of blocks across all processors.
 # Required only if DIY is being used.
-nBlock 9
+nBlock 16
+
+# Thickness of ghost layer for each block
+neighborhoodSize 6
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
 verbose 1

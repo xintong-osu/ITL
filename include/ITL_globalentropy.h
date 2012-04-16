@@ -9,6 +9,7 @@
 #define ITL_GLOBALENTROPY_H_
 
 #include "ITL_header.h"
+#include "ITL_field_unstructured.h"
 #include "ITL_field_regular.h"
 #include "ITL_histogram.h"
 #include "ITL_histogrammapper.h"
@@ -91,8 +92,7 @@ public:
 			// Check if frequencies are already computed from bin Ids
 			// If not, only then compute frequencies from bin Ids
 			computeHistogramFrequencies();
-			printf( "hi2\n" );
-			
+
 			// Compute entropy from frequency list			
 			globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( freqList,
 										  binData->getSize(), nBin, toNormalize );
@@ -171,9 +171,7 @@ public:
 		assert( freqList != NULL );
 		assert( normFreqList != NULL );
 
-		printf( "hi 1\n" );
 		ITL_histogrammapper<int>::computeHistogramFrequencies( &binData, freqList, nBin );
-		printf( "hi 2\n" );
 
 		// Normalize the frequencies
 		float nPoint = (float)binData->getSize();

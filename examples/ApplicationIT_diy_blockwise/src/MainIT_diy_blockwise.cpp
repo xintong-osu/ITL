@@ -21,8 +21,9 @@
 #include "ITL_util.h"
 #include "ITL_ioutil.h"
 #include "ITL_vectormatrix.h"
-#include "ITL_histogram.h"
 #include "ITL_histogramconstants.h"
+#include "ITL_histogram.h"
+#include "ITL_histogrammapper.h"
 #include "ITL_field_regular.h"
 #include "ITL_globalentropy.h"
 
@@ -44,9 +45,13 @@ SCALAR *scalarFieldData = NULL;
 VECTOR3 *vectorFieldData = NULL;
 
 ITL_histogram *histogram = NULL;
+ITL_histogrammapper<SCALAR>* histMapper_scalar = NULL;
+ITL_histogrammapper<VECTOR3>* histMapper_vector = NULL;
 
 ITL_field_regular<SCALAR> *scalarField = NULL;
 ITL_field_regular<VECTOR3> *vectorField = NULL;
+
+ITL_field_regular<int> *binField = NULL;
 
 ITL_globalentropy<SCALAR> *globalEntropyComputer_scalar = NULL;
 ITL_globalentropy<VECTOR3> *globalEntropyComputer_vector = NULL;
@@ -75,19 +80,21 @@ clock_t starttime, endtime;
 //
 // returns: pointer to the datatype
 //
-void *CreateType(void *item, MPI_Datatype *dtype) {
-
-  //MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
-  //MPI_Type_contiguous(nBin, MPI_INT, dtype);
-  //MPI_Type_commit(dtype); // DIY will free this resource for you
-  //abs_addr = false;
-  //return dtype;
-  struct map_block_t map[1] = {
-	{MPI_FLOAT, OFST, nblocks, 0, 1},
-  };	
-  DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
+void *CreateType(void *item, DIY_Datatype *dtype)
+{
+	//MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
+	//MPI_Type_contiguous(nBin, MPI_INT, dtype);
+	//MPI_Type_commit(dtype); // DIY will free this resource for you
+	//abs_addr = false;
+	//return dtype;
+	//struct map_block_t map[1] = {
+	//	{MPI_FLOAT, OFST, nblocks, 0, 1},
+	//};
+	//DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
+	//return MPI_BOTTOM;
   
-  return MPI_BOTTOM;
+	DIY_Create_vector_datatype( nblocks, 1, DIY_FLOAT, dtype );
+	return item;
 }
 
 /**
@@ -148,9 +155,17 @@ int main( int argc, char** argv )
 	// Initialize histogram
 	histogram = new ITL_histogram( patchFile, nBin );
 
+	// Initialize data to histogram converter
+	if( fieldType == 0 )
+		histMapper_scalar = new ITL_histogrammapper<SCALAR>( histogram );
+	else if( fieldType == 1 )
+		histMapper_vector = new ITL_histogrammapper<VECTOR3>( histogram );
+	//cout << "-5" << endl;
+
 	// Open file to dump output only if program running on single processor
 	FILE *dumpFile = NULL;	
 	if( numProcs == 1 && verboseMode == 1 )	dumpFile = fopen( "./dump.csv", "w" );
+	//cout << "-4" << endl;
 
 	if( parallelOpMode == NO_DIY )
 	{
@@ -158,23 +173,28 @@ int main( int argc, char** argv )
 		highF[0] = (float)(dataSize[0]-1);
 		highF[1] = (float)(dataSize[1]-1);
 		highF[2] = (float)(dataSize[2]-1);
-				
+		//cout << "-3" << endl;
+
 		// Compute total number of blocks to be created
 		nblocks = nPartition[0] * nPartition[1] * nPartition[2];
+		//cout << "-2" << endl;
 		
 		if( fieldType == 0 )
 		{
 			// Read data and create ITL field
 			scalarFieldData = ITL_ioutil<SCALAR>::readFieldBinarySerial( inputFieldFile, nDim, (int*)dataSize );
 			scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF );
+			//cout << "-1" << endl;
 
 			// Alocate memory for array of partitions (sub-fields)
+			//cout << "0: " << nblocks << endl;
 			subScalarFieldArray = new ITL_field_regular<SCALAR>[nblocks];
 
 			// Partition field
-			scalarField->partitionField( nPartition, subScalarFieldArray );
+			//cout << "1" << endl;
+			scalarField->partitionField( nPartition, &subScalarFieldArray );
 		}
-		if( fieldType == 1 )
+		else if( fieldType == 1 )
 		{
 			// Read data and create ITL field
 			vectorFieldData = ITL_ioutil<VECTOR3>::readFieldBinarySerial( inputFieldFile, nDim, (int*)dataSize );
@@ -184,10 +204,11 @@ int main( int argc, char** argv )
 			subVectorFieldArray = new ITL_field_regular<VECTOR3>[nblocks];
 
 			// Partition field
-			vectorField->partitionField( nPartition, subVectorFieldArray );
+			vectorField->partitionField( nPartition, &subVectorFieldArray );
 		}
 
 		// Go through each block and compute entropy
+		//cout << "2" << endl;
 		globalEntropyList = new float[nblocks];
 		
 		// Read data for local blocks using MPI-IO
@@ -196,80 +217,87 @@ int main( int argc, char** argv )
 			if( fieldType == 0 )
 			{
 			
-				// Initialize class that can compute entropy
-				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( (subScalarFieldArray+i), histogram );
-				 
 				// Create bin field (Specify range if required)
-				if( histogramLowEnd != histogramHighEnd )	globalEntropyComputer_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );
-				globalEntropyComputer_scalar->computeHistogramBinField( "scalar", nBin );
-				 
+				//cout << "3" << endl;
+				if( histogramLowEnd != histogramHighEnd )
+					histMapper_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );
+				//cout << "4" << endl;
+				histMapper_scalar->computeHistogramBinField_Scalar( (subScalarFieldArray+i), &binField, nBin );
+
+				// Initialize class that can compute entropy
+				//cout << "5" << endl;
+				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( binField, histogram, nBin );
+
 				// Compute entropy
-				globalEntropyComputer_scalar->computeGlobalEntropyOfField( nBin, false, 0 );
+				//cout << "6" << endl;
+				globalEntropyComputer_scalar->computeGlobalEntropyOfField( false );
 
 				// Print global entropy
+				//cout << "7" << endl;
 				globalEntropyList[i] = globalEntropyComputer_scalar->getGlobalEntropy();
 
+				int lowInt[3], highInt[3];
+				subScalarFieldArray[i].getBounds( lowInt, highInt );
 				printf( "Block Limit: %d, %d, %d, %d, %d, %d, Global Entropy: %f\n", 
-						subScalarFieldArray[i].grid->lowInt[0],
-						subScalarFieldArray[i].grid->highInt[0],
-						subScalarFieldArray[i].grid->lowInt[1],
-						subScalarFieldArray[i].grid->highInt[1],
-						subScalarFieldArray[i].grid->lowInt[2],
-						subScalarFieldArray[i].grid->highInt[2],
+						lowInt[0], highInt[0],
+						lowInt[1], highInt[1],
+						lowInt[2], highInt[2],
 						globalEntropyList[i] );
 	
-				
+				//cout << "8" << endl;
 				if( numProcs == 1 && verboseMode == 1)			
 				fprintf( dumpFile, "%d, %d, %d, %d, %d, %d, %f\n", 
-						subScalarFieldArray[i].grid->lowInt[0], subScalarFieldArray[i].grid->highInt[0], \
-						subScalarFieldArray[i].grid->lowInt[1],	subScalarFieldArray[i].grid->highInt[1], \
-						subScalarFieldArray[i].grid->lowInt[2], subScalarFieldArray[i].grid->highInt[2], \
-						globalEntropyList[i] );
+						lowInt[0], highInt[0],
+						lowInt[1], highInt[1],
+						lowInt[2], highInt[2],
+						 globalEntropyList[i] );
  
 
 				// clear up memory
+				//cout << "9" << endl;
 				delete globalEntropyComputer_scalar;
+				delete binField;
+				binField = NULL;
+				//delete [] scalarFieldArray;
+
+				//cout << "10" << endl;
 			}
-			if( fieldType == 1 )
+			else if( fieldType == 1 )
 			{
-				// Initialize class that can compute entropy
-				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( (subVectorFieldArray+i), histogram );
-				 
 				// Create bin field (Specify range if required)
-				//if( histogramLowEnd != histogramHighEnd )	globalEntropyComputer_vector->setHistogramRange( histogramLowEnd, histogramHighEnd );
-				globalEntropyComputer_vector->computeHistogramBinField( "vector", nBin );
-				 
+				histMapper_vector->computeHistogramBinField_Vector( (subVectorFieldArray+i), &binField, nBin );
+
+				// Initialize class that can compute entropy
+				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
+
 				// Compute entropy
-				globalEntropyComputer_vector->computeGlobalEntropyOfField( nBin, false, 0 );
+				globalEntropyComputer_vector->computeGlobalEntropyOfField( false );
 
 				// Print global entropy
+				int lowInt[3], highInt[3];
+				subVectorFieldArray[i].getBounds( lowInt, highInt );
 				globalEntropyList[i] = globalEntropyComputer_vector->getGlobalEntropy();
 				printf( "Block Limit: %d, %d, %d, %d, %d, %d, Global Entropy: %f\n", 
-						subVectorFieldArray[i].grid->lowInt[0],
-						subVectorFieldArray[i].grid->highInt[0],
-						subVectorFieldArray[i].grid->lowInt[1],
-						subVectorFieldArray[i].grid->highInt[1],
-						subVectorFieldArray[i].grid->lowInt[2],
-						subVectorFieldArray[i].grid->highInt[2],
+						lowInt[0], highInt[0],
+						lowInt[1], highInt[1],
+						lowInt[2], highInt[2],
 						globalEntropyList[i] );
 
 				if( numProcs == 1 && verboseMode == 1 )	
 					fprintf( dumpFile, "%d, %d, %d, %d, %d, %d, %f\n", 
-						subVectorFieldArray[i].grid->lowInt[0],
-						subVectorFieldArray[i].grid->highInt[0],
-						subVectorFieldArray[i].grid->lowInt[1],
-						subVectorFieldArray[i].grid->highInt[1],
-						subVectorFieldArray[i].grid->lowInt[2],
-						subVectorFieldArray[i].grid->highInt[2],
-						globalEntropyList[i] );
+							lowInt[0], highInt[0],
+							lowInt[1], highInt[1],
+							lowInt[2], highInt[2],
+							 globalEntropyList[i] );
  
 				// clear up memory
 				delete globalEntropyComputer_vector;
+				delete binField;
+				binField = NULL;
 
 			}
 
 		}// end for
-
 		
 		// Clear up memory
 		if( subScalarFieldArray != NULL )delete [] subScalarFieldArray;
@@ -294,9 +322,9 @@ int main( int argc, char** argv )
   		DIY_Decompose( 1, 0, 0, given );
 
 		// Allocate memory for pointers that will hold block data
-		float* data[nblocks];	
+		SCALAR* data[nblocks];
 		VECTOR3* vectordata[nblocks];		
-		if( fieldType == 0 ) memset( data, 0, sizeof(float*) * nblocks );
+		if( fieldType == 0 ) memset( data, 0, sizeof(SCALAR*) * nblocks );
 		if( fieldType == 1 ) memset( vectordata, 0, sizeof(VECTOR3*) * nblocks );
 
 		// Serially visit the blocks (?)
@@ -306,15 +334,20 @@ int main( int argc, char** argv )
        	
  		for (int i = 0; i < nblocks; i++)
 		{ 
-    			DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
-  		
+    		// Allocate memory for block
+ 			DIY_Block_starts_sizes( i, &diy_min[3*i], &diy_size[3*i] );
+ 			//if( fieldType == 0 )
+ 			//	data[i] = new SCALAR[diy_size[3*i] * diy_size[3*i+1] * diy_size[3*i+2]];
+ 			//else if( fieldType == 1 )
+ 			//	vectordata[i] = new VECTOR3[diy_size[3*i] * diy_size[3*i+1] * diy_size[3*i+2]];
+
   			// post a read for the block
-    			if( fieldType == 0 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(data[i]));
-     			if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(vectordata[i]));
+    		if( fieldType == 0 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
+     		if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(vectordata[i]));
 
 			// print the block bounds
-    			for (int j = 0; j < 3; j++)
-      				diy_max[3*i+j] = diy_min[3*i+j] + diy_size[3*i+j] - 1;
+    		for (int j = 0; j < 3; j++)
+      			diy_max[3*i+j] = diy_min[3*i+j] + diy_size[3*i+j] - 1;
     
 			if( verboseMode == 1 )
 				printf("process rank = %d "
@@ -326,13 +359,20 @@ int main( int argc, char** argv )
 					diy_min[3*i], diy_min[3*i+1], diy_min[3*i+2], 
 					diy_max[3*i], diy_max[3*i+1], diy_max[3*i+2], 
 					diy_size[3*i], diy_size[3*i+1], diy_size[3*i+2] );
+
+			//SCALAR m = ITL_util<SCALAR>::Min( data[i], 64*64*64 );
+			//SCALAR M = ITL_util<SCALAR>::Max( data[i], 64*64*64 );
+			//cout << m << " " << M << endl;
   		}
+
+
 
 		// Read actual data (everyone synchronizes after reading data)
 		starttime = ITL_util<float>::startTimer();	
 		DIY_Read_all();
 		execTime[0] = ITL_util<float>::endTimer( starttime );	
-		if( verboseMode == 1 )	printf( "Data read complete .. al processes synced\n" );
+
+		if( verboseMode == 1 )	printf( "Data read complete .. all processes synced\n" );
 
 		// Allocate memory for storing blockwise global entropies 		
 		globalEntropyList = new float[nblocks];
@@ -350,31 +390,39 @@ int main( int argc, char** argv )
 			{
 				// Initialize ITL scalar field with block data
 				scalarField = new ITL_field_regular<SCALAR>( data[k], nDim, lowF, highF );
+				#ifdef DEBUG_MODE
+				SCALAR m = ITL_util<SCALAR>::Min( data[k], 64*64*64 );
+				SCALAR M = ITL_util<SCALAR>::Max( data[k], 64*64*64 );
+				printf( "Block value range: %g %g\n", m, M );
+				#endif
 		
-				// Initialize class that can compute entropy
-				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( scalarField, histogram );
-
 				// Create bin field
-				globalEntropyComputer_scalar->computeHistogramBinField( "scalar", nBin );
+				histMapper_scalar->computeHistogramBinField_Scalar( scalarField, &binField, nBin );
+
+				// Initialize class that can compute entropy
+				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( binField, histogram, nBin );
 
 				// Compute entropy 
-				globalEntropyComputer_scalar->computeGlobalEntropyOfField( nBin, false, 0 );
-
+				globalEntropyComputer_scalar->computeGlobalEntropyOfField( false );
 
 				// Print global entropy
 				globalEntropyList[k] = globalEntropyComputer_scalar->getGlobalEntropy(); 
+
 				if( verboseMode == 1 ) 
-					printf( "Block Limits: %d, %d, %d, %d, %d, %d, Global entropy: %f\n", diy_min[3*k], diy_max[3*k], \
+					printf( "Block Limits: %d, %d, %d, %d, %d, %d, Global entropy: %g\n", diy_min[3*k], diy_max[3*k], \
 													     diy_min[3*k+1], diy_max[3*k+1], \
 													     diy_min[3*k+2], diy_max[3*k+2], globalEntropyList[k] );
 				if( numProcs == 1 && verboseMode == 1 )
-					fprintf( dumpFile, "%d, %d, %d, %d, %d, %d, %f\n", diy_min[3*k], diy_max[3*k], \
+					fprintf( dumpFile, "%d, %d, %d, %d, %d, %d, %g\n", diy_min[3*k], diy_max[3*k], \
 											 diy_min[3*k+1], diy_max[3*k+1], \
 											 diy_min[3*k+2], diy_max[3*k+2], globalEntropyList[k] );
- 
+
 				// Clear up
 				delete globalEntropyComputer_scalar;
+				delete binField;
+				binField = NULL;
 				delete scalarField;
+
 			}
 			if( fieldType == 1 )
 			{
@@ -382,14 +430,14 @@ int main( int argc, char** argv )
 				// Initialize ITL vector field with block data
 				vectorField = new ITL_field_regular<VECTOR3>( vectordata[k], nDim, lowF, highF );
 
-				// Initialize class that can compute entropy
-				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( vectorField, histogram );
-
 				// Create bin field
-				globalEntropyComputer_vector->computeHistogramBinField( "vector", nBin );
+				histMapper_vector->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+
+				// Initialize class that can compute entropy
+				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
 	
 				// Compute entropy
-				globalEntropyComputer_vector->computeGlobalEntropyOfField( nBin, false, 0 );
+				globalEntropyComputer_vector->computeGlobalEntropyOfField( false );
 
 				// Print global entropy
 				globalEntropyList[k] = globalEntropyComputer_vector->getGlobalEntropy(); 
@@ -409,7 +457,6 @@ int main( int argc, char** argv )
 
 		}// End for loop
 		execTime[1] = ITL_util<float>::endTimer( starttime );
-
 	
 		// Write global entropy 
 		if( verboseMode == 1 ) printf( "Writing blockwise global entropy ...\n" );
@@ -435,7 +482,7 @@ int main( int argc, char** argv )
 
 		// Runtime
 		if( verboseMode == 1 ) 	printf( "%d: Read/Computation Time: %f, %f seconds\n", rank, execTime[0], execTime[1] );
-		else 			printf( "%d, %f, %f, %f\n", rank, execTime[0], execTime[1], execTime[2] );
+		else 					printf( "%d, %f, %f, %f\n", rank, execTime[0], execTime[1], execTime[2] );
 		
 		// Clear up
 		delete [] diy_min;

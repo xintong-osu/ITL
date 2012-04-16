@@ -20,8 +20,9 @@
 #include "ITL_util.h"
 #include "ITL_ioutil.h"
 #include "ITL_vectormatrix.h"
-#include "ITL_histogram.h"
 #include "ITL_histogramconstants.h"
+#include "ITL_histogram.h"
+#include "ITL_histogrammapper.h"
 #include "ITL_field_regular.h"
 #include "ITL_localentropy.h"
 
@@ -36,12 +37,16 @@ char* outFile = NULL;
 char* patchFile = NULL;
 
 ITL_histogram *histogram = NULL;
+ITL_histogrammapper<SCALAR>* histMapper_scalar = NULL;
+ITL_histogrammapper<VECTOR3>* histMapper_vector = NULL;
 
 SCALAR *scalarFieldData = NULL;
 VECTOR3 *vectorFieldData = NULL;
 
 ITL_field_regular<SCALAR> *scalarField = NULL;
 ITL_field_regular<VECTOR3> *vectorField = NULL;
+
+ITL_field_regular<int> *binField = NULL;
 
 ITL_localentropy<SCALAR> *localEntropyComputer_scalar = NULL;
 ITL_localentropy<VECTOR3> *localEntropyComputer_vector = NULL;
@@ -66,14 +71,17 @@ clock_t starttime, endtime;
 //
 // returns: pointer to the datatype
 //
-void *CreateType(void *item, MPI_Datatype *dtype) {
+void *CreateType( void *item, DIY_Datatype *dtype )
+{
+	//struct map_block_t map[1] = {
+	//{MPI_FLOAT, OFST, dataSize[0]*dataSize[1]*dataSize[2]+6, 0, 1},
+	//};
+	//DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
+	//return MPI_BOTTOM;
 
-  struct map_block_t map[1] = {
-	{MPI_FLOAT, OFST, dataSize[0]*dataSize[1]*dataSize[2]+6, 0, 1},
-  };	
-  DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
-  
-  return MPI_BOTTOM;
+	DIY_Create_vector_datatype( dataSize[0]*dataSize[1]*dataSize[2]+6, 1, DIY_FLOAT, dtype );
+	return item;
+
 }
 
 /**
@@ -101,6 +109,12 @@ int main( int argc, char** argv )
 
 	float lowF[3];
 	float highF[3];
+	int lowPad[3] = {0, 0, 0};
+	int highPad[3] = {0, 0, 0};
+	int paddedLow[3] = {0, 0, 0};
+	int paddedHigh[3] = {0, 0, 0};
+	int neighborhoodSizeArray[3] = {0, 0, 0};
+	int neighborhoodSize = 0;
 	float histogramLowEnd = 0;
 	float histogramHighEnd = 0;
 
@@ -119,10 +133,8 @@ int main( int argc, char** argv )
 	dataSize[0] = atoi( ITL_util<float>::getArgWithName( "nX", &argNames, &argValues ) );
 	dataSize[1] = atoi( ITL_util<float>::getArgWithName( "nY", &argNames, &argValues ) );
 	dataSize[2] = atoi( ITL_util<float>::getArgWithName( "nZ", &argNames, &argValues ) );
-	//given[0] = atoi( ITL_util<float>::getArgWithName( "givenX", &argNames, &argValues ) );
-	//given[1] = atoi( ITL_util<float>::getArgWithName( "givenY", &argNames, &argValues ) );
-	//given[2] = atoi( ITL_util<float>::getArgWithName( "givenZ", &argNames, &argValues ) );
 	tot_blocks = atoi( ITL_util<float>::getArgWithName( "nBlock", &argNames, &argValues ) );
+	neighborhoodSize = atoi( ITL_util<float>::getArgWithName( "neighborhoodSize", &argNames, &argValues ) );
 	histogramLowEnd = atof( ITL_util<float>::getArgWithName( "histLow", &argNames, &argValues ) );
 	histogramHighEnd = atof( ITL_util<float>::getArgWithName( "histHigh", &argNames, &argValues ) );
 	verboseMode = atoi( ITL_util<float>::getArgWithName( "verbose", &argNames, &argValues ) );
@@ -132,6 +144,12 @@ int main( int argc, char** argv )
 
 	// Initialize histogram
 	histogram = new ITL_histogram( patchFile, nBin );
+
+	// Initialize data to histogram converter
+	if( fieldType == 0 )
+		histMapper_scalar = new ITL_histogrammapper<SCALAR>( histogram );
+	else if( fieldType == 1 )
+		histMapper_vector = new ITL_histogrammapper<VECTOR3>( histogram );
 
 	// Allocate memory for pointers that will hold block data
 	MPI_Datatype complex;
@@ -145,10 +163,39 @@ int main( int argc, char** argv )
 	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
+	// Decompose domain (first without ghost layers)
+	DIY_Decompose( 0, 0, 0, given );
+
+	// Serially visit the blocks (?)
+	int* diy_min_noghost = new int[3*nblocks];
+	int* diy_max_noghost = new int[3*nblocks];
+	int* diy_size_noghost = new int[3*nblocks];
+
+	starttime = ITL_util<float>::startTimer();
+	for (int i = 0; i < nblocks; i++)
+	{
+		DIY_Block_starts_sizes(i, &diy_min_noghost[3*i], &diy_size_noghost[3*i] );
+
+		// print the block bounds
+		for (int j = 0; j < 3; j++)
+			diy_max_noghost[3*i+j] = diy_min_noghost[3*i+j] + diy_size_noghost[3*i+j] - 1;
+
+		if( verboseMode == 1 )
+			printf("process rank = %d "
+				"block local id = %d "
+				"min = [%d %d %d] "
+				"max = [%d %d %d] "
+				"size = [%d %d %d]\n",
+				rank, i,
+				diy_min_noghost[3*i], diy_min_noghost[3*i+1], diy_min_noghost[3*i+2],
+				diy_max_noghost[3*i], diy_max_noghost[3*i+1], diy_max_noghost[3*i+2],
+				diy_size_noghost[3*i], diy_size_noghost[3*i+1], diy_size_noghost[3*i+2] );
+	}
+
 	// Decompose domain (with ghost layers) 
 	// Note in the blocking call that we are not adding extra ghost cells, but we
 	// are sharing boundaries between blocks (share_face = 1)
-	DIY_Decompose( 0, 6, 0, given );
+	DIY_Decompose( 0, neighborhoodSize, 0, given );
 
 	// Allocate memory for pointers that will hold block data
 	float* data[nblocks];	
@@ -188,58 +235,90 @@ int main( int argc, char** argv )
 
 	// Read actual data (everyone synchronizes after reading data)
 	DIY_Read_all();
-	if( verboseMode == 1 )	printf( "Data read complete .. al processes synced\n" );
+	if( verboseMode == 1 )	printf( "Data read complete .. all processes synced\n" );
 	execTime[0] = ITL_util<float>::endTimer( starttime );
 
 	// Allocate memory for storing local entropy fields for each block 		
-	float *localEntropyList[nblocks];
+	SCALAR *localEntropyList[nblocks];
 
 	// Scan through the blocks, compute local entropy fields 
 	starttime = ITL_util<float>::startTimer();	
 	for( int k=0; k<nblocks; k++ )
 	{
 
-		lowF[0] = 0; 	highF[0] = diy_max[3*k] - diy_min[3*k];
-		lowF[1] = 0; 	highF[1] = diy_max[3*k+1] - diy_min[3*k+1];
-		lowF[2] = 0; 	highF[2] = diy_max[3*k+2] - diy_min[3*k+2];
+		//lowF[0] = 0; 	highF[0] = diy_max[3*k] - diy_min[3*k];
+		//lowF[1] = 0; 	highF[1] = diy_max[3*k+1] - diy_min[3*k+1];
+		//lowF[2] = 0; 	highF[2] = diy_max[3*k+2] - diy_min[3*k+2];
+		lowF[0] = diy_min_noghost[3*k]; 		highF[0] = diy_max_noghost[3*k];
+		lowF[1] = diy_min_noghost[3*k+1]; 	highF[1] = diy_max_noghost[3*k+1];
+		lowF[2] = diy_min_noghost[3*k+2]; 	highF[2] = diy_max_noghost[3*k+2];
 
 		if( fieldType == 0 )
 		{
 			// Initialize ITL scalar field with block data
+			cout << "0" << endl;
+			for( int i=0; i<nDim; i++ )
+			{
+				neighborhoodSizeArray[i] = neighborhoodSize;
+				paddedLow[i] = ITL_util<int>::clamp( (int)lowF[i] - neighborhoodSizeArray[i], 0, dataSize[i]-1 );
+				paddedHigh[i] = ITL_util<int>::clamp( (int)highF[i] + neighborhoodSizeArray[i], 0, dataSize[i]-1 );
 
-			scalarField = new ITL_field_regular<SCALAR>( data[k], nDim, lowF, highF );
+				lowPad[i] = (int)lowF[i] - paddedLow[i];
+				highPad[i] = paddedHigh[i] - (int)highF[i];
+
+				//lowF[i] = lowF[i] + lowPad[i];
+				//highF[i] = highF[i] - highPad[i];
+				//low[i] = low[i] + lowPad[i];
+				//high[i] = high[i] - highPad[i];
+
+
+			}// end for
+			scalarField = new ITL_field_regular<SCALAR>( data[k],
+														 nDim, lowF, highF,
+														 lowPad, highPad, neighborhoodSizeArray );
+			#ifdef DEBUG_MODE
+			SCALAR m = ITL_util<SCALAR>::Min( data[k], scalarField->getSize() );
+			SCALAR M = ITL_util<SCALAR>::Max( data[k], scalarField->getSize() );
+			printf( "Block value range: %g %g\n", m, M );
+			#endif
 	
-			// Initialize class that can compute entropy
-			localEntropyComputer_scalar = new ITL_localentropy<SCALAR>( scalarField, histogram );
-
 			// Create bin field
-			localEntropyComputer_scalar->computeHistogramBinField( "scalar", nBin );
+			cout << "1" << endl;
+			if( k == 0 && histogramLowEnd != histogramHighEnd )
+				histMapper_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );
+			histMapper_scalar->computeHistogramBinField_Scalar( scalarField, &binField, nBin );
 
-			// Compute entropy 
-			localEntropyComputer_scalar->computeEntropyOfField( nBin, false );
+			// Initialize class that can compute entropy
+			cout << "2" << endl;
+			localEntropyComputer_scalar = new ITL_localentropy<SCALAR>( binField, histogram, nBin );
+
+			// Compute entropy
+			cout << "3" << endl;
+			localEntropyComputer_scalar->computeLocalEntropyOfField( false );
 
 			// Save local entropy field
-			//localEntropyList[k] = new float[scalarField->grid->nVertices + 6];
+			cout << "5" << endl;
 			localEntropyList[k] = new float[dataSize[0]*dataSize[1]*dataSize[2]+6];
-			localEntropyList[k][0] = diy_min[3*k];
-			localEntropyList[k][1] = diy_min[3*k+1];
-			localEntropyList[k][2] = diy_min[3*k+2];
-			localEntropyList[k][3] = diy_max[3*k];
-			localEntropyList[k][4] = diy_max[3*k+1];
-			localEntropyList[k][5] = diy_max[3*k+2];
-			memcpy( localEntropyList[k]+6, localEntropyComputer_scalar->getEntropyField(), sizeof(SCALAR)*scalarField->grid->nVertices );
+			localEntropyList[k][0] = diy_min_noghost[3*k];
+			localEntropyList[k][1] = diy_min_noghost[3*k+1];
+			localEntropyList[k][2] = diy_min_noghost[3*k+2];
+			localEntropyList[k][3] = diy_max_noghost[3*k];
+			localEntropyList[k][4] = diy_max_noghost[3*k+1];
+			localEntropyList[k][5] = diy_max_noghost[3*k+2];
+			memcpy( localEntropyList[k]+6, localEntropyComputer_scalar->getEntropyField()->getDataFull(), sizeof(SCALAR)*scalarField->getSize() );
+			int lowInt[3], highInt[3];
+			scalarField->getBounds( lowInt, highInt );
 			if( verboseMode == 1 ) printf( "Block Limits: %d, %d, %d, %d, %d, %d, local entropy computed.\n",
-											scalarField->grid->lowInt[0],
-											scalarField->grid->highInt[0],
-											scalarField->grid->lowInt[1],
-											scalarField->grid->highInt[1],
-											scalarField->grid->lowInt[2],
-											scalarField->grid->highInt[2] );
-
+											lowInt[0], highInt[0],
+											lowInt[1], highInt[1],
+											lowInt[2], highInt[2] );
+			cout << "6" << endl;
 			float max = -100000.0f;
 			float min = 100000.0f;
-			for( int i=0; i<scalarField->grid->nVertices; i++ )
+			for( int i=0; i<scalarField->getSize(); i++ )
 			{
+				if( localEntropyList[k][i+6] > 7 || localEntropyList[k][i+6] < 0 )
+					cout << i <<  ": " << localEntropyList[k][i+6] << endl;
 				if( localEntropyList[k][i+6] > max ) max = localEntropyList[k][i+6];
 				if( localEntropyList[k][i+6] < min ) min = localEntropyList[k][i+6];
 			}
@@ -248,7 +327,10 @@ int main( int argc, char** argv )
 
 			// Clear up
 			delete localEntropyComputer_scalar;
+			delete binField;
+			binField = NULL;
 			delete scalarField;
+			cout << "8" << endl;
 		}
 		if( fieldType == 1 )
 		{
@@ -256,24 +338,24 @@ int main( int argc, char** argv )
 			// Initialize ITL vector field with block data
 			vectorField = new ITL_field_regular<VECTOR3>( vectordata[k], nDim, lowF, highF );
 
-			// Initialize class that can compute entropy
-			localEntropyComputer_vector = new ITL_localentropy<VECTOR3>( vectorField, histogram );
-
 			// Create bin field
-			localEntropyComputer_vector->computeHistogramBinField( "vector", nBin );
+			histMapper_vector->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+
+			// Initialize class that can compute entropy
+			localEntropyComputer_vector = new ITL_localentropy<VECTOR3>( binField, histogram, nBin );
 
 			// Compute entropy
-			localEntropyComputer_vector->computeEntropyOfField( nBin, false );
+			localEntropyComputer_vector->computeLocalEntropyOfField( false );
 
 			// Save entropy
-			localEntropyList[k] = new float[vectorField->grid->nVertices];			
-			memcpy( localEntropyList[k], localEntropyComputer_vector->getEntropyField(), sizeof(SCALAR)*vectorField->grid->nVertices ); 
-			if( verboseMode == 1 ) printf( "Block Limits: %d, %d, %d, %d, %d, %d, local entropy computed.\n", vectorField->grid->lowInt[0],
-															vectorField->grid->highInt[0],
-															vectorField->grid->lowInt[1],
-															vectorField->grid->highInt[1],
-															vectorField->grid->lowInt[2],
-															vectorField->grid->highInt[2] );
+			localEntropyList[k] = new float[vectorField->getSize()];
+			memcpy( localEntropyList[k], localEntropyComputer_vector->getEntropyField(), sizeof(SCALAR)*vectorField->getSize() );
+			int lowInt[3], highInt[3];
+			vectorField->getBounds( lowInt, highInt );
+			if( verboseMode == 1 ) printf( "Block Limits: %d, %d, %d, %d, %d, %d, local entropy computed.\n",
+										   lowInt[0], highInt[0],
+										   lowInt[1], highInt[1],
+										   lowInt[2], highInt[2] );
 
 			// Clear up
 			delete localEntropyComputer_vector;

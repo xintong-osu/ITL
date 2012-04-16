@@ -1,6 +1,6 @@
 CC = mpicxx
 CCFLAGS = -O0 -Wall -g
-INCLUDES += -I../../include 
+INCLUDES += -I/home/abon/build/diy/include
 #LIBDIRS += 
 #LIBS += 
 

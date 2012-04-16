@@ -76,7 +76,7 @@ int main( int argc, char** argv )
 		{
 			for( int y=blockLimitList[iB][1]; y<=blockLimitList[iB][4]; y++ )
 			{
-				for( int x=blockLimitList[iB][0]; x<=blockLimitList[iB][2]; x++ )
+				for( int x=blockLimitList[iB][0]; x<=blockLimitList[iB][3]; x++ )
 				{
 					//globalIndex = z*nX*nY + x*nY + y;
 					globalIndex = z*nX*nY + y*nX + x;

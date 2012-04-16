@@ -225,7 +225,7 @@ compute_globalentropy_serial()
 		assert( binField != NULL );
 		globalEntropyComputer = new ITL_globalentropy<SCALAR>( binField, histogram, nBin );
 		printf( "HI\n");
-		globalEntropyComputer->computeGlobalEntropyOfField( nBin, false );
+		globalEntropyComputer->computeGlobalEntropyOfField( false );
 
 		// Get histogram frequencies
 		int *freqList = new int[nBin];

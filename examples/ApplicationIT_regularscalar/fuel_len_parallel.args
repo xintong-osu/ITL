@@ -22,8 +22,8 @@ method 0
 # Number of blocks to be created along each dimension. 
 # One processor will process one block. So total number blocks should be equal to number of processors.
 nBlockX 2
-nBlockY 2
-nBlockZ 2
+nBlockY 1
+nBlockZ 1
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
 verbose 1

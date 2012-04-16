@@ -1,5 +1,5 @@
 # Input scalar field.
-inputField ../../sampledata/fuel.raw
+inputField /home/abon/code/chaudhua/itl_repo/sampledata/fuel.raw
 
 # Type of the field. 0 for scalar, 1 for vector.
 fieldType 0
@@ -13,7 +13,7 @@ nZ 64
 nDim 3
 
 # Number of bins of the histogram.
-nBin 10
+nBin 100
 
 #Lower and upper limits of the histogram range
 histLow 0
@@ -27,4 +27,4 @@ patchFile !
 nBlock 64
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
-verbose 0
+verbose 1

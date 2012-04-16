@@ -1,5 +1,8 @@
 # Input scalar field. Use .vol file when DIY is NOT being used.
-inputField ../../sampledata/fuel.vol
+inputField /home/abon/code/chaudhua/itl_repo/sampledata/fuel.vol
+
+# Type of the field. 0 for scalar, 1 for vector.
+fieldType 0
 
 # Number of dimensions of input scalar field.
 nDim 3
