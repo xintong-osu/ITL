@@ -1,5 +1,5 @@
-# Input vector field. Use raw file without any header when DIY is being used.
-inputField ../../sampledata/source_noheader.vec
+# Input vector field. 
+inputField ../../sampledata/source.vec
 
 # Type of the field. 0 for scalar, 1 for vector.
 fieldType 1 
@@ -30,4 +30,4 @@ nZ 64
 nBlock 64
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
-verbose 0
+verbose 1

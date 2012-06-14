@@ -28,6 +28,10 @@ public:
 
 	float* theta[5];					/**< Angle variable. Angle related to spherical coordinates. */
 	float* phi[5];						/**< Angle variable. Angle related to spherical coordinates. */
+	float* thetaCenter[5];				/**< Angle variable. Angle related to spherical coordinates. */
+	float* phiCenter[5];				/**< Angle variable. Angle related to spherical coordinates. */
+	VECTOR3* binCenter[5];
+
 
 	bool bIsAngleMapInitialized[5];	/**< Boolean flag. Flag is set if the angle maps have been initialized. */
 	bool bIsPatchRead;				/**< Boolean flag. Flag is set if the patch file has been read. */
@@ -71,7 +75,6 @@ public:
 	 */	
 	ITL_histogram( const char** patchfilename, int *nbin, int nresolution );
 	
-
 	/**
 	 * Histogram initialization function.
 	 * @param patchFileName Path of patch file on disc.
@@ -139,7 +142,6 @@ public:
 	 */
 	int get_bin_number_2D(VECTOR3 v, int nbin );
 
-
 	/**
 	 * Theta computation.
 	 * @param x x-component of vector
@@ -155,6 +157,16 @@ public:
 	 * @return Phi
 	 */
 	float getAngle2(float x, float y);
+
+	/**
+	 *
+	 */
+	VECTOR3 getBinCenter( int binId, int iRes = 0 );
+
+	/**
+	 *
+	 */
+	VECTOR3 getXYZ( float theta, float phi );
 
 	// ADD-BY-Tzu-Hsuan-BEGIN-02/13
 	int crossValidateSpeedUp( ITL_field_regular<SCALAR> *scalarField, char *fieldType, int nMax, int start, int step);

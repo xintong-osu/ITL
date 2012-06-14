@@ -16,7 +16,7 @@ nDim 3
 nBin 360
 
 # Neighborhood size of a block 
-neighborhoodSize 6
+neighborhoodSize 6 
 neighborhoodSizeX 6
 neighborhoodSizeY 6
 neighborhoodSizeZ 6

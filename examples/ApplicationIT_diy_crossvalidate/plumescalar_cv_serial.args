@@ -1,0 +1,30 @@
+functionType 0
+
+# Input scalar field. Use raw file without any header when DIY is being used.
+inputField /media/Data/Data/VolumeData/plume/15plume3d421.vol
+
+# Type of the field. 0 for scalar, 1 for vector.
+fieldType 0
+
+# Number of dimensions of input scalar field.
+nDim 3
+
+# Cross validation parameters
+nBinStart 100
+nIter 320
+step 100
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+# Size of input scalar field.
+nX 126
+nY 126
+nZ 512
+
+# Value Range
+histLow 0
+histHigh 20.834 
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1

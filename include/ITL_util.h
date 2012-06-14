@@ -217,6 +217,37 @@ public:
 	}// End function
 
 	/**
+	 * Interpolation (nearest neighbor
+	 */
+	static VECTOR3
+	interp_NN_vector( VECTOR3* array, float* f )
+	{
+		float dist[8];
+		dist[0] = sqrt( f[0]*f[0] + f[1]*f[1] + f[2]*f[2] );
+		dist[1] = sqrt( (1 - f[0])*(1 - f[0]) + f[1]*f[1] + f[2]*f[2] );
+		dist[2] = sqrt( (1 - f[0])*(1 - f[0]) + (1 - f[1])*(1 - f[1]) + f[2]*f[2] );
+		dist[3] = sqrt( f[0]*f[0] + (1 - f[1])*(1 - f[1]) + f[2]*f[2] );
+		dist[4] = sqrt( f[0]*f[0] + f[1]*f[1] + (1 - f[2])*(1 - f[2]) );
+		dist[5] = sqrt( (1 - f[0])*(1 - f[0]) + f[1]*f[1] + (1 - f[2])*(1 - f[2]) );
+		dist[6] = sqrt( (1 - f[0])*(1 - f[0]) + (1 - f[1])*(1 - f[1]) + (1 - f[2])*(1 - f[2]) );
+		dist[7] = sqrt( f[0]*f[0] + (1 - f[1])*(1 - f[1]) + (1 - f[2])*(1 - f[2]) );
+
+		float mD = dist[0];
+		int index = 0;
+		for( int i=0; i<8; i++ )
+		{
+			if( dist[i] < mD )
+			{
+				mD = dist[i];
+				index = i;
+			}
+		}
+
+		return array[index];
+
+	}// End function
+
+	/**
 	 * Start Time computation.
 	 */
 	static double startTimer()

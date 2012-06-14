@@ -184,7 +184,7 @@ void SER_IO<T>::ReadBlockData( FILE *fd, unsigned int blockPtr, T *blockEntropyF
 	// Move to the start of the block and skip the header, if any
 	fseek( fd, (long int)(blockPtr + HDR_SIZE), SEEK_SET );
 
-	printf( "%d %d\n", blockPtr, blockSize );
+	//printf( "%d %d\n", blockPtr, blockSize );
 
 	// Skip block limit
 	float blockLimit[6];

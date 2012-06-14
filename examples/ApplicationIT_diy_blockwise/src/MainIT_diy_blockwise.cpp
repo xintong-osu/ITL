@@ -6,9 +6,12 @@
  * @author Teng-Yok
  */
 
+//#define BYTE_SWAP
+
 #include <mpi.h>
 
 #include "diy.h"
+#include "util.hpp"
 #include "assignment.hpp"
 #include "blocking.hpp"
 #include "io.hpp"
@@ -183,6 +186,10 @@ int main( int argc, char** argv )
 		{
 			// Read data and create ITL field
 			scalarFieldData = ITL_ioutil<SCALAR>::readFieldBinarySerial( inputFieldFile, nDim, (int*)dataSize );
+			#ifdef BYTE_SWAP
+			int nDataElem = dataSize[0]*dataSize[1]*dataSize[2];
+			swap((char *)scalarFieldData, nDataElem, sizeof( SCALAR ));
+			#endif
 			scalarField = new ITL_field_regular<SCALAR>( scalarFieldData, nDim, lowF, highF );
 			//cout << "-1" << endl;
 
@@ -198,6 +205,10 @@ int main( int argc, char** argv )
 		{
 			// Read data and create ITL field
 			vectorFieldData = ITL_ioutil<VECTOR3>::readFieldBinarySerial( inputFieldFile, nDim, (int*)dataSize );
+			#ifdef BYTE_SWAP
+			int nDataElem = dataSize[0]*dataSize[1]*dataSize[2];
+			swap((char *)vectorFieldData, nDataElem*3, sizeof( SCALAR ));
+			#endif
 			vectorField = new ITL_field_regular<VECTOR3>( vectorFieldData, nDim, lowF, highF );
 
 			// Alocate memory for array of partitions (sub-fields)
@@ -216,7 +227,6 @@ int main( int argc, char** argv )
 		{	
 			if( fieldType == 0 )
 			{
-			
 				// Create bin field (Specify range if required)
 				//cout << "3" << endl;
 				if( histogramLowEnd != histogramHighEnd )
@@ -308,7 +318,6 @@ int main( int argc, char** argv )
 	}// end if
 	else if( parallelOpMode = WITH_DIY )
 	{
-	
 		// Initialize DIY after initializing MPI
 		DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
 		if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
@@ -320,6 +329,14 @@ int main( int argc, char** argv )
 
 		// Decompose domain 
   		DIY_Decompose( 1, 0, 0, given );
+
+  		// Allocate memory for pointers that will hold block data
+  		MPI_Datatype complex;
+  		if( fieldType == 1 )
+  		{
+  		 	MPI_Type_contiguous( 3,MPI_FLOAT,&complex );
+  	  		MPI_Type_commit( &complex );
+  		}
 
 		// Allocate memory for pointers that will hold block data
 		SCALAR* data[nblocks];
@@ -343,7 +360,7 @@ int main( int argc, char** argv )
 
   			// post a read for the block
     		if( fieldType == 0 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
-     		if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(vectordata[i]));
+     		if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
 
 			// print the block bounds
     		for (int j = 0; j < 3; j++)
@@ -365,20 +382,39 @@ int main( int argc, char** argv )
 			//cout << m << " " << M << endl;
   		}
 
-
-
 		// Read actual data (everyone synchronizes after reading data)
 		starttime = ITL_util<float>::startTimer();	
 		DIY_Read_all();
 		execTime[0] = ITL_util<float>::endTimer( starttime );	
-
 		if( verboseMode == 1 )	printf( "Data read complete .. all processes synced\n" );
+
+		#ifdef BYTE_SWAP
+		int nBlockElem = 0;
+		for( int k=0; k<nblocks; k++ )
+		{
+			if( fieldType == 0 )
+			{
+				nBlockElem = diy_size[3*k]*diy_size[3*k+1]*diy_size[3*k+2];
+				swap((char *)&data[k][0], nBlockElem, sizeof( SCALAR ));
+
+				SCALAR m = ITL_util<SCALAR>::Min( data[k], nBlockElem );
+				SCALAR M = ITL_util<SCALAR>::Max( data[k], nBlockElem );
+				cout << nBlockElem << " " << m << " " << M << endl;
+			}
+			else
+			{
+				nBlockElem = diy_size[3*k]*diy_size[3*k+1]*diy_size[3*k+2];
+				swap((char *)&vectordata[k][0], nBlockElem*3, sizeof( SCALAR ));
+			}
+		}
+		#endif
 
 		// Allocate memory for storing blockwise global entropies 		
 		globalEntropyList = new float[nblocks];
 
 		starttime = ITL_util<float>::startTimer();		
 		// Scan through the blocks, compute global entropy and list values 
+		int nBlockElem = 0;
 		for( int k=0; k<nblocks; k++ )
 		{
 
@@ -402,11 +438,14 @@ int main( int argc, char** argv )
 				// Initialize class that can compute entropy
 				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( binField, histogram, nBin );
 
+				// Compute histogram
+				globalEntropyComputer_scalar->computeHistogramFrequencies();
+
 				// Compute entropy 
-				globalEntropyComputer_scalar->computeGlobalEntropyOfField( false );
+				//globalEntropyComputer_scalar->computeGlobalEntropyOfField( false );
 
 				// Print global entropy
-				globalEntropyList[k] = globalEntropyComputer_scalar->getGlobalEntropy(); 
+				//globalEntropyList[k] = globalEntropyComputer_scalar->getGlobalEntropy();
 
 				if( verboseMode == 1 ) 
 					printf( "Block Limits: %d, %d, %d, %d, %d, %d, Global entropy: %g\n", diy_min[3*k], diy_max[3*k], \
@@ -426,21 +465,28 @@ int main( int argc, char** argv )
 			}
 			if( fieldType == 1 )
 			{
-			
 				// Initialize ITL vector field with block data
+				//cout << "1" << endl;
 				vectorField = new ITL_field_regular<VECTOR3>( vectordata[k], nDim, lowF, highF );
 
 				// Create bin field
+				//cout << "2" << endl;
 				histMapper_vector->computeHistogramBinField_Vector( vectorField, &binField, nBin );
 
 				// Initialize class that can compute entropy
+				//cout << "3" << endl;
 				globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
+
+				// Compute histogram
+				globalEntropyComputer_vector->computeHistogramFrequencies();
 	
 				// Compute entropy
-				globalEntropyComputer_vector->computeGlobalEntropyOfField( false );
+				//cout << "4" << endl;
+				//globalEntropyComputer_vector->computeGlobalEntropyOfField( false );
 
 				// Print global entropy
-				globalEntropyList[k] = globalEntropyComputer_vector->getGlobalEntropy(); 
+				//cout << "5" << endl;
+				//globalEntropyList[k] = globalEntropyComputer_vector->getGlobalEntropy();
 				if( verboseMode == 1 ) 
 					printf( "Block Limits: %d, %d, %d, %d, %d, %d, Global entropy: %f\n", diy_min[3*k], diy_max[3*k], \
 													     diy_min[3*k+1], diy_max[3*k+1], \
@@ -452,7 +498,9 @@ int main( int argc, char** argv )
 
 				// Clear up
 				delete globalEntropyComputer_vector;
-				//delete vectorField; 
+				delete binField;
+				binField = NULL;
+				delete vectorField;
 			}
 
 		}// End for loop
@@ -460,6 +508,7 @@ int main( int argc, char** argv )
 	
 		// Write global entropy 
 		if( verboseMode == 1 ) printf( "Writing blockwise global entropy ...\n" );
+		/*
  		//MPI_Datatype *dtype = new MPI_Datatype; // datatype for output
   		//MPI_Type_contiguous( 1, MPI_FLOAT, dtype );
   		//MPI_Type_contiguous( nblocks, MPI_FLOAT, dtype );
@@ -479,10 +528,11 @@ int main( int argc, char** argv )
   		DIY_Write_blocks_all( (void **)listptr, nblocks, NULL, 0, &CreateType );
   		DIY_Write_close_all();
 		execTime[2] = ITL_util<float>::endTimer( starttime );		
+		*/
 
 		// Runtime
-		if( verboseMode == 1 ) 	printf( "%d: Read/Computation Time: %f, %f seconds\n", rank, execTime[0], execTime[1] );
-		else 					printf( "%d, %f, %f, %f\n", rank, execTime[0], execTime[1], execTime[2] );
+		if( verboseMode == 1 ) 	printf( "%d: Read/Computation/Write Time: %g, %g, %g seconds\n", rank, execTime[0], execTime[1], execTime[2] );
+		else 					printf( "%d, %g, %g, %g\n", rank, execTime[0], execTime[1], execTime[2] );
 		
 		// Clear up
 		delete [] diy_min;
@@ -490,7 +540,8 @@ int main( int argc, char** argv )
 		delete [] diy_size;
 	
 		// Finalize BIL
-		BIL_Finalize();
+		if( fieldType == 1 ) MPI_Type_free( &complex );
+		DIY_Finalize();
 
 	}// End if-else
 

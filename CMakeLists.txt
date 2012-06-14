@@ -53,7 +53,7 @@ set(ZLIB_LIB "${ZLIB_DIR}/lib" )
 # ADD-BY-ABON 11/07/2011-END
 
 # set the path of ITL files
-set(ITL_DIR "${CMAKE_SOURCE_DIR}")
+set(ITL_DIR "${CMAKE_SOURCE_DIR}" )
 set(ITL_INC "${ITL_DIR}/include")  
 set(ITL_LIB "${ITL_DIR}/lib")  
 # ADD-BY-LEETEN 08/29/2011-END

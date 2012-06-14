@@ -21,6 +21,8 @@
 #include "ITL_localjointentropy.h"
 #include "ITL_field_regular.h"
 
+#define DATA_TO_HIST_GEODESICMAPPING 1
+
 using namespace std;
 
 // Global variables
@@ -31,6 +33,7 @@ int functionType = 0;
 int sizeNeighborhood = 2;
 int sizeNeighborhoodArray[3];
 int nBin = 360;
+int nDivision = 4;
 int nDim = 3;
 int verboseMode = 0;
 int numProcs;
@@ -217,10 +220,22 @@ void compute_globalentropy_serial()
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins ...\n" );
 	starttime = ITL_util<float>::startTimer();
+	#ifdef DATA_TO_HIST_GEODESICMAPPING
+	// nDivision: 1 -> nBin: 20
+	// nDivision: 2 -> nBin: 80
+	// nDivision: 3 -> nBin: 320
+	// nDivision: 4 -> nBin: 1280
+	histMapper->createSphericalGrid( nDivision, &nBin );
+	histMapper->computeHistogramBinField_Vector_Geodesic( vectorField, &binField, nBin, nDivision );
+	#else
 	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+	#endif
 
 	// Initialize class that can compute entropy
 	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
+
+	// Compute frequencies
+	globalEntropyComputer->computeHistogramFrequencies();
 
 	if( verboseMode == 1 )
 	{
@@ -233,11 +248,11 @@ void compute_globalentropy_serial()
 		#endif
 		// #ifdef WIN32	// ADD-BY-LEETEN 04/09/2012
 
-		globalEntropyComputer->computeHistogramFrequencies();
 		globalEntropyComputer->getHistogramFrequencies( freqList );
 
 		for( int i=0; i<nBin; i++ )
 			printf( "f[%d] = %d\t", i, freqList[i] );
+		printf( "\n" );
 		// ADD-BY-LEETEN 04/09/2012-BEGIN
 		#ifdef WIN32
 		delete [] freqList;
@@ -283,7 +298,16 @@ void compute_globalentropy_parallel()
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" );
 	starttime = ITL_util<float>::startTimer();
+	#ifdef DATA_TO_HIST_GEODESICMAPPING
+	// nDivision: 1 -> nBin: 20
+	// nDivision: 2 -> nBin: 80
+	// nDivision: 3 -> nBin: 320
+	// nDivision: 4 -> nBin: 1280
+	histMapper->createSphericalGrid( nDivision, &nBin );
+	histMapper->computeHistogramBinField_Vector_Geodesic( vectorField, &binField, nBin, nDivision );
+	#else
 	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+	#endif
 
 	// Initialize class that can compute entropy
 	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
@@ -355,7 +379,16 @@ void compute_blockwiseglobalentropy_parallel()
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins at each point of the vector field ...\n" ); 
 	starttime = ITL_util<float>::startTimer();	
+	#ifdef DATA_TO_HIST_GEODESICMAPPING
+	// nDivision: 1 -> nBin: 20
+	// nDivision: 2 -> nBin: 80
+	// nDivision: 3 -> nBin: 320
+	// nDivision: 4 -> nBin: 1280
+	histMapper->createSphericalGrid( nDivision, &nBin );
+	histMapper->computeHistogramBinField_Vector_Geodesic( vectorField, &binField, nBin, nDivision );
+	#else
 	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+	#endif
 
 	// Initialize class that can compute entropy
 	globalEntropyComputer = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
@@ -393,7 +426,28 @@ void compute_localentropy_serial()
 	// Histogram computation
 	if( verboseMode == 1 ) printf( "Converting vectors into histogram bins ...\n" );
 	starttime = ITL_util<float>::startTimer();
+	#ifdef DATA_TO_HIST_GEODESICMAPPING
+	// nDivision: 1 -> nBin: 20
+	// nDivision: 2 -> nBin: 80
+	// nDivision: 3 -> nBin: 320
+	// nDivision: 4 -> nBin: 1280
+	histMapper->createSphericalGrid( nDivision, &nBin );
+	//histMapper->readPatches_header( 360 );
+	histMapper->computeTable1( nBin, nDivision );
+	//exit(0);
+	//VECTOR3 v( 0.3, 0.5, 0.7 );
+	//VECTOR3 A( 10, 0, 0 );
+	//VECTOR3 B( 0, 10, 0 );
+	//VECTOR3 C( 0, 0, 10 );
+	//VECTOR3 intersection( 0, 0, 0 );
+	//bool g = histMapper->rayTriangleIntersection2( v, A, B, C, &intersection );
+	//printf( "intersect? %d\n", g );
+	//printf( "intersection point: %g %g %g\n", intersection[0], intersection[1], intersection[2] );
+	//exit(0);
+	histMapper->computeHistogramBinField_Vector_Geodesic( vectorField, &binField, nBin, nDivision );
+	#else
 	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+	#endif
 	execTime[1] = ITL_util<float>::endTimer( starttime );
 
 	// Initialize class that can compute entropy
@@ -445,7 +499,17 @@ void compute_localentropy_parallel()
 
 	if(verboseMode == 1 ) printf( "%d: Computing histogram at each point of the vector field ...\n", myId );
 	starttime = ITL_util<float>::startTimer();
+	#ifdef DATA_TO_HIST_GEODESICMAPPING
+	// nDivision: 1 -> nBin: 20
+	// nDivision: 2 -> nBin: 80
+	// nDivision: 3 -> nBin: 320
+	// nDivision: 4 -> nBin: 1280
+	histMapper->createSphericalGrid( nDivision, &nBin );
+	histMapper->computeHistogramBinField_Vector_Geodesic( vectorField, &binField, nBin, nDivision );
+	#else
 	histMapper->computeHistogramBinField_Vector( vectorField, &binField, nBin );
+	#endif
+
 	execTime[1] = ITL_util<float>::endTimer( starttime );
 	
 	// Initialize class that can compute entropy

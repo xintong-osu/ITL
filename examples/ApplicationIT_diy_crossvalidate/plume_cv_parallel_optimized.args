@@ -1,0 +1,40 @@
+functionType 3
+
+# Input vector field.
+# SURVEYOR
+# inputField /home/chaudhua/code/chaudhua/itl_repo/sampledata/plume_noheader.vec
+# DAVINCI2
+inputField /media/Data/Data/FlowData/plume/plume.vec
+# inputField /media/Data/Data/FlowData/plume/plume_noheader.vec
+
+# Type of the field. 0 for scalar, 1 for vector.
+fieldType 1
+
+# Number of dimensions of input scalar field.
+nDim 3
+
+# Cross validation parameters
+nDivision 6
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+# Size of input scalar field.
+nX 126
+nY 126
+nZ 512
+
+# Total number of blocks across all processors.
+# Required only if DIY is being used.
+nBlock 64
+
+# Number of merging rounds
+numround 3
+
+# Degrer of merging per round
+r0 4
+r1 4
+r2 4
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 0

@@ -1,0 +1,24 @@
+functionType 1
+
+# Input vector field.
+inputField /home/abon/code/chaudhua/itl_repo/sampledata/source.vec
+
+# Type of the field. 0 for scalar, 1 for vector.
+fieldType 1
+
+# Number of dimensions of input scalar field.
+nDim 3
+
+# Cross validation parameters
+nDivision 6
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+# Size of input scalar field.
+nX 64
+nY 64
+nZ 64
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1

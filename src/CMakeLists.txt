@@ -31,6 +31,7 @@ include_directories(
 
 # grab all the source codes
 list(APPEND SRC_FILES
+	ITL_trianglepatch.cpp
 	ITL_entropycore.cpp   
 	ITL_vectormatrix.cpp
 	ITL_histogram.cpp

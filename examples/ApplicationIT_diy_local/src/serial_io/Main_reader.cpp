@@ -13,13 +13,16 @@ using namespace std;
 int main( int argc, char** argv )
 {
 
-	int nBlock = 0;
+	int nBlock = 1024;
 	unsigned int* blockPointerList = NULL;
 	char *fileName = argv[1];
 	char *outFileName = argv[2];
-	int nX = 64;
-	int nY = 64;
-	int nZ = 64;
+	//int nX = 64;
+	//int nY = 64;
+	//int nZ = 64;
+	int nX = 126;
+	int nY = 126;
+	int nZ = 512;
 
 	// Allocate memory for full entropy field
 	float *entropyField = new float[nX*nY*nZ];
@@ -91,7 +94,7 @@ int main( int argc, char** argv )
 		}
 	}
 
-	printf( "%f %f\n", min, max );
+	//printf( "%f %f\n", min, max );
 
 	// Open file for writing
 	FILE* outFile = fopen( outFileName, "wb" );

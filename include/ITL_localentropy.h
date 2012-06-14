@@ -90,10 +90,12 @@ public:
 			binData->getBounds( low, high );
 			binData->getPadSize( lowPad, highPad );
 
+			#ifdef DEBUG_MODE
 			printf( "Low: %g %g %g\n", low[0], low[1], low[2] );
 			printf( "High: %g %g %g\n", high[0], high[1], high[2] );
 			printf( "Low Pad: %d %d %d\n", lowPad[0], lowPad[1], lowPad[2] );
 			printf( "High Pad: %d %d %d\n", highPad[0], highPad[1], highPad[2] );
+			#endif
 
 			this->entropyField = new ITL_field_regular<SCALAR>( binData->getNumDim(),
 																low, high );
@@ -101,7 +103,7 @@ public:
 
 		// Compute total number of vertices in the neighborhood, including the vertext itself
 		binData->getNeighborhoodSize( neighborhoodSize );
-		printf( "Neighborhoodsize: %d %d %d\n", neighborhoodSize[0], neighborhoodSize[1], neighborhoodSize[2] );
+		//printf( "Neighborhoodsize: %d %d %d\n", neighborhoodSize[0], neighborhoodSize[1], neighborhoodSize[2] );
 
 		int nNeighbors = (int)( ( 2.0f*neighborhoodSize[0] + 1.0f ) *
 						     ( 2.0f*neighborhoodSize[1] + 1.0f ) *
@@ -114,7 +116,7 @@ public:
 		int index1d = 0;
 		int dim[4];
 		entropyField->getSize( dim );
-		printf( "enfield dim: %d %d %d\n", dim[0], dim[1], dim[2] );
+		//printf( "enfield dim: %d %d %d\n", dim[0], dim[1], dim[2] );
 
 		for( int z=0; z<dim[2]; z++ )
 		{
@@ -273,7 +275,6 @@ public:
 		#endif
 
 	}// end function
-
 
 	/**
 	 * Entropy computation function.

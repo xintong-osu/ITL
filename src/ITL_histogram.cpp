@@ -20,6 +20,10 @@ ITL_histogram::ITL_histogram( const char* patchFileName, int nbin )
 	piAngleMap[0] = new int[iNrOfThetas[0]*iNrOfPhis[0]];
 	theta[0] = new float[2*nBin[0]];
 	phi[0] = new float[2*nBin[0]];
+	thetaCenter[0] = new float[nBin[0]];
+	phiCenter[0] = new float[nBin[0]];
+	binCenter[0] = new VECTOR3[nBin[0]];
+
 	// ADD-BY-Tzu-Hsuan-BEGIN-02/13
 	binDatas = NULL;
 	hist_RangeSet = false;
@@ -49,6 +53,10 @@ ITL_histogram::ITL_histogram( const char** patchfilename, int *nbin, int nresolu
 		piAngleMap[iR] = new int[iNrOfThetas[iR]*iNrOfPhis[iR]];	
 		theta[iR] = new float[2*nBin[iR]];
 		phi[iR] = new float[2*nBin[iR]];
+		thetaCenter[iR] = new float[nBin[iR]];
+		phiCenter[iR] = new float[nBin[iR]];
+		binCenter[iR] = new VECTOR3[nBin[iR]];
+
 		// ADD-BY-Tzu-Hsuan-BEGIN-02/13
 		binDatas = NULL;
 		hist_RangeSet = false;
@@ -111,7 +119,13 @@ ITL_histogram::readPatches_header()
 		phi[0][i*2+1] = f2Temp[1];
 		szToken = strtok(NULL, "\n");
 		//printf( "%f %f\n", f2Temp[0], f2Temp[1] );
-	}
+
+		thetaCenter[0][i] = ( theta[0][i*2+0] + theta[0][i*2+1] ) / 2.0f;
+		phiCenter[0][i] = ( phi[0][i*2+0] + phi[0][i*2+1] ) / 2.0f;
+		binCenter[0][i] = getXYZ( thetaCenter[0][i], phiCenter[0][i] );
+		//binCenter[0][i].Normalize();
+
+	}// end for
 }
 
 // read the lookup table that map the thetas and phis to the patch index;
@@ -137,6 +151,12 @@ ITL_histogram::readPatches_region( const char* patchFileName, int iRes )
 		theta[iRes][i*2+1]=y[0];
 		phi[iRes][i*2+0]=x[1];
 		phi[iRes][i*2+1]=y[1];
+
+		thetaCenter[iRes][i] = ( theta[0][i*2+0] + theta[0][i*2+1] ) / 2.0f;
+		phiCenter[iRes][i] = ( phi[0][i*2+0] + phi[0][i*2+1] ) / 2.0f;
+		binCenter[iRes][i] = getXYZ( thetaCenter[iRes][i], phiCenter[iRes][i] );
+		//binCenter[iRes][i].Normalize();
+
 	}
 	fclose(fp);
 	cout << "Reading patch file done" << endl;
@@ -242,6 +262,15 @@ ITL_histogram::getAngle2(float x, float y)
 	}
 }
 
+// Compute x, y, z
+VECTOR3
+ITL_histogram::getXYZ( float theta, float phi )
+{
+	//VECTOR3 v( 1.0f*sin(theta)*cos(phi), 1.0f*sin(theta)*sin(phi), 1.0f*cos(theta) );
+	VECTOR3 v( 1.0f*sin(phi)*cos(theta), 1.0f*sin(theta)*sin(phi), 1.0f*cos(phi) );
+	return v;
+}
+
 int
 ITL_histogram::get_bin_number_3D( SCALAR v, int nBins )
 {
@@ -291,6 +320,12 @@ ITL_histogram::get_bin_number_2D( VECTOR3 v, int nbin )
 	//ADD-BY-ABON-02/26/12-END
 
 	return binID;
+}
+
+VECTOR3
+ITL_histogram::getBinCenter( int binId, int iRes )
+{
+	return binCenter[iRes][binId];
 }
 
 /**

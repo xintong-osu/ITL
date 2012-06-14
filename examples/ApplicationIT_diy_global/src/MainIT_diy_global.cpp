@@ -6,9 +6,12 @@
  * @author Teng-Yok
  */
 
+//#define BYTE_SWAP
+
 #include <mpi.h>
 
 #include "diy.h"
+#include "util.hpp"
 #include "assignment.hpp"
 #include "blocking.hpp"
 #include "io.hpp"
@@ -53,12 +56,13 @@ ITL_globalentropy<VECTOR3> *globalEntropyComputer_vector = NULL;
 
 int nBin = 100;
 
-int rounds = 3; 				// Number of rounds of merging
-//int kvalues[3] = {8, 8, 8}; 		// k-way merging, different options 
-int kvalues[3] = {4, 4, 4};
+int rounds = 3; 					// Number of rounds of merging
+int kvalues[5] = {8, 8, 8, 8, 8}; 	// k-way merging, different options
+//int kvalues[3] = {4, 4, 4};
 //int kvalues[2] = {16, 1};
 //int kvalues[1] = {2};
 //int kvalues[1] = {2};
+//int kvalues[1] = {1};
 
 double execTime[5];
 clock_t starttime, endtime;
@@ -201,6 +205,12 @@ main( int argc, char** argv )
 	fieldType = atoi( ITL_util<float>::getArgWithName( "fieldType", &argNames, &argValues ) );
 	nDim = atoi( ITL_util<float>::getArgWithName( "nDim", &argNames, &argValues ) );
 	nBin = atoi( ITL_util<float>::getArgWithName( "nBin", &argNames, &argValues ) );
+	rounds = atoi( ITL_util<float>::getArgWithName( "numround", &argNames, &argValues ) );
+	kvalues[0] = atoi( ITL_util<float>::getArgWithName( "r0", &argNames, &argValues ) );
+	kvalues[1] = atoi( ITL_util<float>::getArgWithName( "r1", &argNames, &argValues ) );
+	kvalues[2] = atoi( ITL_util<float>::getArgWithName( "r2", &argNames, &argValues ) );
+	kvalues[3] = atoi( ITL_util<float>::getArgWithName( "r3", &argNames, &argValues ) );
+	kvalues[4] = atoi( ITL_util<float>::getArgWithName( "r4", &argNames, &argValues ) );
 	dataSize[0] = atoi( ITL_util<float>::getArgWithName( "nX", &argNames, &argValues ) );
 	dataSize[1] = atoi( ITL_util<float>::getArgWithName( "nY", &argNames, &argValues ) );
 	dataSize[2] = atoi( ITL_util<float>::getArgWithName( "nZ", &argNames, &argValues ) );
@@ -259,8 +269,7 @@ main( int argc, char** argv )
 		// post a read for the block
 		if( fieldType == 0 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(data[i]));
 		if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
-		//if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(vectordata[i]));		
-		
+
 		// print the block bounds
 		for (int j = 0; j < 3; j++)
 			diy_max[3*i+j] = diy_min[3*i+j] + diy_size[3*i+j] - 1;
@@ -284,6 +293,27 @@ main( int argc, char** argv )
 	execTime[0] = ITL_util<float>::endTimer( starttime );
 	if( verboseMode == 1 )	printf( "Data read complete .. all processes synced\n" );
 
+	#ifdef BYTE_SWAP
+	int nBlockElem = 0;
+	for( int k=0; k<nblocks; k++ )
+	{
+		if( fieldType == 0 )
+		{
+			nBlockElem = diy_size[3*k]*diy_size[3*k+1]*diy_size[3*k+2];
+			swap((char *)&data[k][0], nBlockElem, sizeof( SCALAR ));
+
+			SCALAR m = ITL_util<SCALAR>::Min( data[k], nBlockElem );
+			SCALAR M = ITL_util<SCALAR>::Max( data[k], nBlockElem );
+			cout << nBlockElem << " " << m << " " << M << endl;
+		}
+		else
+		{
+			nBlockElem = diy_size[3*k]*diy_size[3*k+1]*diy_size[3*k+2];
+			swap((char *)&vectordata[k][0], nBlockElem*3, sizeof( SCALAR ));
+		}
+	}
+	#endif
+
 	// Allocate memory for storing frequencies
  	int **freqList = NULL; 	// global histogram(s), in this example (can be > 1, depending
 	            		// on the degree of merging, hence the double pointer)
@@ -303,35 +333,32 @@ main( int argc, char** argv )
 		{
 
 			// Initialize ITL scalar field with block data
-			cout << "-4" << endl;
+			//cout << "-4" << endl;
 			scalarField = new ITL_field_regular<SCALAR>( data[k], nDim, lowF, highF );
-			SCALAR m = ITL_util<SCALAR>::Min( data[k], 64*64*64 );
-			SCALAR M = ITL_util<SCALAR>::Max( data[k], 64*64*64 );
-			cout << m << " " << M << endl;
 
-			cout << "-3" << endl;
+			//cout << "-3" << endl;
 			if( histogramLowEnd != histogramHighEnd )
 				histMapper_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );
 
 			// Create bin field (Local analysis)
-			cout << "-2" << endl;
+			//cout << "-2" << endl;
 			histMapper_scalar->computeHistogramBinField_Scalar( scalarField, &binField, nBin );
 
 			// Initialize class that can compute entropy
-			cout << "-1" << endl;
+			//cout << "-1" << endl;
 			globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( binField, histogram, nBin );
 
 			// Compute frequencies
-			cout << "0" << endl;
+			//cout << "0" << endl;
 			globalEntropyComputer_scalar->computeHistogramFrequencies();
 
 			// Get histogram frequencies
-			cout << "1" << endl;
+			//cout << "1" << endl;
 			freqList[k] = new int[nBin];
 			globalEntropyComputer_scalar->getHistogramFrequencies( freqList[k] );
 		    //for (int i = 0; i < nBin; i++)
 	     	//	fprintf(stderr, "freq[%d] = %d\n", i, freqList[k][i]);
-			cout << "2" << endl;
+			//cout << "2" << endl;
 
 			// Clear up
 			delete globalEntropyComputer_scalar;
@@ -339,43 +366,51 @@ main( int argc, char** argv )
 			binField = NULL;
 			delete scalarField;
 
-			cout << "3" << endl;
+			//cout << "3" << endl;
 
 		}
 		if( fieldType == 1 )
 		{
 		
 			// Initialize ITL vector field with block data
+			//cout << "-4" << endl;
 			vectorField = new ITL_field_regular<VECTOR3>( vectordata[k], nDim, lowF, highF );
 
 			// Create bin field (local analysis)
+			//cout << "-3" << endl;
 			histMapper_vector->computeHistogramBinField_Vector( vectorField, &binField, nBin );
 
 			// Initialize class that can compute entropy
+			//cout << "-2" << endl;
 			globalEntropyComputer_vector = new ITL_globalentropy<VECTOR3>( binField, histogram, nBin );
 
 			// Compute frequencies
+			//cout << "-1" << endl;
 			globalEntropyComputer_vector->computeHistogramFrequencies();
 
 			// Get histogram frequencies
+			//cout << "0" << endl;
 			freqList[k] = new int[nBin];	
 			globalEntropyComputer_vector->getHistogramFrequencies( freqList[k] );
 
 			// Clear up
 			delete globalEntropyComputer_vector;
+			delete binField;
+			binField = NULL;
 			delete vectorField; 
 		}
 
 	}// End for loop
 
+	execTime[1] = ITL_util<float>::endTimer( starttime );
+
+	starttime = ITL_util<float>::startTimer();
 	// Merge the local analyses
-	cout << "Merging " << endl;
 	DIY_Merge_blocks( (char**)freqList, (int **)NULL, //nblocks, (char***)&hist,
 					  rounds, kvalues,
 					  &ComputeMerge,
 					  &CreateItem,// &DeleteItem,
 					  &CreateType, &nb_merged );
-	cout << "Merged " << endl;
 
 	//for (int b = 0; b < nb_merged; b++) {
 	// for (int i = 0; i < nBin; i++)
@@ -385,32 +420,31 @@ main( int argc, char** argv )
 	// Compute global entropy of the merged blocks
 	if (nb_merged)
 	{		
-		assert( hist != NULL );
-		cout << "adding frequencies " << nb_merged << endl;
+		//assert( hist != NULL );
+		//cout << "adding frequencies " << nb_merged << endl;
 		for( int k=0; k<nb_merged; k++ )
 		{			
-			if( verboseMode == 1 )
-			{			
-				for( int p=0; p<nBin;p++ )
-					printf( "%d, ", freqList[k][p] );
-				printf( "\n" );
-			}
+			//if( verboseMode == 1 )
+			//{
+			//	for( int p=0; p<nBin;p++ )
+			//		printf( "%d, ", freqList[k][p] );
+			//	printf( "\n" );
+			//}
 	
 			// Directly compute entropy
-			cout << dataSize[0] << " " << dataSize[1] << " " << dataSize[2] << endl;
-			globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( freqList[k], dataSize[0]*dataSize[1]*dataSize[2], nBin, false );
+			//cout << dataSize[0] << " " << dataSize[1] << " " << dataSize[2] << endl;
+			//globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( freqList[k], dataSize[0]*dataSize[1]*dataSize[2], nBin, false );
 
 			// Print entropy	
 			printf( "Global Entropy: %f\n", globalEntropy );
 		}
 	}
-	execTime[1] = ITL_util<float>::endTimer( starttime );
+	execTime[2] = ITL_util<float>::endTimer( starttime );
 
 	// Runtime
-	if( verboseMode == 1 ) 	printf( "%d: Read/Computation Time: %f, %f seconds\n", rank, execTime[0], execTime[1] );
-	else 			printf( "%d, %f, %f\n", rank, execTime[0], execTime[1] );
-	
-	
+	if( verboseMode == 1 ) 	printf( "%d: Read/Computation/Communication Time: %f, %f seconds\n", rank, execTime[0], execTime[1], execTime[2] );
+	else					printf( "%d, %g, %g, %g\n", rank, execTime[0], execTime[1], execTime[2] );
+
 	// Clear up
 	delete [] diy_min;
 	delete [] diy_max;
