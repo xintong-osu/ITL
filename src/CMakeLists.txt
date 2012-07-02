@@ -52,8 +52,6 @@ if( ${WITH_ITL_API} )
 	)
 endif()
 
-
-
 # build the project as a library
 add_library(${PROJECT_NAME} ${SRC_FILES})
 

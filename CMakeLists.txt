@@ -8,6 +8,10 @@ project (ITL)
 set(WITH_ITL_API OFF CACHE BOOL "whether ITL API is compiled") 
 set(BUILD_DIY_EXAMPLES OFF CACHE BOOL "whether DIY examples are to be built") 
 # ADD-BY-ABON 11/07/2011-END
+# ADD-BY-ABON 07/01/2012-BEGIN
+set(BUILD_MOAB_EXAMPLES OFF CACHE BOOL "whether MOAB examples are to be built") 
+set(BUILD_COMPRESSION_EXAMPLES OFF CACHE BOOL "whether Compression examples are to be built") 
+# ADD-BY-ABON 07/01/2012-END
 
 # ADD-BY-LEETEN 08/15/2011-BEGIN
 set(MYLIB_DIR 	"/homes/leeten/mylib" CACHE PATH "The path to MYLIB")
@@ -51,6 +55,24 @@ set(BIL_LIB "${DIY_DIR}/src/bil-0.6.0" CACHE PATH "The path to bil library" )
 set(ZLIB_INC "${ZLIB_DIR}/include")  
 set(ZLIB_LIB "${ZLIB_DIR}/lib" )
 # ADD-BY-ABON 11/07/2011-END
+
+# ADD-BY-ABON 07/01/2011-BEGIN
+if( ${BUILD_MOAB_EXAMPLES} )
+
+  set(MOAB_DIR "/homes/chaudhua/install" CACHE PATH "The installed path to MOAB" )
+  set(MOAB_INC "${MOAB_DIR}/include")
+  set(MOAB_LIB "${MOAB_DIR}/lib")
+
+  set(VTK_DIR "/homes/chaudhua/install" CACHE PATH "The installed path to VTK" )
+  set(VTK_INC "${VTK_DIR}/include/vtk-5.10")
+  set(VTK_LIB "${VTK_DIR}/lib/vtk-5.10")
+
+endif()
+if( ${BUILD_COMPRESSION_EXAMPLES} )
+  set( GSL_INC "/usr/include" CACHE PATH "The path to gsl headers" )  
+  set( GSL_LIB "usr/lib" CACHE PATH "The path to gsl library" )	
+endif()
+# ADD-BY-ABON 07/01/2011-END
 
 # set the path of ITL files
 set(ITL_DIR "${CMAKE_SOURCE_DIR}" )
@@ -112,6 +134,16 @@ if( ${WITH_ITL_API} ) # MOD-BY-LEETEN 11/10/2011-FROM:	if( $WITH_ITL_API )
   add_subdirectory (examples/flash)
 endif() 			
 # ADD-BY-LEETEN 08/29/2011-END
+
+# ADD-BY-ABON 07/01/2012-BEGIN
+if( ${BUILD_MOAB_EXAMPLES} )
+  add_subdirectory ( examples/ApplicationIT_nekmoab )	
+endif()
+
+if( ${BUILD_COMPRESSION_EXAMPLES} )
+  add_subdirectory ( examples/ApplicationIT_compressionindexing )	
+endif()
+# ADD-BY-ABON 07/01/2012-END
 
 #
 # $Log$
