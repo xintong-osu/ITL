@@ -8,11 +8,21 @@
 #ifndef ITL_HISTOGRAMMAPPER_H_
 #define ITL_HISTOGRAMMAPPER_H_
 
+#include <limits>
+
 #include "ITL_util.h"
+#include "ITL_statutil.h"
 #include "ITL_histogram.h"
 #include "ITL_trianglepatch.h"
 //#include "ITL_geodesictree.h"
 #include "ITL_field_regular.h"
+
+template<typename T>
+inline bool isinf(T value)
+{
+	return std::numeric_limits<T>::has_infinity() &&
+		   value == std::numeric_limits<T>::infinity();
+}
 
 template <class T>
 class ITL_histogrammapper
@@ -35,7 +45,7 @@ class ITL_histogrammapper
 	int iNrOfPhis;					/**< Histogram parameter. Number of phis.  */
 	float fNrOfThetas;				/**< Histogram parameter. Number of phis.  */
 	float fNrOfPhis;				/**< Histogram parameter. Number of phis.  */
-	int* piAngleMap;				/**< Histogram parameter. Mapping from vector to a region in sperical coordinates.  */
+	int* piAngleMap;				/**< Histogram parameter. Mapping from vector to a region in sperical coordinates. */
 
 
 
@@ -755,6 +765,29 @@ public:
 	}// end function
 
 	static void
+	computeHistogramFrequencies( ITL_field_regular<int>** binField,
+								 double* freqList,
+								 int nBin )
+	{
+		assert( (*binField) != NULL );
+		assert( freqList != NULL );
+
+		// Scan through bin Ids and keep count
+		for( int i=0; i<nBin; i++ )
+			freqList[i] = 0;
+
+		for( int i=0; i<(*binField)->getSize(); i++ )
+		{
+			//cout << (*binField)->getDataAt(i) << endl;
+			freqList[ (*binField)->getDataAt(i) ] ++;
+		}
+
+		for( int i=0; i<nBin; i++ )
+			freqList[i] /= (float)(*binField)->getSize();
+
+	}// end function
+
+	static void
 	computeHistogramFrequencies( int *binIds, int* freqList, int nPoint )
 	{
 		// Scan through bin Ids and keep count
@@ -777,6 +810,80 @@ public:
 		for( int i=0; i<nPoint; i++ )
 			freqList[ binIds[i] ] ++;
 	}// end function
+
+	static
+	void computeKDE_scalar( float* data, int nPoint,
+					 	 	double* evalPointArray, int nEvalPoint,
+					 	 	double* densityArray,
+					 	 	double h )
+	{
+		// Initialize evaluation point array
+		SCALAR m = ITL_util<SCALAR>::Min( data, nPoint );
+		SCALAR M = ITL_util<SCALAR>::Max( data, nPoint );
+		for( int i=0; i<nEvalPoint; i++ )
+		{
+			evalPointArray[i] = m + i * ( (M-m) / (nEvalPoint-1) );
+		}
+
+		// Initialize density array
+		for( int i=0; i<nEvalPoint; i++ )
+			densityArray[i] = 0;
+
+		// Estimate kernel bandwidth
+		double mu = ITL_statutil<float>::Mean( data, nPoint );
+		double var = ITL_statutil<float>::Variance( data, nPoint, mu );
+		#ifdef DEBUG_MODE
+		fprintf( stderr, "Mean and variance of the field: %g %g\n", mu, var );
+		#endif
+		if( h == 0 )
+		{
+			h = 1.06 * var * pow( nPoint,-0.2f ) ;
+		}
+		#ifdef DEBUG_MODE
+		printf( "Number of points in the field: %d\n", nPoint );
+		printf( "Kernel bandwidth: %f\n", h );
+		#endif
+
+		// Estimate densities at each evaluation point
+		double sumOfKernels = 0;
+		for( int i=0; i<nEvalPoint; i++ )
+		{
+			sumOfKernels = 0;
+			for( int j=0; j<nPoint; j++ )
+			{
+				double d = ITL_histogrammapper::evaluateGaussianKernel( ( evalPointArray[i] - data[j] ) / h, 0, 1 );
+				if( d != d  )
+				{
+					fprintf( stderr, "nan found: %d, %d, %g %g %g\n", i, j, evalPointArray[i], data[j], d );
+					exit(0);
+				}
+				if( isinf( d )  )
+				{
+					fprintf( stderr, "inf found: %d, %d, %g %g %g\n", i, j, evalPointArray[i], data[j], d );
+					exit(0);
+				}
+				sumOfKernels += d;
+			}
+			densityArray[i] = sumOfKernels / (nPoint*h);
+		}
+
+	}// End function
+
+	static
+	double evaluateGaussianKernel( double x, double mu, double var )
+	{
+		double exponent = - ( x - mu )*( x - mu ) / (2*var);
+		if( isinf( exponent )  )
+		{
+			printf( "inf exponent found: %g %g %g\n", x, mu, var );
+			exit(0);
+		}
+		#ifdef DEBUG_MODE
+		printf( "exponent: %g %g %g %g\n", x, mu, var, exponent );
+		#endif
+		return ( 1.0f / sqrt( 2*pi*var ) ) * exp( exponent );
+
+	}// End function
 
 	/**
 	  * Cross-validation function.

@@ -250,7 +250,8 @@ public:
 	/**
 	 * Start Time computation.
 	 */
-	static double startTimer()
+	static double
+	startTimer()
 	{
 		return MPI_Wtime();
 	}// end function
@@ -260,11 +261,12 @@ public:
 	 * @param startTime Recored time at start point
 	 * @return computed time in seconds from start to end.
 	 */
-	static double endTimer( clock_t startTime )
+	static double
+	endTimer( double startTime )
 	{
 		double endTime = MPI_Wtime();
 		//double resolution = MPI_Wtick();
-		return ( endTime - startTime );// /  CLOCKS_PER_MS;
+		return ( endTime - startTime );
 	}// end function
 	
 	static void getArgs( const char *argsFileName, list<string> *argNames, list<string> *argValues )
