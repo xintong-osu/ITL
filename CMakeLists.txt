@@ -10,7 +10,7 @@ set(BUILD_DIY_EXAMPLES OFF CACHE BOOL "whether DIY examples are to be built")
 # ADD-BY-ABON 11/07/2011-END
 # ADD-BY-ABON 07/01/2012-BEGIN
 set(BUILD_MOAB_EXAMPLES OFF CACHE BOOL "whether MOAB examples are to be built") 
-set(BUILD_COMPRESSION_EXAMPLES OFF CACHE BOOL "whether Compression examples are to be built") 
+# set(BUILD_COMPRESSION_EXAMPLES OFF CACHE BOOL "whether Compression examples are to be built") 
 # ADD-BY-ABON 07/01/2012-END
 
 # ADD-BY-LEETEN 08/15/2011-BEGIN
@@ -68,10 +68,20 @@ if( ${BUILD_MOAB_EXAMPLES} )
   set(VTK_LIB "${VTK_DIR}/lib/vtk-5.10")
 
 endif()
-if( ${BUILD_COMPRESSION_EXAMPLES} )
-  set( GSL_INC "/usr/include" CACHE PATH "The path to gsl headers" )  
-  set( GSL_LIB "usr/lib" CACHE PATH "The path to gsl library" )	
-endif()
+
+#if( ${BUILD_COMPRESSION_EXAMPLES} )
+#  set( GSL_INC "/usr/include" CACHE PATH "The path to gsl headers" )  
+#  set( GSL_LIB "usr/lib" CACHE PATH "The path to gsl library" )	
+  
+#  set( OPENCV_DIR "/homes/chaudhua/install" CACHE PATH "The installed path of OpenCV" )
+#  set( OPENCV_INC "${OPENCV_DIR}/include" )
+#  set( OPENCV_INC2 "${OPENCV_DIR}/include/opencv" )
+#  set( OPENCV_INC3 "${OPENCV_DIR}/include/opencv2" )
+#  set( OPENCV_LIB "${OPENCV_DIR}/lib")
+  
+#  set( MY_INSTALL_DIR "/homes/chaudhua/install" CACHE PATH "The installed path of my library" )
+  
+#endif()
 # ADD-BY-ABON 07/01/2011-END
 
 # set the path of ITL files
@@ -140,9 +150,9 @@ if( ${BUILD_MOAB_EXAMPLES} )
   add_subdirectory ( examples/ApplicationIT_nekmoab )	
 endif()
 
-if( ${BUILD_COMPRESSION_EXAMPLES} )
-  add_subdirectory ( examples/ApplicationIT_compressionindexing )	
-endif()
+#if( ${BUILD_COMPRESSION_EXAMPLES} )
+#  add_subdirectory ( examples/ApplicationIT_compressionindexing )	
+#endif()
 # ADD-BY-ABON 07/01/2012-END
 
 #
