@@ -359,8 +359,8 @@ int main( int argc, char** argv )
  			//	vectordata[i] = new VECTOR3[diy_size[3*i] * diy_size[3*i+1] * diy_size[3*i+2]];
 
   			// post a read for the block
-    		if( fieldType == 0 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
-     		if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
+    		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
+     		if( fieldType == 1 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
 
 			// print the block bounds
     		for (int j = 0; j < 3; j++)
@@ -384,7 +384,7 @@ int main( int argc, char** argv )
 
 		// Read actual data (everyone synchronizes after reading data)
 		starttime = ITL_util<float>::startTimer();	
-		DIY_Read_all();
+		DIY_Read_data_all();
 		execTime[0] = ITL_util<float>::endTimer( starttime );	
 		if( verboseMode == 1 )	printf( "Data read complete .. all processes synced\n" );
 

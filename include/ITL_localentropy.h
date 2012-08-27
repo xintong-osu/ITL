@@ -103,7 +103,7 @@ public:
 
 		// Compute total number of vertices in the neighborhood, including the vertext itself
 		binData->getNeighborhoodSize( neighborhoodSize );
-		//printf( "Neighborhoodsize: %d %d %d\n", neighborhoodSize[0], neighborhoodSize[1], neighborhoodSize[2] );
+		fprintf( stderr, "Neighborhoodsize: %d %d %d\n", neighborhoodSize[0], neighborhoodSize[1], neighborhoodSize[2] );
 
 		int nNeighbors = (int)( ( 2.0f*neighborhoodSize[0] + 1.0f ) *
 						     ( 2.0f*neighborhoodSize[1] + 1.0f ) *
@@ -116,7 +116,7 @@ public:
 		int index1d = 0;
 		int dim[4];
 		entropyField->getSize( dim );
-		//printf( "enfield dim: %d %d %d\n", dim[0], dim[1], dim[2] );
+		fprintf( stderr, "enfield dim: %d %d %d\n", dim[0], dim[1], dim[2] );
 
 		for( int z=0; z<dim[2]; z++ )
 		{

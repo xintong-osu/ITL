@@ -558,23 +558,35 @@ public:
 		//int* dimLength = ITL_util<int>::subtractArrays( highBoundary, lowBoundary, grid.nDim );
 		//ITL_util<int>::addArrayScalar( dimLength, 1, grid.nDim );
 		//int nV = ITL_util<int>::prod( dimLength, grid.nDim );
+
 		int dimLength[4];
 		ITL_util<int>::subtractArrays( highBoundary, lowBoundary, dimLength, grid.getNumDim() );
 		ITL_util<int>::addArrayScalar( dimLength, 1, grid.getNumDim() );
 		int nV = ITL_util<int>::prod( dimLength, grid.getNumDim() );
 
-
-		int globalOffset = 0;
+		int blockOffset = 0;
 		int localOffset = 0;
+		int blockLowInt[3], blockHighInt[3] ;
+		grid.getBounds( blockLowInt, blockHighInt );
+
 		for( int z=0; z<dimLength[2]; z++ )
 		{
 			for( int y=0; y<dimLength[1]; y++ )
 			{
-				//globalOffset = this->grid->convert3DIndex( lowBoundary[0], lowBoundary[1]+y, lowBoundary[2]+z );
-				globalOffset = grid.convert3DIndex( lowBoundary[0], lowBoundary[1]+y, lowBoundary[2]+z );
+				// DELETED-BY-ABON START: 08/29/12
+				//blockOffset = grid.convert3DIndex( lowBoundary[0],
+				//								   lowBoundary[1] + y,
+				//								   lowBoundary[2] + z );
+				// DELETED-BY-ABON END: 08/29/12
 
-				//memcpy( (T*)(retData + localOffset ) , (T*)(this->datastore->array + globalOffset ) , dimLength[0] * sizeof( T ) );
-				memcpy( (T*)(retData + localOffset ) , (T*)(getDataFull() + globalOffset ) , dimLength[0] * sizeof( T ) );
+				// LowBoundary and highBoundary are in global space.
+				// The need to be converted to the block's local space by
+				// translating relative to the current block's start point.
+				blockOffset = grid.convert3DIndex( lowBoundary[0] - blockLowInt[0],
+												   lowBoundary[1] - blockLowInt[1] + y,
+												   lowBoundary[2]  - blockLowInt[2] + z );
+
+				memcpy( (T*)(retData + localOffset ) , (T*)(getDataFull() +blockOffset ) , dimLength[0] * sizeof( T ) );
 				localOffset += dimLength[0];
 			}
 		}

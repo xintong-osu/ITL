@@ -13,16 +13,13 @@ using namespace std;
 int main( int argc, char** argv )
 {
 
-	int nBlock = 1024;
-	unsigned int* blockPointerList = NULL;
+	long nBlock;
+	unsigned long* blockPointerList = NULL;
 	char *fileName = argv[1];
 	char *outFileName = argv[2];
-	//int nX = 64;
-	//int nY = 64;
-	//int nZ = 64;
-	int nX = 126;
-	int nY = 126;
-	int nZ = 512;
+	int nX = atoi( argv[3] );
+	int nY = atoi( argv[4] );
+	int nZ = atoi( argv[5] );
 
 	// Allocate memory for full entropy field
 	float *entropyField = new float[nX*nY*nZ];
@@ -36,7 +33,7 @@ int main( int argc, char** argv )
 
 	// Read footer
 	ser_io->ReadFooter( dataFile, blockPointerList, nBlock );
-	printf( "The file has %d blocks\n", nBlock );
+	fprintf( stderr, "The file has %d blocks\n", nBlock );
 
 	// Allocate memory for block Limits
 	float **blockLimitList = new float*[nBlock];
@@ -46,9 +43,9 @@ int main( int argc, char** argv )
 	//Read block limits
 	ser_io->ReadBlockLimits( dataFile, blockPointerList, blockLimitList, nBlock );
 	for( int iB=0; iB<nBlock; iB++ )
-		printf( "%d: Block offset: %d Limit: %f %f %f %f %f %f\n", iB, blockPointerList[iB],
-				blockLimitList[iB][0], blockLimitList[iB][1], blockLimitList[iB][2],
-				blockLimitList[iB][3], blockLimitList[iB][4], blockLimitList[iB][5] );
+		fprintf( stderr, "%d: Block offset: %d Limit: %f %f %f %f %f %f\n", iB, blockPointerList[iB],
+						blockLimitList[iB][0], blockLimitList[iB][1], blockLimitList[iB][2],
+						blockLimitList[iB][3], blockLimitList[iB][4], blockLimitList[iB][5] );
 
 	// Allocate memory for entropy fields for each block
 	float *entropyFieldList[nBlock];
@@ -63,11 +60,11 @@ int main( int argc, char** argv )
 
 	//Read blocks
 	ser_io->ReadBlocks( dataFile, blockPointerList, &entropyFieldList[0], blockSizeList, nBlock );
-	printf( "All blocks read\n" );
+	printf( "All blocks read\n" );	
 
 	// Close file
 	fclose( dataFile );
-
+	
 	// Combine all blocks to a global field
 	int globalIndex = 0;
 	float min = 100000;
@@ -94,7 +91,7 @@ int main( int argc, char** argv )
 		}
 	}
 
-	//printf( "%f %f\n", min, max );
+	fprintf( stderr, "%g %g\n", min, max );
 
 	// Open file for writing
 	FILE* outFile = fopen( outFileName, "wb" );
@@ -104,11 +101,10 @@ int main( int argc, char** argv )
 	fwrite( &nY, sizeof(int), 1, outFile );
 	fwrite( &nZ, sizeof(int), 1, outFile );
 	fwrite( entropyField, sizeof(float), nX*nY*nZ, outFile );
+	
 
 	fclose( outFile );
-
-
-
+	
 	return 0;
 
 	

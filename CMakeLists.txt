@@ -64,8 +64,8 @@ if( ${BUILD_MOAB_EXAMPLES} )
   set(MOAB_LIB "${MOAB_DIR}/lib")
 
   set(VTK_DIR "/homes/chaudhua/install" CACHE PATH "The installed path to VTK" )
-  set(VTK_INC "${VTK_DIR}/include/vtk-5.10")
-  set(VTK_LIB "${VTK_DIR}/lib/vtk-5.10")
+  set(VTK_INC "${VTK_DIR}/include/vtk-5.8")
+  set(VTK_LIB "${VTK_DIR}/lib/vtk-5.8")
 
 endif()
 
@@ -133,7 +133,8 @@ if( ${BUILD_DIY_EXAMPLES} )
 	add_subdirectory (examples/ApplicationIT_diy_global)	
 	add_subdirectory (examples/ApplicationIT_diy_blockwise)
 	add_subdirectory (examples/ApplicationIT_diy_local)
-	# DEL-BY-LEEETEN 01/04/2012: add_subdirectory (examples/ApplicationIT_diy_local_communication)
+	# DEL-BY-LEEETEN 01/04/2012:
+    add_subdirectory (examples/ApplicationIT_diy_local_communication)
 	add_subdirectory (examples/ApplicationIT_diy_crossvalidate)	
 endif()
 # ADD-BY-ABON 11/07/2011-END

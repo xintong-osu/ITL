@@ -46,12 +46,12 @@ public:
 
 	~SER_IO(){};
 
-	void ReadFooter( FILE*& fd, unsigned int*& ftr, int& tb );
+	void ReadFooter( FILE*& fd, unsigned long*& ftr, long& tb );
 	void ReadHeader( FILE *fd, unsigned int *hdr, size_t ofst );
-	void ReadBlockLimits( FILE *fd, unsigned int *blockPtrList, float **blockLimitList, int nBlock );
-	void ReadBlockLimit( FILE *fd, unsigned int blockPtr, float* blockLimit );
-	void ReadBlocks( FILE *fd, unsigned int *blockPtrList, T **blockEntropyFieldList, int *blockSizeList, int nBlock );
-	void ReadBlockData( FILE *fd, unsigned int blockPtr, T* blockEntropyField, int blockSize );
+	void ReadBlockLimits( FILE *fd, unsigned long *blockPtrList, float **blockLimitList, int nBlock );
+	void ReadBlockLimit( FILE *fd, unsigned long blockPtr, float* blockLimit );
+	void ReadBlocks( FILE *fd, unsigned long *blockPtrList, T **blockEntropyFieldList, int *blockSizeList, int nBlock );
+	void ReadBlockData( FILE *fd, unsigned long blockPtr, T* blockEntropyField, int blockSize );
 
 	int dim; 			// number of dimensions in the dataset
 	bool swap_bytes; 	// whether to swap bytes for endian conversion
@@ -77,26 +77,24 @@ public:
 // side effects: allocates ftr
 //
 template<typename T> 
-void SER_IO<T>::ReadFooter( FILE*& fd, unsigned int*& ftr, int& tb )
+void SER_IO<T>::ReadFooter( FILE*& fd, unsigned long*& ftr, long& tb )
 {
-	int i;
-
 	// Move to the end of the file to read the number of blocks
-	fseek( fd, -sizeof(uint32_t), SEEK_END );
+	fseek( fd, -sizeof(uint64_t), SEEK_END );
 
 	// Read total number of blocks	
-	assert( fread(&tb, sizeof(uint32_t), 1, fd) == 1 );
+	assert( fread( &tb, sizeof(uint64_t), 1, fd ) == 1 );
 	if ( swap_bytes )
-		swap( (char *)&tb, 1, sizeof(uint32_t) );
+		swap( (char *)&tb, 1, sizeof(uint64_t) );	
 
 	// Read pointers (local offsets) to each block
 	if (tb > 0)
  	{
-		ftr = new uint32_t[tb];
-		fseek(fd, -(tb + 1) * sizeof(uint32_t), SEEK_END);
-		assert(fread(ftr, sizeof(uint32_t), tb, fd) == tb);
+		ftr = new uint64_t[tb];
+		fseek(fd, -(tb + 1) * sizeof(uint64_t), SEEK_END);
+		assert(fread(ftr, sizeof(uint64_t), tb, fd) == tb);
 		if ( swap_bytes )
-			swap( (char *)ftr, tb, sizeof(uint32_t) );
+			swap( (char *)ftr, tb, sizeof(uint64_t) );
 	}
 
 }
@@ -129,11 +127,13 @@ void SER_IO<T>::ReadHeader( FILE *fd, unsigned int *hdr, size_t ofst )
 // ofst: location in file of the header (bytes)
 //
 template<typename T>
-void SER_IO<T>::ReadBlockLimits( FILE *fd, unsigned int *blockPtrList, float **blockLimitList, int nBlock )
+void SER_IO<T>::ReadBlockLimits( FILE *fd, unsigned long *blockPtrList, float **blockLimitList, int nBlock )
 {
+	float blockLimit[6];	
 	for( int iB = 0; iB < nBlock; iB++ )
 	{
-		ReadBlockLimit( fd, blockPtrList[iB], blockLimitList[iB] );
+		ReadBlockLimit( fd, blockPtrList[iB], blockLimit );
+		memcpy( blockLimitList[iB], blockLimit, sizeof(float)*6 );
 	}// end for
 }
 //----------------------------------------------------------------------------
@@ -144,10 +144,10 @@ void SER_IO<T>::ReadBlockLimits( FILE *fd, unsigned int *blockPtrList, float **b
 // blockPtr: Pointer to the block in file
 //
 template<typename T>
-void SER_IO<T>::ReadBlockLimit( FILE *fd, unsigned int blockPtr, float *blockLimit )
+void SER_IO<T>::ReadBlockLimit( FILE *fd, unsigned long blockPtr, float *blockLimit )
 {
 	// Move to the start of the block and skip the header, if any
-	fseek( fd, (long int)(blockPtr + HDR_SIZE), SEEK_SET );
+	fseek( fd, (blockPtr + HDR_SIZE), SEEK_SET );
 
 	// Read block limit
 	assert( fread( blockLimit, sizeof(float), 6, fd ) == 6 );
@@ -164,7 +164,7 @@ void SER_IO<T>::ReadBlockLimit( FILE *fd, unsigned int blockPtr, float *blockLim
 // ofst: location in file of the header (bytes)
 //
 template<typename T>
-void SER_IO<T>::ReadBlocks( FILE *fd, unsigned int *blockPtrList, T **blockEntropyFieldList, int *blockSizeList, int nBlock )
+void SER_IO<T>::ReadBlocks( FILE *fd, unsigned long *blockPtrList, T **blockEntropyFieldList, int *blockSizeList, int nBlock )
 {
 	for( int iB = 0; iB < nBlock; iB++ )
 	{
@@ -179,10 +179,10 @@ void SER_IO<T>::ReadBlocks( FILE *fd, unsigned int *blockPtrList, T **blockEntro
 // blockPtr: Pointer to the block in file
 //
 template<typename T>
-void SER_IO<T>::ReadBlockData( FILE *fd, unsigned int blockPtr, T *blockEntropyField, int blockSize )
+void SER_IO<T>::ReadBlockData( FILE *fd, unsigned long blockPtr, T *blockEntropyField, int blockSize )
 {
 	// Move to the start of the block and skip the header, if any
-	fseek( fd, (long int)(blockPtr + HDR_SIZE), SEEK_SET );
+	fseek( fd, (blockPtr + HDR_SIZE), SEEK_SET );
 
 	//printf( "%d %d\n", blockPtr, blockSize );
 

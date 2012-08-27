@@ -544,8 +544,8 @@ crossvalidate_parallel()
 		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
 
 		// post a read for the block
-		if( fieldType == 0 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(data[i]));
-		if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
+		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(data[i]));
+		if( fieldType == 1 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
 
 		// print the block bounds
 		for (int j = 0; j < 3; j++)
@@ -565,7 +565,7 @@ crossvalidate_parallel()
 	}
 
 	// Read actual data (everyone synchronizes after reading data)
-	DIY_Read_all();
+	DIY_Read_data_all();
 	execTime[0] = ITL_util<float>::endTimer( starttime );
 	if( verboseMode == 1 )	printf( "Data read complete .. all processes synced\n" );
 
@@ -803,8 +803,8 @@ crossvalidate_parallel_optimized()
 		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
 
 		// post a read for the block
-		if( fieldType == 0 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(data[i]));
-		if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
+		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
+		if( fieldType == 1 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
 
 		// print the block bounds
 		for (int j = 0; j < 3; j++)
@@ -824,7 +824,7 @@ crossvalidate_parallel_optimized()
 	}
 
 	// Read actual data (everyone synchronizes after reading data)
-	DIY_Read_all();
+	DIY_Read_data_all();
 	execTime[0] = ITL_util<float>::endTimer( starttime );
 	if( verboseMode == 1 )	printf( "Data read complete .. all processes synced\n" );
 
@@ -1049,8 +1049,8 @@ crossvalidate_blockwise_parallel_optimized()
 		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
 
 		// post a read for the block
-		if( fieldType == 0 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(data[i]));
-		if( fieldType == 1 ) DIY_Add_block_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
+		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
+		if( fieldType == 1 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, complex, (void**)&(vectordata[i]));
 
 		// print the block bounds
 		for (int j = 0; j < 3; j++)
@@ -1070,7 +1070,7 @@ crossvalidate_blockwise_parallel_optimized()
 	}
 
 	// Read actual data (everyone synchronizes after reading data)
-	DIY_Read_all();
+	DIY_Read_data_all();
 	execTime[0] = ITL_util<float>::endTimer( starttime );
 	if( verboseMode == 1 )	printf( "Data read complete .. all processes synced\n" );
 

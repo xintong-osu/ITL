@@ -32,8 +32,11 @@ public:
 	static T
 	mirror( T val, T low, T high )
 	{
-		if( val < low)		return low + ( low - val );
-		if( val > high )	return high - ( val - high );
+		//if( val < low)		return low + ( low - val );
+		//if( val > high )	return high - ( val - high ) ;
+		if( val < low)		return low + ( low - val ) - 1;
+		if( val > high )	return high - ( val - high ) - 1;
+
 		return val;
 	}// end function
 	
