@@ -27,7 +27,7 @@ histHigh 255
 
 # Total number of blocks across all processors.
 # Required only if DIY is being used.
-nBlock 2
+nBlock 1
 
 # Thickness of ghost layer for each block
 neighborhoodSize 6

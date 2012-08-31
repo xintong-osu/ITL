@@ -67,7 +67,7 @@ target_link_libraries(${PROJECT_NAME} ITLib)
 target_link_libraries(${PROJECT_NAME} diy) 
 target_link_libraries(${PROJECT_NAME} bil) 
 target_link_libraries(${PROJECT_NAME} z) 
-target_link_libraries(${PROJECT_NAME} pnetcdf) 
+target_link_libraries(${PROJECT_NAME} pnetcdf)
 #
 # $Log$
 #

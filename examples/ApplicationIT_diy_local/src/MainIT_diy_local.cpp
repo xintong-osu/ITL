@@ -96,6 +96,7 @@ int main( int argc, char** argv )
 {
 	int numProcs;
 	int rank;
+	int num_threads = 4; // number of threads DIY can use
 
 	// Initialize MPI
 	MPI_Init( &argc, &argv );
@@ -164,7 +165,7 @@ int main( int argc, char** argv )
 	}
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
+	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Decompose domain (first without ghost layers)
@@ -287,6 +288,8 @@ int main( int argc, char** argv )
 		fprintf( stderr, "Block size (no ghost): %d %d %d\n", dataSize[0], dataSize[1], dataSize[2] );
 		fprintf( stderr, "Block boundary: %g %g %g %g %g %g\n", lowF[0], lowF[1], lowF[2],
 																highF[0], highF[1], highF[2] );
+		int enhancedSize[3];
+		int nVertEnhanced;
 
 		if( fieldType == 0 )
 		{
@@ -301,6 +304,8 @@ int main( int argc, char** argv )
 				lowPad[i] = (int)lowF[i] - paddedLow[i];
 				highPad[i] = paddedHigh[i] - (int)highF[i];
 
+				enhancedSize[i] =  ( paddedHigh[i] - paddedLow[i] + 1 );
+
 				//lowF[i] = lowF[i] + lowPad[i];
 				//highF[i] = highF[i] - highPad[i];
 				//low[i] = low[i] + lowPad[i];
@@ -311,60 +316,49 @@ int main( int argc, char** argv )
 			scalarField = new ITL_field_regular<SCALAR>( data[k],
 														 nDim, lowF, highF,
 														 lowPad, highPad, neighborhoodSizeArray );
+
+			//#ifdef DEBUG_MODE
 			fprintf( stderr, "Block boundary: %g %g %g %g %g %g\n", lowF[0], lowF[1], lowF[2],
 																	highF[0], highF[1], highF[2] );
 			fprintf( stderr, "Padded Block boundary: %d %d %d %d %d %d\n", paddedLow[0], paddedLow[1], paddedLow[2],
 																		   paddedHigh[0], paddedHigh[1], paddedHigh[2] );
-			//#ifdef DEBUG_MODE
+			fprintf( stderr, "Pad: %d %d %d %d %d %d\n", lowPad[0], lowPad[1], lowPad[2],
+					highPad[0], highPad[1], highPad[2] );
+			fprintf( stderr, "Padded size: %d %d %d\n", enhancedSize[0], enhancedSize[1], enhancedSize[2] );
+			fprintf( stderr, "Nhood: %d %d %d\n", neighborhoodSizeArray[0], neighborhoodSizeArray[1], neighborhoodSizeArray[2] );
+
 			SCALAR m = ITL_util<SCALAR>::Min( data[k], scalarField->getSize() );
 			SCALAR M = ITL_util<SCALAR>::Max( data[k], scalarField->getSize() );
 			printf( "Block value range: %g %g\n", m, M );
 			//#endif
 
-			if( lowPad[0] == 0 )
-			{
-				int enhancedSize[3];
-				for( int i=0; i<3; i++ )
-					enhancedSize[i] =  ( paddedHigh[i] - paddedLow[i] + 1 );
-				int nVertEnhanced = enhancedSize[0] * enhancedSize[1] * enhancedSize[2];
-				FILE* dataFile = fopen( "/home/abon/block0_0.bin", "wb" );
-				assert( dataFile != NULL );
-				fwrite( enhancedSize, sizeof(int), 3, dataFile );
-				fwrite( data[k], sizeof(float), nVertEnhanced, dataFile );
-				fclose( dataFile );
-			}
-			if( lowPad[0] == 6 )
-			{
-				int enhancedSize[3];
-				for( int i=0; i<3; i++ )
-					enhancedSize[i] =  ( paddedHigh[i] - paddedLow[i] + 1 );
-				int nVertEnhanced = enhancedSize[0] * enhancedSize[1] * enhancedSize[2];
-				FILE* dataFile = fopen( "/home/abon/block1_0.bin", "wb" );
-				assert( dataFile != NULL );
-				fwrite( enhancedSize, sizeof(int), 3, dataFile );
-				fwrite( data[k], sizeof(float), nVertEnhanced, dataFile );
-				fclose( dataFile );
-			}
-	
 			// Create bin field
 			//cout << "1" << endl;
 			if( k == 0 && histogramLowEnd != histogramHighEnd )
 				histMapper_scalar->setHistogramRange( histogramLowEnd, histogramHighEnd );
 			histMapper_scalar->computeHistogramBinField_Scalar( scalarField, &binField, nBin );
 
-			globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( binField, histogram, nBin );
-
-				// Compute frequencies
-				//cout << "0" << endl;
-			globalEntropyComputer_scalar->computeHistogramFrequencies();
-
-				// Get histogram frequencies
-				//cout << "1" << endl;
-			freqList[k] = new int[nBin];
-			globalEntropyComputer_scalar->getHistogramFrequencies( freqList[k] );
-			for( int i=0; i<nBin; i++ )
-				fprintf( stderr, "%d, ", freqList[k][i] );
-			fprintf( stderr, "\n" );
+			//#ifdef DEBUG_MODE
+			nVertEnhanced = enhancedSize[0] * enhancedSize[1] * enhancedSize[2];
+			FILE* debugFile1;
+			stringstream temp1( stringstream::in | stringstream::out );
+			temp1 << "./debug/block_" << rank << "_" << k << ".bin";
+			string filename1 = temp1.str();
+			debugFile1 = fopen( filename1.c_str(), "wb" );
+			assert( debugFile1 != NULL );
+			fwrite( enhancedSize, sizeof(int), 3, debugFile1 );
+			fwrite( data[k], sizeof(float), nVertEnhanced, debugFile1 );
+			fclose( debugFile1 );
+			FILE* debugFile2;
+			stringstream temp2( stringstream::in | stringstream::out );
+			temp2 << "./debug/bblock_" << rank << "_" << k << ".bin";
+			string filename2 = temp2.str();
+			debugFile2 = fopen( filename2.c_str(), "wb" );
+			assert( debugFile2 != NULL );
+			//fwrite( enhancedSize, sizeof(int), 3, dataFile );
+			fwrite( binField->getDataFull(), sizeof(int), nVertEnhanced, debugFile2 );
+			fclose( debugFile2 );
+			//#endif
 
 			// Initialize class that can compute entropy
 			//cout << "2" << endl;
@@ -376,6 +370,8 @@ int main( int argc, char** argv )
 
 			// Save local entropy field
 			fprintf( stderr, "saving entropy field for block %d ...\n", k );
+			fprintf( stderr, "outblock boundary: %g %g %g %g %g %g\n", lowF[0], lowF[1], lowF[2],
+																	highF[0], highF[1], highF[2] );
 			blockSize[0] = (int)( highF[0] - lowF[0] + 1 );
 			blockSize[1] = (int)( highF[1] - lowF[1] + 1 );
 			blockSize[2] = (int)( highF[2] - lowF[2] + 1 );
@@ -397,12 +393,21 @@ int main( int argc, char** argv )
 			//								lowInt[1], highInt[1],
 			//								lowInt[2], highInt[2] );
 
+			FILE* debugFile3;
+			stringstream temp3( stringstream::in | stringstream::out );
+			temp3 << "./debug/lblock_" << rank << "_" << k << ".bin";
+			string filename3 = temp3.str();
+			debugFile3 = fopen( filename3.c_str(), "wb" );
+			assert( debugFile3 != NULL );
+			fwrite( blockSize, sizeof(int), 3, debugFile3 );
+			fwrite( &localEntropyList[k][6], sizeof(float), blockSize[0]*blockSize[1]*blockSize[2], debugFile3 );
+			fclose( debugFile3 );
+
 			// Clear up
 			delete localEntropyComputer_scalar;
 			delete binField;
 			binField = NULL;
 			delete scalarField;
-
 		}
 		if( fieldType == 1 )
 		{

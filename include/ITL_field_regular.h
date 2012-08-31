@@ -551,23 +551,24 @@ public:
 	virtual void
 	getDataBetween( int* lowBoundary, int* highBoundary, T* retData )
 	{
-		// Count number of vertices requested
-		//int* dimLength = ITL_util<int>::subtractArrays( highBoundary, lowBoundary, this->grid->nDim );
-		//ITL_util<int>::addArrayScalar( dimLength, 1, this->grid->nDim );
-		//int nV = ITL_util<int>::prod( dimLength, this->grid->nDim );
-		//int* dimLength = ITL_util<int>::subtractArrays( highBoundary, lowBoundary, grid.nDim );
-		//ITL_util<int>::addArrayScalar( dimLength, 1, grid.nDim );
-		//int nV = ITL_util<int>::prod( dimLength, grid.nDim );
-
 		int dimLength[4];
+		int blockLowInt[3], blockHighInt[3], blockSize[3];
+		int blockOffset = 0, localOffset = 0;
+
+		// Count number of vertices requested
 		ITL_util<int>::subtractArrays( highBoundary, lowBoundary, dimLength, grid.getNumDim() );
 		ITL_util<int>::addArrayScalar( dimLength, 1, grid.getNumDim() );
 		int nV = ITL_util<int>::prod( dimLength, grid.getNumDim() );
 
-		int blockOffset = 0;
-		int localOffset = 0;
-		int blockLowInt[3], blockHighInt[3] ;
+		// Get bounds of the grid
 		grid.getBounds( blockLowInt, blockHighInt );
+
+		#ifdef DEBUG_MODE
+		grid.getSize( blockSize );
+		fprintf( stderr, "block boundary: %d %d %d, %d %d %d\n", blockLowInt[0], blockLowInt[1], blockLowInt[2],
+																 blockHighInt[0], blockHighInt[1], blockHighInt[2] );
+		fprintf( stderr, "%d %d %d\n", blockSize[0], blockSize[1], blockSize[2] );
+		#endif
 
 		for( int z=0; z<dimLength[2]; z++ )
 		{
@@ -582,14 +583,32 @@ public:
 				// LowBoundary and highBoundary are in global space.
 				// The need to be converted to the block's local space by
 				// translating relative to the current block's start point.
-				blockOffset = grid.convert3DIndex( lowBoundary[0] - blockLowInt[0],
-												   lowBoundary[1] - blockLowInt[1] + y,
+				blockOffset = grid.convert3DIndex( lowBoundary[0]  - blockLowInt[0],
+												   lowBoundary[1]  - blockLowInt[1] + y,
 												   lowBoundary[2]  - blockLowInt[2] + z );
+				//blockOffset = ( lowBoundary[2] - blockLowInt[2] + z ) * blockSize[0] * blockSize[1]
+				 //             + ( lowBoundary[1] - blockLowInt[1] + y ) * blockSize[0]
+				  //            + ( lowBoundary[0]  - blockLowInt[0] );
 
-				memcpy( (T*)(retData + localOffset ) , (T*)(getDataFull() +blockOffset ) , dimLength[0] * sizeof( T ) );
+				//fprintf( stderr, "%d %d %d %d\n", y, z, blockOffset, localOffset );
+				//if( blockOffset + dimLength[0] > blockSize[0]*blockSize[1]*blockSize[2] )
+				//{
+
+				//	fprintf( stderr, "%d %d %d\n", lowBoundary[0]  - blockLowInt[0],
+				//								   lowBoundary[1] - blockLowInt[1] + y,
+				//								   lowBoundary[2] - blockLowInt[2] + z );
+				//	fprintf( stderr, "%d %d %d\n", dimLength[0], dimLength[2], dimLength[2] );
+				//	fprintf( stderr, "%d %d %d\n", blockSize[0], blockSize[2], blockSize[2] );
+				//	fprintf( stderr, "%d %d %d %d\n", y, z, blockOffset, localOffset );
+				//	fprintf( stderr, "%d %d\n", blockOffset + dimLength[0], blockSize[0]*blockSize[1]*blockSize[2]);
+				//}
+				//fprintf( stderr, "%d %d %d %d\n", y, z, blockOffset, localOffset );
+
+				memcpy( (T*)(retData + localOffset ) , (T*)(getDataFull()+blockOffset ) , dimLength[0] * sizeof( T ) );
 				localOffset += dimLength[0];
 			}
 		}
+
 
 	}// end function
 	

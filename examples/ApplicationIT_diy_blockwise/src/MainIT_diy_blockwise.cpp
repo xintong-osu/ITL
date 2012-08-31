@@ -108,6 +108,7 @@ int main( int argc, char** argv )
 {
 	int numProcs;
 	int rank;
+	int num_threads = 4; // number of threads DIY can use
 
 	// Initialize MPI
 	MPI_Init( &argc, &argv );
@@ -319,7 +320,7 @@ int main( int argc, char** argv )
 	else if( parallelOpMode = WITH_DIY )
 	{
 		// Initialize DIY after initializing MPI
-		DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
+		DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
 		if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 		// Create the blocking and default assignment

@@ -129,7 +129,7 @@ public:
 		// Compute the range over which histogram computation needs to be done
 		if( histogramRangeSet == false )
 		{
-			//cout << "setting histogram range" << endl;
+			fprintf( stderr, "setting histogram range\n" );
 			// Get min-max values of the scalar field
 			// ******************* Need to resolve typecast issue begin *************************
 			//minValue = ITL_util<SCALAR>::Min( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
@@ -156,6 +156,7 @@ public:
 		int dimWithPad[4];
 		(*binField)->getSizeWithPad( dimWithPad );
 		//cout << "starting iteration" << endl;
+
 		for( int z=0; z<dimWithPad[2]; z++ )
 		{
 			for( int y=0; y<dimWithPad[1]; y++ )
@@ -176,6 +177,7 @@ public:
 				}
 			}
 		}
+
 		///cout << "data scan completed" << endl;
 
 	}// end function

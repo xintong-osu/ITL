@@ -14,7 +14,7 @@ nDim 3
 nBin 100
 
 histLow 0
-histLow 255
+histHigh 255
 
 # If patch file is empty (denoted by !), then the default mapping is used.
 patchFile !
@@ -26,7 +26,10 @@ nZ 64
 
 # Total number of blocks across all processors.
 # Required only if DIY is being used.
-nBlock 64
+nBlock 16
+
+# Thickness of ghost layer for each block
+neighborhoodSize 6
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
-verbose 0
+verbose 1

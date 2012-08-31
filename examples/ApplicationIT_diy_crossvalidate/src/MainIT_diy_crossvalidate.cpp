@@ -42,6 +42,7 @@ list<string> argValues;
 
 int numProcs;
 int rank;
+int num_threads = 4; // number of threads DIY can use
 
 int functionType = 0;
 int fieldType = 0;
@@ -509,7 +510,7 @@ crossvalidate_parallel()
 	starttime = ITL_util<float>::startTimer();
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
+	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Create the blocking and default assignment
@@ -768,7 +769,7 @@ crossvalidate_parallel_optimized()
 	starttime = ITL_util<float>::startTimer();
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
+	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Create the blocking and default assignment
@@ -1014,7 +1015,7 @@ crossvalidate_blockwise_parallel_optimized()
 	starttime = ITL_util<float>::startTimer();
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
+	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Create the blocking and default assignment

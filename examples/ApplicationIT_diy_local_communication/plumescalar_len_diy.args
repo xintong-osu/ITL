@@ -1,0 +1,41 @@
+# Input scalar field.
+# SURVEYOR
+# inputField /home/chaudhua/code/chaudhua/itl_repo/sampledata/15plume3d421.mg
+# DAVINCI2
+inputField /media/Data/Data/VolumeData/plume/15plume3d421.mg
+# LAPTOP
+# inputField /media/Data/Data/VolumeData/plume/15plume3d421.raw
+
+# Output file which stores blockwise entropies in binary format.
+outFile plumescalar_en_local.out
+
+# Type of the field. 0 for scalar, 1 for vector.
+fieldType 0
+
+# Size of input scalar field.
+nX 126
+nY 126
+nZ 512
+
+# Number of dimensions of input scalar field.
+nDim 3
+
+# Number of bins of the histogram.
+nBin 100
+
+#Lower and upper limits of the histogram range
+histLow 0
+histHigh 20.834
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+# Total number of blocks across all processors.
+# Required only if DIY is being used.
+nBlock 256
+
+# Thickness of ghost layer for each block
+neighborhoodSize 6
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 0

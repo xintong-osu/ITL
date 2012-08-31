@@ -36,6 +36,8 @@ using namespace std;
 list<string> argNames;
 list<string> argValues;
 
+int num_threads = 4; // number of threads DIY can use
+
 char* inputFieldFile = NULL; 	
 char* patchFile = NULL;
 
@@ -232,7 +234,7 @@ main( int argc, char** argv )
 		histMapper_vector = new ITL_histogrammapper<VECTOR3>( histogram );
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, MPI_COMM_WORLD );
+	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Create the blocking and default assignment
