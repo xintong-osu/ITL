@@ -108,7 +108,7 @@ mxArray *mxNBinList = NULL, *mxScoreList = NULL, *mxOptNBinList = NULL;
 // returns: pointer to resulting merged item
 //
 void
-ComputeMerge(char **items, int* gids, int nitems )
+ComputeMerge(char **items, int* gids, int nitems, int* hdr )
 {
 	// the result of the merge: type must match items in calling function--
 	// we have casted away the compiler's type-checking and are on our own
@@ -152,41 +152,32 @@ CreateItem(int *hdr)
 // side effects: deletes the item
 //
 void
-DeleteItem(char *item)
+DeleteItem( void *item)
 {
-  delete[] item;
+  delete[] (int* )item;
+}
+/**
+ * user-defined callback function for destroying a received item
+ * @item item to be destroyed
+ */
+void DestroyItem(void *item)
+{
+	delete[] (int *)item;
 }
 //
 // user-defined callback function for creating an MPI datatype for the
-//   received item
+//   received item being merged
 //
 // item: pointer to the item
-// char * is used as a generic pointers to bytes, not necessarily to strings
-// abs_addr: whether offsets in the MPI datatype are absolutely addressed via
-//  MPI_BOTTOM, or relatively addressed via the start of the item
-//  true: uses absolute addressing, false: uses relative addressing
+// dtype: pointer to the datatype
+// hdr: quantity information (unused in this example)
 //
-// side effects: creates & commits the MPI datatype
+// side effects: commits the DIY datatype but DIY will cleanup datatype for you
 //
-// returns: pointer to the datatype
-//
-void*
-CreateType(void *item, DIY_Datatype *dtype )
+void
+CreateMergeType(void *item, DIY_Datatype *dtype, int* hdr )
 {
-
-	//MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
-	//MPI_Type_contiguous(nBin, MPI_INT, dtype);
-	//MPI_Type_commit(dtype); // DIY will free this resource for you
-	//abs_addr = false;
-	//return dtype;
-	//struct map_block_t map[1] = {
-	//	{MPI_INT, OFST, nBin, 0, 1},
-	// };
-  	//DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
-  	//return MPI_BOTTOM;
-
 	DIY_Create_vector_datatype( nBinCurrent, 1, DIY_INT, dtype );
-	return item;
 }
 
 /**
@@ -510,7 +501,7 @@ crossvalidate_parallel()
 	starttime = ITL_util<float>::startTimer();
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
+	DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Create the blocking and default assignment
@@ -519,7 +510,7 @@ crossvalidate_parallel()
 	int given[3] = {0, 0, 0};
 
 	// Decompose domain
-	DIY_Decompose( 0, 0, 0, given );
+	int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
 
 	// Create data type for vectors
 	MPI_Datatype complex;
@@ -542,7 +533,7 @@ crossvalidate_parallel()
 
 	for (int i = 0; i < nblocks; i++)
 	{
-		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
+		DIY_Block_starts_sizes( did, i, &diy_min[3*i], &diy_size[3*i] );
 
 		// post a read for the block
 		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, MPI_FLOAT, (void**)&(data[i]));
@@ -652,11 +643,11 @@ crossvalidate_parallel()
 
 		// Merge the local analyses
 		nBinCurrent = nBinArray[i]; 					/*********************/
-		DIY_Merge_blocks( (char**)freqList, (int **)NULL,
+		DIY_Merge_blocks( did, (char**)freqList, (int **)NULL,
 						  rounds, kvalues,
 						  &ComputeMerge,
-						  &CreateItem,
-						  &CreateType, &nb_merged );
+						  &CreateItem, &DestroyItem,
+						  &CreateMergeType, &nb_merged );
 
 		// Compute cross-validation score based on the merged frequencies
 		if (nb_merged)
@@ -769,7 +760,7 @@ crossvalidate_parallel_optimized()
 	starttime = ITL_util<float>::startTimer();
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
+	DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Create the blocking and default assignment
@@ -778,7 +769,7 @@ crossvalidate_parallel_optimized()
 	int given[3] = {0, 0, 0};
 
 	// Decompose domain
-	DIY_Decompose( 0, 0, 0, given );
+	int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
 
 	// Create data type for vectors
 	MPI_Datatype complex;
@@ -925,7 +916,8 @@ crossvalidate_parallel_optimized()
 	DIY_Merge_blocks( (char**)freqList, (int **)NULL,
 					  rounds, kvalues,
 					  &ComputeMerge,
-					  &CreateItem,// &DeleteItem,
+					  &CreateItem,
+					  &DeleteItem,
 					  &CreateType, &nb_merged );
 	//cout << "Merged " << endl;
 
@@ -1015,7 +1007,7 @@ crossvalidate_blockwise_parallel_optimized()
 	starttime = ITL_util<float>::startTimer();
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
+	DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Create the blocking and default assignment
@@ -1024,7 +1016,7 @@ crossvalidate_blockwise_parallel_optimized()
 	int given[3] = {0, 0, 0};
 
 	// Decompose domain
-	DIY_Decompose( 0, 0, 0, given );
+	int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
 
 	// Create data type for vectors
 	MPI_Datatype complex;

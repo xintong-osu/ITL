@@ -18,7 +18,7 @@ ITL_entropycore::computeEntropy_HistogramBased( int* freqArray, int nPoint, int 
 	float entropy = 0;
 	for( int i = 0; i<nBin; i++ )
 	{
-		entropy += ( probArray[i] * ( probArray[i] == 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
+		entropy += ( probArray[i] * ( probArray[i] <= 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
 	}
 
 	// Change sign
@@ -44,7 +44,7 @@ ITL_entropycore::computeEntropy_HistogramBased2( float* probArray, int nBin, boo
 	float entropy = 0;
 	for( int i = 0; i<nBin; i++ )
 	{
-		entropy += ( probArray[i] * ( probArray[i] == 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
+		entropy += ( probArray[i] * ( probArray[i] <= 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
 	}
 
 	// Change sign
@@ -70,7 +70,7 @@ ITL_entropycore::computeEntropy_HistogramBased2( double* probArray, int nBin, bo
 	double entropy = 0;
 	for( int i = 0; i<nBin; i++ )
 	{
-		entropy += ( probArray[i] * ( probArray[i] == 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
+		entropy += ( probArray[i] * ( probArray[i] <= 0 ? 0 : ( log( probArray[i] ) / log(2.0) ) ) );
 	}
 
 	// Change sign

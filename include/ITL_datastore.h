@@ -50,7 +50,7 @@ public:
 		this->nel = that.nel;
 		this->array = NULL;
 		this->array = new T[nel];
-		memcpy( this->array, that.getData(), sizeof(T)*nel );
+		memcpy( this->array, that.array, sizeof(T)*nel );
 	}
 
 	ITL_datastore( ITL_datastore<T>& that )

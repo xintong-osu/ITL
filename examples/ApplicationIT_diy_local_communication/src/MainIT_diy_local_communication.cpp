@@ -95,7 +95,7 @@ int verboseMode = 1;
 DIY_Datatype* SendItemType(int *cts, char** pts);
 DIY_Datatype* RecvItemType(int *cts);
 void* CreateWriteType( void *item, int lid, DIY_Datatype *dtype );
-void Compute( int rank, int lid );
+void Compute( int did, int lid );
 void expandBlockData( float **blockData,
 					  float *lowF, float *highF,
 		  	  	  	  int* lowPad, int* highPad,
@@ -183,13 +183,13 @@ int main( int argc, char** argv )
 	//}
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
+	DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	fprintf( stderr, "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Decompose domain (with ghost layers)
 	// Note in the blocking call that we are not adding extra ghost cells, but we
 	// are sharing boundaries between blocks (share_face = 1)
-	DIY_Decompose( 0, 0, 0, given );
+	int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
 
 	// Allocate memory for pointers that will hold block data
 	SCALAR* data[nblocks];
@@ -206,7 +206,7 @@ int main( int argc, char** argv )
 	int maxDimLength = 0;
 	for (int i = 0; i < nblocks; i++)
 	{
-		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
+		DIY_Block_starts_sizes( did, i, &diy_min[3*i], &diy_size[3*i] );
 
 		// post a read for the block
 		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
@@ -313,7 +313,7 @@ int main( int argc, char** argv )
 	// exchange neighbors
 	if( verboseMode == 1 ) fprintf( stderr, "Starting Neighbor exchange ...\n" );
   	starttime = ITL_util<float>::startTimer();
-  	DIY_Exchange_neighbors( receivedItems, num_items_recvd, 1.0, &RecvItemType, &SendItemType );
+  	DIY_Exchange_neighbors( did, receivedItems, num_items_recvd, 1.0, &RecvItemType, &SendItemType );
   	execTime[2] = execTime[2] + ITL_util<float>::endTimer( starttime );
   	if( verboseMode == 1 ) fprintf( stderr, "Neighbor exchange done ...\n" );
 
@@ -514,9 +514,11 @@ int main( int argc, char** argv )
 	execTime[3] = ITL_util<float>::endTimer( starttime );
 
 
-	if( verboseMode == 1 ) fprintf( stderr, "%d: Read/Compute/Communicaiton/Write Time: %g %g %g %g seconds\n",
+	if( verboseMode == 1 )
+		fprintf( stderr, "%d: Read/Compute/Communicaiton/Write Time: %g %g %g %g seconds\n",
 								   rank, execTime[0], execTime[1], execTime[2], execTime[3] );
-	else fprintf( stderr, "%d, %g, %g, %g, %g\n", rank, execTime[0], execTime[1], execTime[2], execTime[3]  );
+	else
+		fprintf( stderr, "%d, %g, %g, %g, %g\n", rank, execTime[0], execTime[1], execTime[2], execTime[3]  );
 
 	// Clear up
 	delete [] diy_min;
@@ -539,7 +541,7 @@ int main( int argc, char** argv )
 // computation for my local block number lid (local ID)
 // Here I assume x spans from left to right, y spans from front to back and z spans from bottom to top
 //
-void Compute( int rank, int lid )
+void Compute( int did, int lid )
 {
 	float m, M;
 	int lowBoundary[3];
@@ -732,7 +734,7 @@ void Compute( int rank, int lid )
 		#endif
 
 		dataToSend[lid][iN][0] = iN+1;						// Layer type
-		dataToSend[lid][iN][1] = rank;						// Sender rank
+		dataToSend[lid][iN][1] = did;						// Sender rank
 		dataToSend[lid][iN][2] = lid;						// Sender local block id
 		dataToSend[lid][iN][3] = nDataPointsToSend[iN];		// Message size
 		scalarFieldBlockArray[lid]->getDataBetween( lowBoundary, highBoundary, &dataToSend[lid][iN][4] );
@@ -755,7 +757,7 @@ void Compute( int rank, int lid )
 		fprintf( stderr, "startindex: %d\n", startIndex );
 		#endif
 
-		DIY_Enqueue_item_dirs( lid, (void *)( &dataToSend[lid][iN][0] ), NULL,
+		DIY_Enqueue_item_dirs( did, lid, (void *)( &dataToSend[lid][iN][0] ), NULL,
 							   (nDataPointsToSend[iN]+4) * sizeof(SCALAR),
 							   &dirs[iN], 1, NULL );
 		//DIY_Enqueue_item_dirs( lid, (void *)( &dataToSend[startIndex] ), NULL,
@@ -1073,6 +1075,23 @@ getRegionIndex( int regionType, int nReturnedRegion, float* receivedRegionID )
 }// end function
 
 //
+// makes DIY datatype for sending and receiving one item
+//
+// dtype: pointer to the datatype
+//
+void
+ItemDtype( DIY_Datatype *dtype ) {
+
+  struct map_block_t map[1] =
+  {
+    {DIY_INT, OFST, 1, 0},
+  };
+
+  DIY_Create_struct_datatype(0, 1, map, dtype);
+
+}
+
+//
 // makes MPI datatype for receiving one item
 //
 // cts: pointer to counts message
@@ -1081,6 +1100,7 @@ getRegionIndex( int regionType, int nReturnedRegion, float* receivedRegionID )
 //
 // returns: pointer to MPI datatype
 //
+/*
 DIY_Datatype*
 RecvItemType( int *cts )
 {
@@ -1121,19 +1141,20 @@ SendItemType( int *cts, char** pts )
 
 	return dtype;
 }
+*/
 
 void*
 CreateWriteType( void *item, int lid, DIY_Datatype *dtype )
 {
 	int min[3], size[3]; // block extents
-	DIY_Block_starts_sizes( lid, min, size );
-	int block_size = size[0] * size[1] * size[2];
+	//DIY_Block_starts_sizes( lid, min, size );
+	//int block_size = size[0] * size[1] * size[2];
 
 	#ifdef DEBUG_MODE
 	fprintf( stderr, "Block id: %d and size: %d\n", lid, block_size );
 	#endif
 
-	DIY_Create_vector_datatype( block_size + 6, 1, DIY_FLOAT, dtype );
+	//DIY_Create_vector_datatype( block_size + 6, 1, DIY_FLOAT, dtype );
 
 	return item;
 }

@@ -81,10 +81,10 @@ void*
 CreateWriteType( void *item, int lid, DIY_Datatype *dtype )
 {
 	int min[3], size[3]; // block extents
-	DIY_Block_starts_sizes( lid, min, size );
-	int block_size = size[0] * size[1] * size[2];
-	fprintf( stderr, "Block id: %d and size: %d\n", lid, block_size );
-	DIY_Create_vector_datatype( block_size + 6, 1, DIY_FLOAT, dtype );
+	//DIY_Block_starts_sizes( lid, min, size );
+	//int block_size = size[0] * size[1] * size[2];
+	//fprintf( stderr, "Block id: %d and size: %d\n", lid, block_size );
+	//DIY_Create_vector_datatype( block_size + 6, 1, DIY_FLOAT, dtype );
 	return item;
 }
 
@@ -165,11 +165,11 @@ int main( int argc, char** argv )
 	}
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
+	DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Decompose domain (first without ghost layers)
-	DIY_Decompose( 0, 0, 0, given );
+	int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
 
 	// Serially visit the blocks (?)
 	int* diy_min_noghost = new int[3*nblocks];
@@ -179,7 +179,7 @@ int main( int argc, char** argv )
 	starttime = ITL_util<float>::startTimer();
 	for (int i = 0; i < nblocks; i++)
 	{
-		DIY_Block_starts_sizes(i, &diy_min_noghost[3*i], &diy_size_noghost[3*i] );
+		DIY_Block_starts_sizes( did, i, &diy_min_noghost[3*i], &diy_size_noghost[3*i] );
 
 		// print the block bounds
 		for (int j = 0; j < 3; j++)
@@ -200,7 +200,7 @@ int main( int argc, char** argv )
 	// Decompose domain (with ghost layers) 
 	// Note in the blocking call that we are not adding extra ghost cells, but we
 	// are sharing boundaries between blocks (share_face = 1)
-	DIY_Decompose( 0, neighborhoodSize, 0, given );
+	did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 1, neighborhoodSizeArray, given );
 
 	// Allocate memory for pointers that will hold block data
 	float* data[nblocks];	
@@ -216,7 +216,7 @@ int main( int argc, char** argv )
 	starttime = ITL_util<float>::startTimer();	
 	for (int i = 0; i < nblocks; i++)
 	{ 
-		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
+		DIY_Block_starts_sizes( did, i, &diy_min[3*i], &diy_size[3*i] );
 	
 		// post a read for the block
 		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
@@ -317,7 +317,7 @@ int main( int argc, char** argv )
 														 nDim, lowF, highF,
 														 lowPad, highPad, neighborhoodSizeArray );
 
-			//#ifdef DEBUG_MODE
+			#ifdef DEBUG_MODE
 			fprintf( stderr, "Block boundary: %g %g %g %g %g %g\n", lowF[0], lowF[1], lowF[2],
 																	highF[0], highF[1], highF[2] );
 			fprintf( stderr, "Padded Block boundary: %d %d %d %d %d %d\n", paddedLow[0], paddedLow[1], paddedLow[2],
@@ -330,7 +330,7 @@ int main( int argc, char** argv )
 			SCALAR m = ITL_util<SCALAR>::Min( data[k], scalarField->getSize() );
 			SCALAR M = ITL_util<SCALAR>::Max( data[k], scalarField->getSize() );
 			printf( "Block value range: %g %g\n", m, M );
-			//#endif
+			#endif
 
 			// Create bin field
 			//cout << "1" << endl;
@@ -372,6 +372,7 @@ int main( int argc, char** argv )
 			fprintf( stderr, "saving entropy field for block %d ...\n", k );
 			fprintf( stderr, "outblock boundary: %g %g %g %g %g %g\n", lowF[0], lowF[1], lowF[2],
 																	highF[0], highF[1], highF[2] );
+			/*
 			blockSize[0] = (int)( highF[0] - lowF[0] + 1 );
 			blockSize[1] = (int)( highF[1] - lowF[1] + 1 );
 			blockSize[2] = (int)( highF[2] - lowF[2] + 1 );
@@ -402,6 +403,7 @@ int main( int argc, char** argv )
 			fwrite( blockSize, sizeof(int), 3, debugFile3 );
 			fwrite( &localEntropyList[k][6], sizeof(float), blockSize[0]*blockSize[1]*blockSize[2], debugFile3 );
 			fclose( debugFile3 );
+			*/
 
 			// Clear up
 			delete localEntropyComputer_scalar;
@@ -444,6 +446,7 @@ int main( int argc, char** argv )
 			localEntropyComputer_vector->computeLocalEntropyOfField( false );
 
 			// Save local entropy field
+			/*
 			fprintf( stderr, "saving entropy field for block %d ...\n", k );
 			blockSize[0] = (int)( highF[0] - lowF[0] + 1 );
 			blockSize[1] = (int)( highF[1] - lowF[1] + 1 );
@@ -465,6 +468,8 @@ int main( int argc, char** argv )
 			//							   lowInt[0], highInt[0],
 			//							   lowInt[1], highInt[1],
 			//							   lowInt[2], highInt[2] );
+			 *
+			 */
 
 			// Clear up
 			delete localEntropyComputer_vector;
@@ -476,6 +481,7 @@ int main( int argc, char** argv )
 	}// End for loop
 	execTime[1] = ITL_util<float>::endTimer( starttime );
 
+	/*
 	// Write local entropy field 
 	if( verboseMode == 1 ) printf( "Writing local entropy field ...\n" );
 	starttime = ITL_util<float>::startTimer();
@@ -487,6 +493,7 @@ int main( int argc, char** argv )
 
 
 	execTime[2] = ITL_util<float>::endTimer( starttime );
+	*/
 	
 	if( verboseMode == 1 ) printf( "%d: Read/Compute/Write Time: %f %f %f seconds\n", rank, execTime[0], execTime[1], execTime[2] );
 	else printf( "%d, %f, %f, %f\n", rank, execTime[0], execTime[1], execTime[2] );

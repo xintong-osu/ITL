@@ -76,13 +76,14 @@ clock_t starttime, endtime;
 // items: pointers to input items
 // nitems: total number of input items
 // char * is used as a generic pointers to bytes, not necessarily to strings
+// hdr: quantity information for items[0] (unused in this example)
 //
 // side effects: allocates resulting merged item
 //
 // returns: pointer to resulting merged item
 //
 void
-ComputeMerge(char **items, int* gids, int nitems)
+ComputeMerge(char **items, int* gids, int nitems, int* hdr)
 {
 	// the result of the merge: type must match items in calling function--
 	// we have casted away the compiler's type-checking and are on our own
@@ -116,7 +117,6 @@ CreateItem(int *hdr)
 
   int *bins = new int[nBin]; // DIY will free this resource for you
   return (char *)bins;
-
 }
 //
 // user-defined callback function for deleting a received item
@@ -126,41 +126,33 @@ CreateItem(int *hdr)
 // side effects: deletes the item
 //
 void
-DeleteItem(char *item)
+DeleteItem(void *item)
 {
-  delete[] item;
+  delete[] (int *)item;
+}
+
+/**
+ * user-defined callback function for destroying a received item
+ * @item item to be destroyed
+ */
+void DestroyItem(void *item)
+{
+	delete[] (int *)item;
 }
 //
 // user-defined callback function for creating an MPI datatype for the
-//   received item
+//   received item being merged
 //
 // item: pointer to the item
-// char * is used as a generic pointers to bytes, not necessarily to strings
-// abs_addr: whether offsets in the MPI datatype are absolutely addressed via
-//  MPI_BOTTOM, or relatively addressed via the start of the item
-//  true: uses absolute addressing, false: uses relative addressing
+// dtype: pointer to the datatype
+// hdr: quantity information (unused in this example)
 //
-// side effects: creates & commits the MPI datatype
+// side effects: commits the DIY datatype but DIY will cleanup datatype for you
 //
-// returns: pointer to the datatype
-//
-void*
-CreateType(void *item, DIY_Datatype *dtype )
+void
+CreateMergeType(void *item, DIY_Datatype *dtype, int* hdr )
 {
-
-	//MPI_Datatype *dtype = new MPI_Datatype; // DIY will free this resource for you
-	//MPI_Type_contiguous(nBin, MPI_INT, dtype);
-	//MPI_Type_commit(dtype); // DIY will free this resource for you
-	//abs_addr = false;
-	//return dtype;
-	//struct map_block_t map[1] = {
-	//	{MPI_INT, OFST, nBin, 0, 1},
-	// };
-  	//DIY_Create_datatype(DIY_Addr(item), 1, map, dtype);
-  	//return MPI_BOTTOM;
-
 	DIY_Create_vector_datatype( nBin, 1, DIY_INT, dtype );
-	return item;
 }
 
 /**
@@ -234,7 +226,7 @@ main( int argc, char** argv )
 		histMapper_vector = new ITL_histogrammapper<VECTOR3>( histogram );
 
 	// Initialize DIY after initializing MPI
-	DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
+	DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 	// Create the blocking and default assignment
@@ -244,7 +236,7 @@ main( int argc, char** argv )
 
 	// Decompose domain
 	// The blocks do not need to share face in this case 
-	DIY_Decompose( 0, 0, 0, given );
+	int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
 
 	// Allocate memory for pointers that will hold block data
 	MPI_Datatype complex; 
@@ -266,7 +258,7 @@ main( int argc, char** argv )
 
 	for (int i = 0; i < nblocks; i++)
 	{ 
-		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
+		DIY_Block_starts_sizes( did, i, &diy_min[3*i], &diy_size[3*i] );
 	
 		// post a read for the block
 		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
@@ -408,11 +400,11 @@ main( int argc, char** argv )
 
 	starttime = ITL_util<float>::startTimer();
 	// Merge the local analyses
-	DIY_Merge_blocks( (char**)freqList, (int **)NULL, //nblocks, (char***)&hist,
+	DIY_Merge_blocks( did, (char**)freqList, (int **)NULL,
 					  rounds, kvalues,
 					  &ComputeMerge,
-					  &CreateItem,// &DeleteItem,
-					  &CreateType, &nb_merged );
+					  &CreateItem, &DestroyItem,
+					  &CreateMergeType, &nb_merged );
 
 	//for (int b = 0; b < nb_merged; b++) {
 	// for (int i = 0; i < nBin; i++)

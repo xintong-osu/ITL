@@ -43,6 +43,8 @@ public:
 	ITL_histogram *histogram;			// ADD-BY-ABON 11/07/2011
 	int nBin;
 
+	//double* pointDistList;
+
 public:
 
 	/**
@@ -55,6 +57,8 @@ public:
 		this->entropyField = NULL;
 		histogramRangeSet = false;		// ADD-BY-ABON 07/19/2011
 		histogram = hist;				// ADD-BY-ABON 11/07/2011
+
+		//pointDistList = NULL;
 	}// End constructor
 
 	/**
@@ -67,6 +71,8 @@ public:
 		nBin = nbin;
 
 		this->entropyField = NULL;
+
+		//pointDistList = NULL;
 
 	}// End constructor
 	
@@ -118,6 +124,8 @@ public:
 		entropyField->getSize( dim );
 		//fprintf( stderr, "Enfield dim: %d %d %d\n", dim[0], dim[1], dim[2] );
 
+		//pointDistList = new double[ dim[0]*dim[1]*dim[2]*nBin ];
+
 		for( int z=0; z<dim[2]; z++ )
 		{
 			for( int y=0; y<dim[1]; y++ )
@@ -133,6 +141,11 @@ public:
 				}// end for : x
 			}// end for : y
 		}// end for : z
+
+
+		//FILE* dumpFile = fopen( "histDump.bin", "wb" );
+		//fwrite( pointDistList, sizeof(double)*dim[0]*dim[1]*dim[2]*nBin, 1, dumpFile );
+		//fclose( dumpFile );
 
 	}// end function
 
@@ -265,6 +278,14 @@ public:
 
 		// Compute entropy
 		float entropy = ITL_entropycore::computeEntropy_HistogramBased( binArray, localFreqList, nNeighbors, nBin, toNormalize );
+
+		// Normalize and save local frequency list
+		double localProbList[nBin];
+		for( int i=0; i<nBin; i++ )
+			localProbList[i] = localFreqList[i] / (double)nNeighbors;
+
+		//memcpy( pointDistList + entropyFieldIndex*nBin, localProbList, sizeof(double)*nBin );
+
 
 		// Store entropy
 		this->entropyField->setDataAt( entropyFieldIndex, entropy );

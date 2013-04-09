@@ -133,6 +133,27 @@ public:
 		}
 	}
 
+	static void
+	multiplyArrayScalar( T* array, T scalar, int len )
+	{
+		for( int i=0; i<len; i++ )
+		{
+			array[i] = array[i]*scalar;
+		}
+	}
+
+	static void
+	divideArrayScalar( T* array, T scalar, int len )
+	{
+		if( scalar == 0 ) return;
+
+		for( int i=0; i<len; i++ )
+		{
+			array[i] = array[i]/scalar;
+		}
+	}
+
+
 	/**
 	 * Index conversion: 3D to 1D
 	 */

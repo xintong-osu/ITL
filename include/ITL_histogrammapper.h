@@ -17,12 +17,12 @@
 //#include "ITL_geodesictree.h"
 #include "ITL_field_regular.h"
 
-template<typename T>
-inline bool isinf(T value)
-{
-	return std::numeric_limits<T>::has_infinity() &&
-		   value == std::numeric_limits<T>::infinity();
-}
+//template<typename T>
+//inline bool isinf(T value)
+//{
+//	return std::numeric_limits<T>::has_infinity() &&
+//		   value == std::numeric_limits<T>::infinity();
+//}
 
 template <class T>
 class ITL_histogrammapper
@@ -813,6 +813,30 @@ public:
 			freqList[ binIds[i] ] ++;
 	}// end function
 
+	static void
+	computeHistogramFrequencies( float* data, float* dataRange, double* freqList, int nPoint, int nbin )
+	{
+		int binId = 0;
+		float range = ( dataRange[1] - dataRange[0] );
+
+		memset( freqList, 0.0, sizeof(double)*nbin );
+
+		// Scan through data
+		for( int i=0; i<nPoint; i++ )
+		{
+			binId = (data[i] - dataRange[0] ) / range;
+			if( binId > nbin-1 )
+				binId = nbin-1;
+
+			freqList[ binId ] ++;
+		}
+
+		for( int i=0; i<nbin; i++ )
+			freqList[i] /= (float)nPoint;
+
+
+	}// end function
+
 	static
 	void computeKDE_scalar( float* data, int nPoint,
 					 	 	double* evalPointArray, int nEvalPoint,
@@ -859,11 +883,11 @@ public:
 					fprintf( stderr, "nan found: %d, %d, %g %g %g\n", i, j, evalPointArray[i], data[j], d );
 					exit(0);
 				}
-				if( isinf( d )  )
-				{
-					fprintf( stderr, "inf found: %d, %d, %g %g %g\n", i, j, evalPointArray[i], data[j], d );
-					exit(0);
-				}
+				//if( isinf( d )  )
+				//{
+				//	fprintf( stderr, "inf found: %d, %d, %g %g %g\n", i, j, evalPointArray[i], data[j], d );
+				//	exit(0);
+				//}
 				sumOfKernels += d;
 			}
 			densityArray[i] = sumOfKernels / (nPoint*h);
@@ -875,11 +899,11 @@ public:
 	double evaluateGaussianKernel( double x, double mu, double var )
 	{
 		double exponent = - ( x - mu )*( x - mu ) / (2*var);
-		if( isinf( exponent )  )
-		{
-			printf( "inf exponent found: %g %g %g\n", x, mu, var );
-			exit(0);
-		}
+		//if( isinf( exponent )  )
+		//{
+		//	printf( "inf exponent found: %g %g %g\n", x, mu, var );
+		//	exit(0);
+		//}
 		#ifdef DEBUG_MODE
 		printf( "exponent: %g %g %g %g\n", x, mu, var, exponent );
 		#endif

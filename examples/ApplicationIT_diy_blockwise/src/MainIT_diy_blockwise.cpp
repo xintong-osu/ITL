@@ -195,11 +195,9 @@ int main( int argc, char** argv )
 			//cout << "-1" << endl;
 
 			// Alocate memory for array of partitions (sub-fields)
-			//cout << "0: " << nblocks << endl;
 			subScalarFieldArray = new ITL_field_regular<SCALAR>[nblocks];
 
 			// Partition field
-			//cout << "1" << endl;
 			scalarField->partitionField( nPartition, &subScalarFieldArray );
 		}
 		else if( fieldType == 1 )
@@ -240,22 +238,20 @@ int main( int argc, char** argv )
 				globalEntropyComputer_scalar = new ITL_globalentropy<SCALAR>( binField, histogram, nBin );
 
 				// Compute entropy
-				//cout << "6" << endl;
 				globalEntropyComputer_scalar->computeGlobalEntropyOfField( false );
 
 				// Print global entropy
-				//cout << "7" << endl;
 				globalEntropyList[i] = globalEntropyComputer_scalar->getGlobalEntropy();
 
 				int lowInt[3], highInt[3];
 				subScalarFieldArray[i].getBounds( lowInt, highInt );
-				printf( "Block Limit: %d, %d, %d, %d, %d, %d, Global Entropy: %f\n", 
-						lowInt[0], highInt[0],
-						lowInt[1], highInt[1],
-						lowInt[2], highInt[2],
-						globalEntropyList[i] );
+				if( globalEntropyList[i] > 0 )
+					fprintf( stderr, "Block Limit: %d, %d, %d, %d, %d, %d, Global Entropy: %f\n",
+									lowInt[0], highInt[0],
+									lowInt[1], highInt[1],
+									lowInt[2], highInt[2],
+									globalEntropyList[i] );
 	
-				//cout << "8" << endl;
 				if( numProcs == 1 && verboseMode == 1)			
 				fprintf( dumpFile, "%d, %d, %d, %d, %d, %d, %f\n", 
 						lowInt[0], highInt[0],
@@ -265,7 +261,6 @@ int main( int argc, char** argv )
  
 
 				// clear up memory
-				//cout << "9" << endl;
 				delete globalEntropyComputer_scalar;
 				delete binField;
 				binField = NULL;
@@ -320,7 +315,7 @@ int main( int argc, char** argv )
 	else if( parallelOpMode = WITH_DIY )
 	{
 		// Initialize DIY after initializing MPI
-		DIY_Init( nDim, ROUND_ROBIN_ORDER, tot_blocks, &nblocks, dataSize, num_threads, MPI_COMM_WORLD );
+		DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
 		if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
 		// Create the blocking and default assignment
@@ -328,8 +323,9 @@ int main( int argc, char** argv )
   		// are sharing boundaries between blocks (share_face = 1)
   		int given[3] = {0, 0, 0};
 
-		// Decompose domain 
-  		DIY_Decompose( 1, 0, 0, given );
+		// Decompose domain
+  		int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
+  		if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
   		// Allocate memory for pointers that will hold block data
   		MPI_Datatype complex;
@@ -353,7 +349,7 @@ int main( int argc, char** argv )
  		for (int i = 0; i < nblocks; i++)
 		{ 
     		// Allocate memory for block
- 			DIY_Block_starts_sizes( i, &diy_min[3*i], &diy_size[3*i] );
+ 			DIY_Block_starts_sizes( did, i, &diy_min[3*i], &diy_size[3*i] );
  			//if( fieldType == 0 )
  			//	data[i] = new SCALAR[diy_size[3*i] * diy_size[3*i+1] * diy_size[3*i+2]];
  			//else if( fieldType == 1 )
