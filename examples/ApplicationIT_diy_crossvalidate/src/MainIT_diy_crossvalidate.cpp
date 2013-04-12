@@ -792,7 +792,7 @@ crossvalidate_parallel_optimized()
 
 	for (int i = 0; i < nblocks; i++)
 	{
-		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
+		DIY_Block_starts_sizes( did, i, &diy_min[3*i], &diy_size[3*i] );
 
 		// post a read for the block
 		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));
@@ -913,12 +913,14 @@ crossvalidate_parallel_optimized()
 	}// End for loop
 
 	// Merge the local analyses
+	/*
 	DIY_Merge_blocks( (char**)freqList, (int **)NULL,
 					  rounds, kvalues,
 					  &ComputeMerge,
 					  &CreateItem,
 					  &DeleteItem,
 					  &CreateType, &nb_merged );
+					  */
 	//cout << "Merged " << endl;
 
 	// Compute cross-validation score based on the merged frequencies
@@ -1039,7 +1041,7 @@ crossvalidate_blockwise_parallel_optimized()
 
 	for (int i = 0; i < nblocks; i++)
 	{
-		DIY_Block_starts_sizes(i, &diy_min[3*i], &diy_size[3*i] );
+		DIY_Block_starts_sizes( did, i, &diy_min[3*i], &diy_size[3*i] );
 
 		// post a read for the block
 		if( fieldType == 0 ) DIY_Add_data_raw( &diy_min[3*i], &diy_size[3*i], inputFieldFile, DIY_FLOAT, (void**)&(data[i]));

@@ -313,7 +313,7 @@ int main( int argc, char** argv )
 	// exchange neighbors
 	if( verboseMode == 1 ) fprintf( stderr, "Starting Neighbor exchange ...\n" );
   	starttime = ITL_util<float>::startTimer();
-  	DIY_Exchange_neighbors( did, receivedItems, num_items_recvd, 1.0, &RecvItemType, &SendItemType );
+  	//DIY_Exchange_neighbors( did, receivedItems, num_items_recvd, 1.0, &RecvItemType, &SendItemType );
   	execTime[2] = execTime[2] + ITL_util<float>::endTimer( starttime );
   	if( verboseMode == 1 ) fprintf( stderr, "Neighbor exchange done ...\n" );
 
@@ -508,9 +508,9 @@ int main( int argc, char** argv )
 	// Write local entropy field
 	if( verboseMode == 1 ) printf( "Writing local entropy field ...\n" );
 	starttime = ITL_util<float>::startTimer();
-	DIY_Write_open_all( outFile, 0 );
-	DIY_Write_blocks_all( (void **)&localEntropyList[0], nblocks, NULL, 0, &CreateWriteType );
-	DIY_Write_close_all();
+	//DIY_Write_open_all( outFile, 0 );
+	//DIY_Write_blocks_all( (void **)&localEntropyList[0], nblocks, NULL, 0, &CreateWriteType );
+	//DIY_Write_close_all();
 	execTime[3] = ITL_util<float>::endTimer( starttime );
 
 

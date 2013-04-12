@@ -65,6 +65,8 @@ ITL_field_regular<VECTOR3> *subVectorFieldArray = NULL;
 
 int tot_blocks = 512;
 int nblocks = 0;				// My local number of blocks
+int given[3] = {0, 0, 0}; // constraints on blocking (none)
+int ghost[6] = {0, 0, 0, 0, 0, 0}; // -x, +x, -y, +y, -z, +z ghost
 
 double execTime[5];
 clock_t starttime, endtime;
@@ -108,7 +110,7 @@ int main( int argc, char** argv )
 {
 	int numProcs;
 	int rank;
-	int num_threads = 4; // number of threads DIY can use
+	int num_threads = 1; // number of threads DIY can use
 
 	// Initialize MPI
 	MPI_Init( &argc, &argv );
@@ -316,15 +318,14 @@ int main( int argc, char** argv )
 	{
 		// Initialize DIY after initializing MPI
 		DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
-		if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
+		if( verboseMode == 1 )	printf( "Process %d\n", rank );
 
 		// Create the blocking and default assignment
   		// Note in the blocking call that we are not adding extra ghost cells, but we
   		// are sharing boundaries between blocks (share_face = 1)
-  		int given[3] = {0, 0, 0};
 
 		// Decompose domain
-  		int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
+  		int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, ghost, given );
   		if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
   		// Allocate memory for pointers that will hold block data
@@ -439,10 +440,10 @@ int main( int argc, char** argv )
 				globalEntropyComputer_scalar->computeHistogramFrequencies();
 
 				// Compute entropy 
-				//globalEntropyComputer_scalar->computeGlobalEntropyOfField( false );
+				globalEntropyComputer_scalar->computeGlobalEntropyOfField( false );
 
 				// Print global entropy
-				//globalEntropyList[k] = globalEntropyComputer_scalar->getGlobalEntropy();
+				globalEntropyList[k] = globalEntropyComputer_scalar->getGlobalEntropy();
 
 				if( verboseMode == 1 ) 
 					printf( "Block Limits: %d, %d, %d, %d, %d, %d, Global entropy: %g\n", diy_min[3*k], diy_max[3*k], \
