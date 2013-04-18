@@ -182,6 +182,60 @@ public:
 
 	}// end function
 
+	/**
+	 * Histogram bin assignment function for scalar fields.
+	 * Creates a scalar field of histogram at each grid vertex.
+	 * @param nBins Number of bins to use in histogram computation.
+	 */
+	void
+	computeHistogramBinField_Scalar_NS( SCALAR* scalarList, int nVal, int* binField, int nBin )
+	{
+		SCALAR nextV, rangeValue;
+
+		//cout << "in" << endl;
+		assert( scalarList != NULL );
+		//cout << "in2" << endl;
+
+		// Compute the range over which histogram computation needs to be done
+		if( histogramRangeSet == false )
+		{
+			fprintf( stderr, "setting histogram range\n" );
+			// Get min-max values of the scalar field
+			// ******************* Need to resolve typecast issue begin *************************
+			//minValue = ITL_util<SCALAR>::Min( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
+			//maxValue = ITL_util<SCALAR>::Max( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
+			histogramMin = ITL_util<SCALAR>::Min( scalarList, nVal );
+			histogramMax = ITL_util<SCALAR>::Max( scalarList, nVal );
+
+			// ******************* Need to resolve typecast issue end *************************
+		}
+		rangeValue = histogramMax - histogramMin;
+
+		// Compute bin width
+		float binWidth = rangeValue / (float)nBin;
+
+		//#ifdef DEBUG_MODE
+		printf( "Min: %g Max: %g Range: %g of the scalar values\n", histogramMin, histogramMax, rangeValue );
+		printf( "Binwidth: %g\n", binWidth );
+		//#endif
+
+		// Scan through each point of the histogram field
+		// and convert field value to bin ID
+		int binId = 0;
+
+		for( int i=0; i<nVal; i++ )
+		{
+			// Obtain the binID corresponding to the value at this location
+			binId = (int)floor( ( scalarList[i] - histogramMin ) / binWidth  );
+			binId = ITL_util<int>::clamp( binId, 0, nBin-1 );
+
+			binField[i] = binId;
+		}
+
+		///cout << "data scan completed" << endl;
+
+	}// end function
+
 
 	/**
 	 * Histogram bin assignment function for vector fields.
@@ -263,6 +317,44 @@ public:
         // delete hPadHisto;
 
 	}// end function
+
+	/**
+	 * Histogram bin assignment function for vector fields.
+	 * Creates a scalar field of histogram at each grid vertex.
+	 * @param nBins Number of bins to use in histogram computation.
+	 */
+	void
+	computeHistogramBinField_Vector_NS( VECTOR3* vecList, int nVec,
+											 int* binField,
+											 int nBin, int iRes = 0, char* binMapFile = NULL )
+	{
+		assert( vecList != NULL );
+		VECTOR3 nextV;
+
+		// Scan through each point of the histogram field
+		// and convert field value to bin ID
+		int index1d = 0;
+		int binId = 0;
+
+		for( int i=0; i<nVec; i++ )
+		{
+			nextV = vecList[i];
+
+			// Obtain the binID corresponding to the value at this location
+			binId = histogram->get_bin_number_3D( nextV, iRes );
+			//cout << binId << endl;
+
+			binId = ITL_util<int>::clamp( binId, 0, nBin-1 );
+			//cout << binId << endl;
+
+			binField[index1d] = binId;
+
+			// increment to the next grid vertex
+			index1d += 1;
+		}
+
+	}// end function
+
 
 	// Read the lookup table provided in the header file
 	void

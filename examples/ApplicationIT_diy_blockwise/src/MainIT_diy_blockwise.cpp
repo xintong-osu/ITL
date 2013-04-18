@@ -325,7 +325,7 @@ int main( int argc, char** argv )
   		// are sharing boundaries between blocks (share_face = 1)
 
 		// Decompose domain
-  		int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, ghost, given );
+  		int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, ghost, nPartition );
   		if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
   		// Allocate memory for pointers that will hold block data

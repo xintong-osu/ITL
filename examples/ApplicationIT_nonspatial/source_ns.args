@@ -1,0 +1,16 @@
+fieldType 1
+
+# Input vector field
+inputField /home/abon/code/chaudhua/itl_repo/sampledata/source.vec 
+
+# If patch file is empty (denoted by !), then the default mapping is used.
+patchFile !
+
+# Number of dimensions of input vector field.
+nDim 3
+
+# Number of bins of the histogram.
+nBin 360
+
+# Select 1 to allow printing out lots of messages, 0 to hide them.
+verbose 1
