@@ -8,17 +8,6 @@
 
 //#define BYTE_SWAP
 
-#include <mpi.h>
-
-#include "diy.h"
-#include "util.hpp"
-#include "assignment.hpp"
-#include "blocking.hpp"
-#include "io.hpp"
-#include "merge.hpp"
-
-//#include "bil.h"
-
 #include "ITL_header.h"
 #include "ITL_base.h"
 #include "ITL_util.h"
