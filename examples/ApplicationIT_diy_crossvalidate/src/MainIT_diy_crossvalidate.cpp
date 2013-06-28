@@ -5,13 +5,13 @@
  * @author Abon
  * @author Teng-Yok
  */
-#define DISPLAY_RESULTS
+#define DISPLAY_RESULTS 0
 //#define BYTE_SWAP
 #define DATA_TO_HIST_GEODESICMAPPING
 
 #include <mpi.h>
 
-#ifdef DISPLAY_RESULTS
+#if DISPLAY_RESULTS
 #include "engine.h"
 #endif
 
@@ -90,7 +90,7 @@ int kvalues[5] = {8, 8, 8, 8, 8}; 		// k-way merging, different options
 double execTime[5];
 clock_t starttime, endtime;
 
-#ifdef DISPLAY_RESULTS
+#if DISPLAY_RESULTS
 Engine *engine = NULL;
 mxArray *mxNBinList = NULL, *mxScoreList = NULL, *mxOptNBinList = NULL;
 #endif
@@ -354,7 +354,7 @@ crossvalidate_serial()
 	printf( "Cross-validation time: %g seconds\n", execTime[0] );
 
 	// Display
-	#ifdef DISPLAY_RESULTS
+	#if DISPLAY_RESULTS
 	double* nBinArray_double = new double[nIter];
 	double* scoreArray_double = new double[nIter];
 	for( int i=0; i<nIter; i++ )
@@ -467,7 +467,7 @@ crossvalidate_serial_optimized()
 	printf( "Cross-validation time: %g seconds\n", execTime[0] );
 
 	// Display
-	#ifdef DISPLAY_RESULTS
+	#if DISPLAY_RESULTS
 	if( fieldType == 1 )
 		nIter = nDivision;
 	double* nBinArray_double = new double[nIter];
@@ -706,7 +706,7 @@ crossvalidate_parallel()
 	{
 		// Display
 		// Display
-		#ifdef DISPLAY_RESULTS
+		#if DISPLAY_RESULTS
 		double* nBinArray_double = new double[nIter];
 		double* scoreArray_double = new double[nIter];
 		for( int i=0; i<nIter; i++ )
@@ -954,7 +954,7 @@ crossvalidate_parallel_optimized()
 																   &nBinOptimal );
 
 			// Display
-			#ifdef DISPLAY_RESULTS
+			#if DISPLAY_RESULTS
 			if( fieldType == 1 )
 				nIter = nDivision;
 			double* nBinArray_double = new double[nIter];
@@ -1170,7 +1170,7 @@ crossvalidate_blockwise_parallel_optimized()
 	}// End for k : blocks
 
 	// Display
-	#ifdef DISPLAY_RESULTS
+	#if DISPLAY_RESULTS
 	double* optNBinList_double = new double[nblocks];
 	for( int i=0; i<nblocks; i++ )
 		optNBinList_double[i] = optimalNumBinList[i];
@@ -1193,7 +1193,7 @@ crossvalidate_blockwise_parallel_optimized()
 
 }// end method
 
-#ifdef DISPLAY_RESULTS
+#if DISPLAY_RESULTS
 void
 displayCrossValidationResult_Matlab( double* nBinList, double* scoreList )
 {

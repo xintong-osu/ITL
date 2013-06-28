@@ -305,8 +305,6 @@ public:
 					//cout << binId << endl;
 					(*binField)->setDataAt( index1d, binId );
 
-
-
 					// increment to the next grid vertex
 					index1d += 1;
 				}
@@ -342,6 +340,7 @@ public:
 
 			// Obtain the binID corresponding to the value at this location
 			binId = histogram->get_bin_number_3D( nextV, iRes );
+			//binId = getBinNumber3DViaTable( nextV, nBin );
 			//cout << binId << endl;
 
 			binId = ITL_util<int>::clamp( binId, 0, nBin-1 );

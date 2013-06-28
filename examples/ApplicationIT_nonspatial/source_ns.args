@@ -10,7 +10,7 @@ patchFile !
 nDim 3
 
 # Number of bins of the histogram.
-nBin 360
+nBin 90
 
 # Select 1 to allow printing out lots of messages, 0 to hide them.
 verbose 1

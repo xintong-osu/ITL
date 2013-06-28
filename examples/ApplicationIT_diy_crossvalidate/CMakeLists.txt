@@ -30,9 +30,9 @@ include_directories(
 include_directories( 
 		${ZLIB_INC}
 	)
-include_directories (
-        "${MATENGINE_INC_DIR}"
-    )	
+#include_directories (
+#        "${MATENGINE_INC_DIR}"
+#    )	
 
 link_directories(
 	${ITL_DIR}/lib
@@ -56,9 +56,9 @@ endif() # ADD-BY-LEETEN 01/04/2012D
 link_directories(
 	${DIY_LIB}
 )
-link_directories( 
-    "${MATENGINE_LIB_DIR}"
-)
+#link_directories( 
+#    "${MATENGINE_LIB_DIR}"
+#)
 
 # grab all the source codes
 AUX_SOURCE_DIRECTORY ("src" SRC_FILES)
@@ -72,10 +72,10 @@ target_link_libraries(${PROJECT_NAME} diy)
 target_link_libraries(${PROJECT_NAME} bil) 
 target_link_libraries(${PROJECT_NAME} z) 
 target_link_libraries(${PROJECT_NAME} pnetcdf) 
-target_link_libraries(${PROJECT_NAME} mx )
-target_link_libraries(${PROJECT_NAME} eng )
-target_link_libraries(${PROJECT_NAME} mat )
-target_link_libraries(${PROJECT_NAME} ut )
+#target_link_libraries(${PROJECT_NAME} mx )
+#target_link_libraries(${PROJECT_NAME} eng )
+#target_link_libraries(${PROJECT_NAME} mat )
+#target_link_libraries(${PROJECT_NAME} ut )
 #
 # $Log$
 #

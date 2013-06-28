@@ -85,7 +85,12 @@ main( int argc, char** argv )
 	if( fieldType == 0 )
 		histMapper_scalar = new ITL_histogrammapper<SCALAR>( histogram );
 	else if( fieldType == 1 )
+	{
 		histMapper_vector = new ITL_histogrammapper<VECTOR3>( histogram );
+		//cout << "1" << endl;
+		histMapper_vector->computeTable( nBin );
+		//cout << "2" << endl;
+	}
 
 	if( fieldType == 0 )
 	{
@@ -137,7 +142,8 @@ main( int argc, char** argv )
 
 		// Print / Save in file
 		for (int i = 0; i < nBin; i++)
-			fprintf(stderr, "freq[%d] = %g\n", i, freqList[i]);
+			//fprintf(stderr, "freq[%d] = %g\n", i, freqList[i]);
+			fprintf(stderr, "%g\n", freqList[i]);
 
 	}
 

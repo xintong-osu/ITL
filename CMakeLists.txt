@@ -37,8 +37,8 @@ set(ZLIB_DIR 	"/usr/local/zlib" CACHE PATH "The path to zlib")
 # ADD-BY-ABON 11/07/2011-END
 
 # Set Matlab engine
-set( MATENGINE_INC_DIR "/home/abon/install/matlabr2011b/extern/include" CACHE PATH "Path to Matlab engine" )
-set( MATENGINE_LIB_DIR "/home/abon/install/matlabr2011b/bin/glnxa64" CACHE PATH "Path to Matlab engine libs" )
+#set( MATENGINE_INC_DIR "/home/abon/install/matlabr2011b/extern/include" CACHE PATH "Path to Matlab engine" )
+#set( MATENGINE_LIB_DIR "/home/abon/install/matlabr2011b/bin/glnxa64" CACHE PATH "Path to Matlab engine libs" )
 
 # set the path of DIY files
 set(DIY_INC "${DIY_DIR}/include")  
