@@ -27,6 +27,20 @@ public:
 	}// end function
 
 	static T
+	HistogramMean( T* bincenterList, T* freqList, int nBin )
+	{
+		T mu = 0, w = 0;
+
+		for( int i=0; i<nBin; i++ )
+		{
+			mu += ( freqList[i] * bincenterList[i] );
+			w += freqList[i];
+		}
+
+		return ( mu / w );
+	}
+
+	static T
 	Variance( T* array, int len, T mean )
 	{
 		T mse = 0;
@@ -36,6 +50,21 @@ public:
 		return ( mse / (float)len );
 
 	}// end function
+
+	static T
+	HistogramVariance( T* bincenterList, T* freqList, int len, T mean )
+	{
+		T mse = 0, w = 0;
+		for( int i=0; i<len; i++ )
+		{
+			mse += freqList[i] * ( bincenterList[i] - mean ) * ( bincenterList[i] - mean ) ;
+			w += freqList[i];
+		}
+
+		return ( mse / w );
+
+	}// end function
+
 
 	static T
 	STD( T* array, int len, T mean )

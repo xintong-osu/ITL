@@ -1,5 +1,5 @@
 # Input scalar field.
-inputField /home/abon/code/chaudhua/itl_repo/sampledata/fuel.raw
+inputField /home/abon/code/chaudhua/itl_repo/sampledata/fuel.vol
 
 # Type of the field. 0 for scalar, 1 for vector.
 fieldType 0
@@ -21,6 +21,8 @@ histHigh 255
 
 # If patch file is empty (denoted by !), then the default mapping is used.
 patchFile !
+
+useDIY 1
 
 # Total number of blocks across all processors.
 # Required only if DIY is being used.

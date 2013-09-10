@@ -166,12 +166,10 @@ int main( int argc, char** argv )
 		histMapper_scalar = new ITL_histogrammapper<SCALAR>( histogram );
 	else if( fieldType == 1 )
 		histMapper_vector = new ITL_histogrammapper<VECTOR3>( histogram );
-	//cout << "-5" << endl;
 
 	// Open file to dump output only if program running on single processor
 	FILE *dumpFile = NULL;	
 	if( numProcs == 1 && verboseMode == 1 )	dumpFile = fopen( "./dump.csv", "w" );
-	//cout << "-4" << endl;
 
 	if( parallelOpMode == NO_DIY )
 	{
@@ -413,6 +411,10 @@ int main( int argc, char** argv )
 		starttime = ITL_util<float>::startTimer();		
 		// Scan through the blocks, compute global entropy and list values 
 		int nBlockElem = 0;
+		float normFreqList[nBin];
+		FILE* distFile = fopen( "./distField_isabel.bin", "wb" );
+		FILE* limitFile = fopen( "./blocklimits_isabel.bin", "wb" );
+
 		for( int k=0; k<nblocks; k++ )
 		{
 
@@ -444,6 +446,13 @@ int main( int argc, char** argv )
 
 				// Print global entropy
 				globalEntropyList[k] = globalEntropyComputer_scalar->getGlobalEntropy();
+
+				globalEntropyComputer_scalar->getHistogramFrequencies( normFreqList );
+
+				fwrite( diy_min + 3*k, sizeof(int), 3, limitFile );
+				fwrite( diy_max + 3*k, sizeof(int), 3, limitFile );
+
+				fwrite( normFreqList, sizeof(float), nBin, distFile );
 
 				if( verboseMode == 1 ) 
 					printf( "Block Limits: %d, %d, %d, %d, %d, %d, Global entropy: %g\n", diy_min[3*k], diy_max[3*k], \
@@ -477,6 +486,8 @@ int main( int argc, char** argv )
 
 				// Compute histogram
 				globalEntropyComputer_vector->computeHistogramFrequencies();
+
+
 	
 				// Compute entropy
 				//cout << "4" << endl;
@@ -502,6 +513,8 @@ int main( int argc, char** argv )
 			}
 
 		}// End for loop
+		fclose( limitFile );
+		fclose( distFile );
 		execTime[1] = ITL_util<float>::endTimer( starttime );
 	
 		// Write global entropy 

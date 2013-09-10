@@ -1,4 +1,5 @@
 /*
+ * Class for conversion from scalar/vector values to histogram bin Ids.
  * ITL_histogrammapper.h
  *
  *  Created on: Apr 8, 2012
@@ -51,12 +52,22 @@ class ITL_histogrammapper
 
 public:
 
+	/**
+	 * Default construbtion
+	 * @param hist pointer to a histogram class
+	 */
 	ITL_histogrammapper( ITL_histogram* hist )
 	{
 		this->histogram = hist;
 		histogramRangeSet = false;
 	}
 
+	/**
+	 * 1D histogram range set function.
+	 * Sets the value range for a 1D histogram. Also sets a boolean indicator histogramRangeSet.
+	 * @ param m lower limit of the value range
+	 * @ param M upper limit of the value range
+	 */
 	void
 	setHistogramRange( T m, T M )
 	{
@@ -86,6 +97,8 @@ public:
 	/**
 	 * Histogram bin assignment function for scalar fields.
 	 * Creates a scalar field of histogram at each grid vertex.
+	 * @param dataField Pointer to the (scalar) field whose histogram is to be computed.
+	 * @param binField Pointer to the address of assigned for the bin-ID field to be computed in this function.
 	 * @param nBins Number of bins to use in histogram computation.
 	 */
 	void
@@ -100,14 +113,11 @@ public:
 		int neighborhoodSize[4];
 		SCALAR nextV, rangeValue;
 
-		//cout << "in" << endl;
 		assert( dataField->getDataFull() != NULL );
-		//cout << "in2" << endl;
 
 		// Initialize the padded scalar field for histogram bins
 		if( (*binField) == NULL )
 		{
-			//cout << "creating new binfield" << endl;
 			dataField->getBounds( low, high );
 			dataField->getPadSize( lowPad, highPad );
 			dataField->getNeighborhoodSize( neighborhoodSize );
@@ -124,12 +134,10 @@ public:
 													  lowPad, highPad,
 													  neighborhoodSize );
 		}
-		//cout << "in3" << endl;
 
 		// Compute the range over which histogram computation needs to be done
 		if( histogramRangeSet == false )
 		{
-			fprintf( stderr, "setting histogram range\n" );
 			// Get min-max values of the scalar field
 			// ******************* Need to resolve typecast issue begin *************************
 			//minValue = ITL_util<SCALAR>::Min( (SCALAR*)this->dataField->datastore->array, this->dataField->grid->nVertices );
@@ -155,7 +163,6 @@ public:
 		int binId = 0;
 		int dimWithPad[4];
 		(*binField)->getSizeWithPad( dimWithPad );
-		//cout << "starting iteration" << endl;
 
 		for( int z=0; z<dimWithPad[2]; z++ )
 		{
@@ -178,23 +185,21 @@ public:
 			}
 		}
 
-		///cout << "data scan completed" << endl;
-
 	}// end function
 
 	/**
-	 * Histogram bin assignment function for scalar fields.
-	 * Creates a scalar field of histogram at each grid vertex.
-	 * @param nBins Number of bins to use in histogram computation.
+	 * Histogram bin assignment function for non spatial scalar data (just a 1D array of scalars for example).
+	 * @param scalarList Pointer to the array of (scalar) values whose histogram is to be computed.
+	 * @param nVal Number of scalar values in the array.
+	 * @param binField Pointer to the array of bin-IDs to be computed in this function.
+	 * @param nBin Number of bins to use in histogram computation.
 	 */
 	void
 	computeHistogramBinField_Scalar_NS( SCALAR* scalarList, int nVal, int* binField, int nBin )
 	{
 		SCALAR nextV, rangeValue;
 
-		//cout << "in" << endl;
 		assert( scalarList != NULL );
-		//cout << "in2" << endl;
 
 		// Compute the range over which histogram computation needs to be done
 		if( histogramRangeSet == false )
@@ -214,10 +219,10 @@ public:
 		// Compute bin width
 		float binWidth = rangeValue / (float)nBin;
 
-		//#ifdef DEBUG_MODE
+		#ifdef DEBUG_MODE
 		printf( "Min: %g Max: %g Range: %g of the scalar values\n", histogramMin, histogramMax, rangeValue );
 		printf( "Binwidth: %g\n", binWidth );
-		//#endif
+		#endif
 
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
@@ -232,20 +237,24 @@ public:
 			binField[i] = binId;
 		}
 
-		///cout << "data scan completed" << endl;
-
 	}// end function
 
 
 	/**
 	 * Histogram bin assignment function for vector fields.
-	 * Creates a scalar field of histogram at each grid vertex.
-	 * @param nBins Number of bins to use in histogram computation.
+	 * Creates a scalar field containing a bin-Id at each grid vertex.
+	 * @param dataField Pointer to the (vector) field whose histogram is to be computed.
+	 * @param binField Pointer to the address of assigned for the bin-ID field to be computed in this function.
+	 * @param nBin Number of bins to use in histogram computation.
+	 * @param iRes Optional (not in use at present).
+	 * @param binMapFile Optional (not in use at present).
 	 */
 	void
 	computeHistogramBinField_Vector( ITL_field_regular<T>* dataField,
 			 	 	 	 	 	 	 ITL_field_regular<int>** binField,
-			 	 	 	 	 	 	 int nBin, int iRes = 0, char* binMapFile = NULL )
+			 	 	 	 	 	 	 int nBin,
+			 	 	 	 	 	 	 int iRes = 0,
+			 	 	 	 	 	 	 char* binMapFile = NULL )
 	{
 		float low[4];
 		float high[4];
@@ -257,12 +266,9 @@ public:
 		assert( dataField->getDataFull() != NULL );
 		VECTOR3 nextV;
 
-		//cout << "in" << endl;
-
 		// Initialize the padded scalar field for histogram bins
 		if( (*binField) == NULL )
 		{
-			//cout << "creating new binfield" << endl;
 			dataField->getBounds( low, high );
 			dataField->getPadSize( lowPad, highPad );
 			dataField->getNeighborhoodSize( neighborhoodSize );
@@ -279,7 +285,6 @@ public:
 													  lowPad, highPad,
 													  neighborhoodSize );
 		}
-		//cout << "in3" << endl;
 
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
@@ -293,16 +298,14 @@ public:
 			{
 				for( int x=0; x<dimWithPad[0]; x++ )
 				{
-					//printf( "%d %d %d %d %d %d %d\n", dimWithPad[0], dimWithPad[1], dimWithPad[2], x, y, z, index1d );
 					// Get vector at location
 					nextV = (VECTOR3)dataField->getDataAt( index1d );
-					//cout << nextV[0] << " " << nextV[1] << " " << nextV[2] << endl;
 
 					// Obtain the binID corresponding to the value at this location
 					binId = histogram->get_bin_number_3D( nextV, iRes );
-					//cout << binId << endl;
 					binId = ITL_util<int>::clamp( binId, 0, nBin-1 );
-					//cout << binId << endl;
+
+					// Set bin field
 					(*binField)->setDataAt( index1d, binId );
 
 					// increment to the next grid vertex
@@ -310,21 +313,27 @@ public:
 				}
 			}
 		}
-		//cout << "data scan completed" << endl;
+
         // delete lPadHisto;
         // delete hPadHisto;
 
 	}// end function
 
 	/**
-	 * Histogram bin assignment function for vector fields.
-	 * Creates a scalar field of histogram at each grid vertex.
-	 * @param nBins Number of bins to use in histogram computation.
+	 * Histogram bin assignment function for non spatial vector data (just a 1D array of vector for example).
+	 * @param vecList Pointer to the array of (vector) values whose histogram is to be computed.
+	 * @param nVec Number of vectors in the array.
+	 * @param binField Pointer to the array of bin-IDs to be computed in this function.
+	 * @param nBin Number of bins to use in histogram computation.
+	 * @param iRes Optional (not in use at present).
+	 * @param binMapFile Optional (not in use at present).
 	 */
 	void
 	computeHistogramBinField_Vector_NS( VECTOR3* vecList, int nVec,
 											 int* binField,
-											 int nBin, int iRes = 0, char* binMapFile = NULL )
+											 int nBin,
+											 int iRes = 0,
+											 char* binMapFile = NULL )
 	{
 		assert( vecList != NULL );
 		VECTOR3 nextV;
@@ -341,10 +350,8 @@ public:
 			// Obtain the binID corresponding to the value at this location
 			binId = histogram->get_bin_number_3D( nextV, iRes );
 			//binId = getBinNumber3DViaTable( nextV, nBin );
-			//cout << binId << endl;
 
 			binId = ITL_util<int>::clamp( binId, 0, nBin-1 );
-			//cout << binId << endl;
 
 			binField[index1d] = binId;
 
@@ -355,7 +362,10 @@ public:
 	}// end function
 
 
-	// Read the lookup table provided in the header file
+	/**
+	 * Function for reading the lookup table provided in the header file.
+	 * Generally not needed by the user.
+	 */
 	void
 	readPatches_header( int nBin )
 	{
@@ -384,14 +394,18 @@ public:
 	}
 
 	/**
-	 * Histogram bin assignment function for vector fields.
-	 * Creates a scalar field of histogram at each grid vertex.
-	 * @param nBins Number of bins to use in histogram computation.
+	 * Alternate function for histogram bin assignment for vector fields.
+	 * Creates a scalar field of histogram bin Ids at each grid vertex.
+	 * @param dataField Pointer to the (vector) field whose histogram is to be computed.
+	 * @param binField Pointer to the address of assigned for the bin-ID field to be computed in this function.
+	 * @param nBin Number of bins to use in histogram computation.
+	 * @param nDivision Number of levels of spherical subdivisions intended.
 	 */
 	void
 	computeHistogramBinField_Vector_Geodesic( ITL_field_regular<T>* dataField,
-			 	 	 	 	 	 	 	      ITL_field_regular<int>** binField,
-			 	 	 	 	 	 	 	      int nBin, int nDivision )
+			 	 	 	 	 	 	 	      	   ITL_field_regular<int>** binField,
+			 	 	 	 	 	 	 	      	   int nBin,
+			 	 	 	 	 	 	 	      	   int nDivision )
 	{
 		float low[4];
 		float high[4];
@@ -403,12 +417,9 @@ public:
 		assert( dataField->getDataFull() != NULL );
 		VECTOR3 nextV;
 
-		//cout << "in" << endl;
-
 		// Initialize the padded scalar field for histogram bins
 		if( (*binField) == NULL )
 		{
-			//cout << "creating new binfield" << endl;
 			dataField->getBounds( low, high );
 			dataField->getPadSize( lowPad, highPad );
 			dataField->getNeighborhoodSize( neighborhoodSize );
@@ -425,7 +436,6 @@ public:
 													  lowPad, highPad,
 													  neighborhoodSize );
 		}
-		//cout << "in3" << endl;
 
 		// Scan through each point of the histogram field
 		// and convert field value to bin ID
@@ -439,27 +449,23 @@ public:
 			{
 				for( int x=0; x<dimWithPad[0]; x++ )
 				{
-					//printf( "%d %d %d %d %d %d %d\n", dimWithPad[0], dimWithPad[1], dimWithPad[2], x, y, z, index1d );
 					// Get vector at location
 					nextV = (VECTOR3)dataField->getDataAt( index1d );
-					//cout << nextV[0] << " " << nextV[1] << " " << nextV[2] << endl;
 
 					// Obtain the binID corresponding to the value at this location
 					//binId = getBinNumber3D( nextV, &vertexList[nDivision-1], &triangleList[nDivision-1]  );
 					binId = getBinNumber3DViaTable( nextV, nBin );
-					//cout << binId << endl;
+
 					binId = ITL_util<int>::clamp( binId, 0, nBin-1 );
-					//cout << binId << endl;
+
 					(*binField)->setDataAt( index1d, binId );
-
-
 
 					// increment to the next grid vertex
 					index1d += 1;
 				}
 			}
 		}
-		//cout << "data scan completed" << endl;
+
         // delete lPadHisto;
         // delete hPadHisto;
 
@@ -468,12 +474,14 @@ public:
 	/**
 	 * Histogram bin assignment function for 2D vector fields.
 	 * Creates a scalar field of histogram at each grid vertex.
+	 * @param dataField Pointer to the (vector) field whose histogram is to be computed.
+	 * @param binField Pointer to the address of assigned for the bin-ID field to be computed in this function.
 	 * @param nBins Number of bins to use in histogram computation.
 	 */
 	void
 	computeHistogramBinField_Vector2( ITL_field_regular<T>* dataField,
-	   	 	 	 	 	 	 	      ITL_field_regular<int>** binField,
-	 	 	 	 	 	 	 	 	  int nBin )
+										  ITL_field_regular<int>** binField,
+										  int nBin )
 	{
 		float low[4];
 		float high[4];
@@ -510,7 +518,6 @@ public:
 			{
 				for( int x=0; x<dimWithPad[0]; x++ )
 				{
-					//printf( "%d %d %d %d %d %d %d\n", this->dataField->grid->dimWithPad[0], this->dataField->grid->dimWithPad[1], this->dataField->grid->dimWithPad[2], x, y, z, index1d );
 					// Get vector at location
 					*nextV = dataField->getDataAt( index1d );
 
@@ -531,6 +538,7 @@ public:
 
 	/**
 	 * Histogram bin assignment function for vector fields.
+	 * (Not in use at present)
 	 * Creates a scalar field of histogram at each grid vertex.
 	 * @param nBins Number of bins to use in histogram computation.
 	 */
@@ -579,7 +587,6 @@ public:
 		}
 		if( (*binFieldY) == NULL )
 		{
-			//cout << "creating new binfield" << endl;
 			dataField->getBounds( low, high );
 			dataField->getPadSize( lowPad, highPad );
 			dataField->getNeighborhoodSize( neighborhoodSize );
@@ -1708,8 +1715,13 @@ public:
 
 	}// end function
 
-	// Computes the element-wise logarithms of the given values.
-	// bases are the bases for which the logarithms are taken.
+	/**
+	 * Utility function.
+	 * Computes the element-wise logarithms of the given values. Generally not needed by the user.
+	 * @param value Value whose logarithm is intended.
+	 * @param base base for which the logarithm is computed.
+	 */
+	//
 	double
 	logarithm( double value, double base )
 	{
@@ -1719,6 +1731,10 @@ public:
 
 	}// end function
 
+	/**
+	 * Function for pre-computating the mapping from spherical pathes to bin Ids.
+	 * Generally not needed by the user.
+	 */
 	void
 	computeTable( int nBin )
 	{
@@ -1744,7 +1760,10 @@ public:
 
 	}// end function
 
-	// Read the lookup table provided in the header file
+	/**
+	 * Alternate function for pre-computating the mapping from spherical pathes to bin Ids.
+	 * Generally not needed by the user.
+	 */
 	void
 	computeTable1( int nBin, int nDivision )
 	{
@@ -1765,11 +1784,11 @@ public:
 		fNrOfThetas = (float)iNrOfThetas;
 		fNrOfPhis = (float)iNrOfPhis;
 
-		//#ifdef DEBUG_MODE
+		#ifdef DEBUG_MODE
 		fprintf( stderr, "Triangular patch area: %g\n", triangleArea );
 		fprintf( stderr, "Maximum allowable length of quad patch: %g\n", quadLen );
 		fprintf( stderr, "Resolution of lookup table: %d %d\n", iNrOfThetas, iNrOfPhis );
-		//#endif
+		#endif
 
 		// Allocate memory for lookup table entries
 		piAngleMap = new int[iNrOfThetas*iNrOfPhis];
@@ -1786,8 +1805,6 @@ public:
 				if( fPhi > pi )	fPhi = pi;
 
 				VECTOR3 v = spherical2Cartesian( 1, fTheta, fPhi );
-				//cout << v[0] << " " << v[1] << " " << v[2] << endl;
-				//cout << sqrt( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] ) << endl;
 				//v.Normalize();
 
 				//int iBin = getBinNumber3D( v, &vertexList[nDivision-1], &triangleList[nDivision-1] );
@@ -1807,12 +1824,14 @@ public:
 			}// end inner for
 		}// end outer for
 
-		//printf( "Number of unresolved entries in the table: %d\n", unResolvedCount );
-
 		// set the flag to true
 		bIsAngleMapInitialized = true;
 	}
 
+	/**
+	 * Function for converting vectors to bin Ids using triangular subdivision algorithm.
+	 * May need some more test.
+	 */
 	int
 	//getBinNumber3D( VECTOR3 v, list<VECTOR3>* vertexList, list<ITL_trianglepatch>* triangleList )
 	getBinNumber3D( VECTOR3 v, VECTOR3* vertexList, list<ITL_trianglepatch>* triangleList )
@@ -1824,7 +1843,6 @@ public:
 		int binID;
 		bool isIntersecting;
 
-		//cout << "1"	<< endl;
 		binID = 0;
 		for( iter = triangleList->begin(); iter != triangleList->end(); iter++ )
 		{
@@ -1834,7 +1852,6 @@ public:
 			CID = (*iter).getVertexID( 2 );
 			//printf( "%d %d %d\n", AID, BID, CID );
 
-			//cout << "2"	<< endl;
 			// Get the actual vertices (needed for computing mid point)
 			//iter2 = vertexList->begin();
 			//for( int k=0; k<AID; k++ )
@@ -1842,21 +1859,17 @@ public:
 			//A = (*iter2);
 			A = vertexList[AID];
 
-			//cout << "3"	<< endl;
 			//iter2 = vertexList->begin();
 			//for( int k=0; k<BID; k++ )
 			//	iter2++;
 			//B = (*iter2);
 			B = vertexList[BID];
 
-			//cout << "4"	<< endl;
 			//iter2 = vertexList->begin();
 			//for( int k=0; k<CID; k++ )
 			//	iter2++;
 			//C = (*iter2);
 			C = vertexList[CID];
-
-			//cout << "5"	<< endl;
 
 			isIntersecting = rayTriangleIntersection2( v, A, B, C, &intersection );
 			if( isIntersecting )
@@ -1867,9 +1880,10 @@ public:
 			binID ++;
 		}// end for
 
-		//#ifdef DEBUG_MODE
+		#ifdef DEBUG_MODE
 		printf( "Vector falls in no bin ... \n" );
-		//#endif
+		#endif
+
 		return -1;
 
 	}// end function
@@ -1899,9 +1913,11 @@ public:
 	}
 
 
-	// convert the angles in the spherical coordinates (mytheta, myphi) to the patch index
-	// according to the lookup table composed of theta and phi.
-	// The #entries in the lookup table is specified by the parameter 'binnum'.
+	/**
+	 * Function to convert the angles in the spherical coordinates (mytheta, myphi) to the patch index
+	 * according to the lookup table composed of theta and phi. Generally not needed by the user.
+	 * @param binnum Number of entries in the lookup table.
+	 */
 	int
 	getBinByAngle( float mytheta, float myphi, int binnum )
 	{
@@ -1945,6 +1961,7 @@ public:
 	}
 
 	/*
+	 * Utility function. Generally not needed by the user.
 	 * Assumption: ray originating at origin
 	 */
 	bool
@@ -1995,6 +2012,9 @@ public:
 
 	}// end function
 
+	/*
+	 * Utility function. Generally not needed by the user.
+	 */
 	void
 	cartesian2Spherical( VECTOR3 v, double* mytheta, double* myphi )
 	{
@@ -2002,6 +2022,9 @@ public:
 		(*myphi) =  getAngle2(sqrt(v.x()*v.x()+v.y()*v.y()), v.z());//0~pi
 	}
 
+	/*
+	 * Utility function. Generally not needed by the user.
+	 */
 	VECTOR3
 	spherical2Cartesian( double r, double theta, double phi )
 	{
@@ -2014,19 +2037,27 @@ public:
 		return ret;
 	}
 
+	/*
+	 * Utility function. Generally not needed by the user.
+	 */
 	double
 	dot( VECTOR3 a, VECTOR3 b )
 	{
 		return ( a[0]*b[0] + a[1]*b[1] + a[2]*b[2] );
 	}
 
+	/*
+	 * Utility function. Generally not needed by the user.
+	 */
 	VECTOR3
 	cross( VECTOR3 a, VECTOR3 b )
 	{
 		return VECTOR3( a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0] );
 	}
 
-	// compute the theta
+	/*
+	 * Utility function. Generally not needed by the user.
+	 */
 	float
 	getAngle(float x, float y)
 	{
@@ -2039,7 +2070,9 @@ public:
 		}
 	}
 
-	// compute phi
+	/*
+	 * Utility function. Generally not needed by the user.
+	 */
 	float
 	getAngle2(float x, float y)
 	{

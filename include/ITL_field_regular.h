@@ -568,7 +568,10 @@ public:
 		fprintf( stderr, "block boundary: %d %d %d, %d %d %d\n", blockLowInt[0], blockLowInt[1], blockLowInt[2],
 																 blockHighInt[0], blockHighInt[1], blockHighInt[2] );
 		fprintf( stderr, "%d %d %d\n", blockSize[0], blockSize[1], blockSize[2] );
+		fprintf( stderr, "%d %d %d\n", dimLength[0], dimLength[1], dimLength[2] );
 		#endif
+
+
 
 		for( int z=0; z<dimLength[2]; z++ )
 		{

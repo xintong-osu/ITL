@@ -58,9 +58,12 @@ ITL_globalentropy<VECTOR3> *globalEntropyComputer_vector = NULL;
 
 int nBin = 100;
 
+int given[3] = {0, 0, 0}; // constraints on blocking (none)
+int ghost[6] = {0, 0, 0, 0, 0, 0}; // -x, +x, -y, +y, -z, +z ghost
+
 int rounds = 3; 					// Number of rounds of merging
-int kvalues[5] = {8, 8, 8, 8, 8}; 	// k-way merging, different options
-//int kvalues[3] = {4, 4, 4};
+//int kvalues[5] = {8, 8, 8, 8, 8}; 	// k-way merging, different options
+int kvalues[3] = {4, 4, 4};
 //int kvalues[2] = {16, 1};
 //int kvalues[1] = {2};
 //int kvalues[1] = {2};
@@ -199,12 +202,12 @@ main( int argc, char** argv )
 	fieldType = atoi( ITL_util<float>::getArgWithName( "fieldType", &argNames, &argValues ) );
 	nDim = atoi( ITL_util<float>::getArgWithName( "nDim", &argNames, &argValues ) );
 	nBin = atoi( ITL_util<float>::getArgWithName( "nBin", &argNames, &argValues ) );
-	rounds = atoi( ITL_util<float>::getArgWithName( "numround", &argNames, &argValues ) );
-	kvalues[0] = atoi( ITL_util<float>::getArgWithName( "r0", &argNames, &argValues ) );
-	kvalues[1] = atoi( ITL_util<float>::getArgWithName( "r1", &argNames, &argValues ) );
-	kvalues[2] = atoi( ITL_util<float>::getArgWithName( "r2", &argNames, &argValues ) );
-	kvalues[3] = atoi( ITL_util<float>::getArgWithName( "r3", &argNames, &argValues ) );
-	kvalues[4] = atoi( ITL_util<float>::getArgWithName( "r4", &argNames, &argValues ) );
+	//rounds = atoi( ITL_util<float>::getArgWithName( "numround", &argNames, &argValues ) );
+	//kvalues[0] = atoi( ITL_util<float>::getArgWithName( "r0", &argNames, &argValues ) );
+	//kvalues[1] = atoi( ITL_util<float>::getArgWithName( "r1", &argNames, &argValues ) );
+	//kvalues[2] = atoi( ITL_util<float>::getArgWithName( "r2", &argNames, &argValues ) );
+	//kvalues[3] = atoi( ITL_util<float>::getArgWithName( "r3", &argNames, &argValues ) );
+	//kvalues[4] = atoi( ITL_util<float>::getArgWithName( "r4", &argNames, &argValues ) );
 	dataSize[0] = atoi( ITL_util<float>::getArgWithName( "nX", &argNames, &argValues ) );
 	dataSize[1] = atoi( ITL_util<float>::getArgWithName( "nY", &argNames, &argValues ) );
 	dataSize[2] = atoi( ITL_util<float>::getArgWithName( "nZ", &argNames, &argValues ) );
@@ -229,14 +232,9 @@ main( int argc, char** argv )
 	DIY_Init( nDim, dataSize, num_threads, MPI_COMM_WORLD );
 	if( verboseMode == 1 )	printf( "Process %d: Number of blocks: %d\n", rank, nblocks );
 
-	// Create the blocking and default assignment
-	// Note in the blocking call that we are not adding extra ghost cells, but we
-	// are sharing boundaries between blocks (share_face = 1)
-	int given[3] = {0, 0, 0};
-
 	// Decompose domain
 	// The blocks do not need to share face in this case 
-	int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, 0, given );
+	int did = DIY_Decompose( ROUND_ROBIN_ORDER, tot_blocks, &nblocks, 0, ghost, given );
 
 	// Allocate memory for pointers that will hold block data
 	MPI_Datatype complex; 
@@ -350,9 +348,12 @@ main( int argc, char** argv )
 			//cout << "1" << endl;
 			freqList[k] = new int[nBin];
 			globalEntropyComputer_scalar->getHistogramFrequencies( freqList[k] );
-		    //for (int i = 0; i < nBin; i++)
-	     	//	fprintf(stderr, "freq[%d] = %d\n", i, freqList[k][i]);
-			//cout << "2" << endl;
+
+			#if DEBUG_MODE
+		    for (int i = 0; i < nBin; i++)
+	     		fprintf(stderr, "%d, ", freqList[k][i]);
+		    fprintf(stderr, "\n" );
+			#endif
 
 			// Clear up
 			delete globalEntropyComputer_scalar;
@@ -399,45 +400,38 @@ main( int argc, char** argv )
 	execTime[1] = ITL_util<float>::endTimer( starttime );
 
 	starttime = ITL_util<float>::startTimer();
+
 	// Merge the local analyses
+	fprintf( stderr, "rounds: %d\n", rounds );
 	DIY_Merge_blocks( did, (char**)freqList, (int **)NULL,
 					  rounds, kvalues,
 					  &ComputeMerge,
 					  &CreateItem, &DestroyItem,
 					  &CreateMergeType, &nb_merged );
 
-	//for (int b = 0; b < nb_merged; b++) {
-	// for (int i = 0; i < nBin; i++)
-     	//	fprintf(stderr, "hist[%d][%d] = %d\n", b, i, hist[b][i]);
-  	//}
-
 	// Compute global entropy of the merged blocks
 	if (nb_merged)
 	{		
-		//assert( hist != NULL );
-		//cout << "adding frequencies " << nb_merged << endl;
 		for( int k=0; k<nb_merged; k++ )
 		{			
-			//if( verboseMode == 1 )
-			//{
-			//	for( int p=0; p<nBin;p++ )
-			//		printf( "%d, ", freqList[k][p] );
-			//	printf( "\n" );
-			//}
+			#if DEBUG_MODE
+			for( int p=0; p<nBin;p++ )
+				fprintf( stderr, "%d, ", freqList[k][p] );
+			fprintf( stderr, "\n" );
+			#endif
 	
-			// Directly compute entropy
-			//cout << dataSize[0] << " " << dataSize[1] << " " << dataSize[2] << endl;
-			//globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( freqList[k], dataSize[0]*dataSize[1]*dataSize[2], nBin, false );
+			// Compute entropy
+			globalEntropy = ITL_entropycore::computeEntropy_HistogramBased( freqList[k], dataSize[0]*dataSize[1]*dataSize[2], nBin, false );
 
 			// Print entropy	
-			printf( "Global Entropy: %f\n", globalEntropy );
+			fprintf( stderr, "Global Entropy: %f\n", globalEntropy );
 		}
 	}
 	execTime[2] = ITL_util<float>::endTimer( starttime );
 
 	// Runtime
-	if( verboseMode == 1 ) 	printf( "%d: Read/Computation/Communication Time: %f, %f seconds\n", rank, execTime[0], execTime[1], execTime[2] );
-	else					printf( "%d, %g, %g, %g\n", rank, execTime[0], execTime[1], execTime[2] );
+	if( verboseMode == 1 ) 	fprintf( stderr, "%d: Read/Computation/Communication Time: %f, %f seconds\n", rank, execTime[0], execTime[1], execTime[2] );
+	else					fprintf( stderr, "%d, %g, %g, %g\n", rank, execTime[0], execTime[1], execTime[2] );
 
 	// Clear up
 	delete [] diy_min;
